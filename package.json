@@ -1,0 +1,42 @@
+{
+  "name": "neuroplast",
+  "version": "1.0.0",
+  "description": "Bootstrap Neuroplast workflow instructions into any repository.",
+  "author": "jnap9",
+  "license": "MIT",
+  "type": "commonjs",
+  "bin": {
+    "neuroplast": "bin/neuroplast.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "init": "node ./bin/neuroplast.js init",
+    "init:obsidian": "node ./bin/neuroplast.js init --with-obsidian"
+  },
+  "keywords": [
+    "workflow",
+    "obsidian",
+    "bootstrap",
+    "project-planning",
+    "ai"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jnap9/neuroplast.git"
+  },
+  "homepage": "https://github.com/jnap9/neuroplast",
+  "bugs": {
+    "url": "https://github.com/jnap9/neuroplast/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

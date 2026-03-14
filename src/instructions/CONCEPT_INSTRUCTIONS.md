@@ -6,17 +6,17 @@ Keep architecture and concept artifacts aligned with implemented changes.
 ## Inputs
 - Current implementation changes
 - `ARCHITECTURE.md`
-- `/brain/project-concept/` artifacts
+- `/neuroplast/project-concept/` artifacts
 
 ## Outputs
 - Updated `ARCHITECTURE.md` when implementation materially changes architecture
-- Updated files under `/brain/project-concept/` when implementation materially changes concept assumptions
+- Updated files under `/neuroplast/project-concept/` when implementation materially changes concept assumptions
 
 ## Steps
 1. Compare current implementation state to `ARCHITECTURE.md`.
 2. If architecture-relevant differences exist, update `ARCHITECTURE.md`.
-3. Compare current implementation state to `/brain/project-concept/` documents.
-4. If concept-relevant differences exist, update affected files in `/brain/project-concept/`.
+3. Compare current implementation state to `/neuroplast/project-concept/` documents.
+4. If concept-relevant differences exist, update affected files in `/neuroplast/project-concept/`.
 5. Keep terminology and structure consistent across architecture and concept documents.
 
 ## Validation Checklist
@@ -26,7 +26,7 @@ Keep architecture and concept artifacts aligned with implemented changes.
 
 ## Failure Handling
 - If `ARCHITECTURE.md` is missing, create it before updating.
-- If `/brain/project-concept/` is missing, create required folders/files before updating.
+- If `/neuroplast/project-concept/` is missing, create required folders/files before updating.
 
 ## Stop Condition
 Stop when architecture and concept artifacts are aligned with implementation state.

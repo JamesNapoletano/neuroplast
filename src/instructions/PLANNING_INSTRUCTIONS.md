@@ -15,7 +15,7 @@ Generate a structured, three-layer conceptual architecture for an application an
 - Global architecture file:
   - `Tech Stack Architecture.md`
 
-All output files should be placed in the designated planning output folder (typically `/brain/project-concept/`).
+All output files should be placed in the designated planning output folder (typically `/neuroplast/project-concept/`).
 
 ## Layer Definitions
 

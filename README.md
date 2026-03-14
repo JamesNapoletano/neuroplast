@@ -1,6 +1,24 @@
 # Neuroplast
 
-An Obsidian-based workflow vault for AI-assisted product planning, architecture design, execution, changelog tracking, and continuous learning notes.
+An npm-delivered workflow bootstrap for AI-assisted product planning, architecture design, execution, changelog tracking, and continuous learning notes.
+
+## Quick Start
+
+Initialize Neuroplast in any project directory:
+
+```bash
+npx neuroplast init
+```
+
+Include shared Obsidian config files:
+
+```bash
+npx neuroplast init --with-obsidian
+```
+
+The initializer is non-destructive: existing files are skipped and never overwritten.
+
+By default, instruction files are written under `/neuroplast/` in your target project.
 
 ## What This Repository Is
 
@@ -12,33 +30,47 @@ This repository contains instruction files that guide an AI agent through a repe
 4. Record changelog updates
 5. Capture reusable lessons learned
 
-It is set up as a knowledge/workflow system rather than a traditional code application.
+It is set up as a workflow package template rather than a traditional code application.
 
 ## Current Repository Contents
 
-- `conceptualize.md` — entry point for concept/planning behavior
-- `PLANNING_INSTRUCTIONS.md` — detailed architecture planning format (high/mid/low layers)
-- `act.md` — execution sequence instructions
-- `CONCEPT_INSTRUCTIONS.md` — when to update architecture/concept docs
-- `CHANGELOG_INSTRUCTIONS.md` — daily changelog process and linking rules
-- `think.md` — learning capture rules for `/brain/learning`
-- `.obsidian/` — Obsidian workspace and theme configuration
+Source-of-truth package files in this repository:
+
+- `src/instructions/` — canonical instruction templates copied by `neuroplast init`
+  - `conceptualize.md`
+  - `PLANNING_INSTRUCTIONS.md`
+  - `act.md`
+  - `CONCEPT_INSTRUCTIONS.md`
+  - `CHANGELOG_INSTRUCTIONS.md`
+  - `think.md`
+- `src/obsidian/.obsidian/` — optional shared Obsidian config templates
+- `bin/neuroplast.js` — CLI initializer that creates folders and copies templates
 - `.gitignore` — currently ignores `.obsidian/workspace.json`
+
+Installed output in target projects (created by `npx neuroplast init`):
+
+- `neuroplast/conceptualize.md`
+- `neuroplast/PLANNING_INSTRUCTIONS.md`
+- `neuroplast/act.md`
+- `neuroplast/CONCEPT_INSTRUCTIONS.md`
+- `neuroplast/CHANGELOG_INSTRUCTIONS.md`
+- `neuroplast/think.md`
+- `neuroplast/.obsidian/` (optional via `--with-obsidian`)
 
 ## Intended Folder Structure (Created During Workflow)
 
 The instruction files reference these folders, which are expected to be created as part of the process:
 
-- `/brain/project-concept/`
-- `/brain/project-concept/changelog/`
-- `/brain/learning/`
-- `/brain/plans/`
+- `/neuroplast/project-concept/`
+- `/neuroplast/project-concept/changelog/`
+- `/neuroplast/learning/`
+- `/neuroplast/plans/`
 
 ## Workflow Overview
 
 ### 1) Conceptualization
 
-Start from `conceptualize.md`, which points to planning rules in `PLANNING_INSTRUCTIONS.md`.
+Start from `neuroplast/conceptualize.md`, which points to planning rules in `neuroplast/PLANNING_INSTRUCTIONS.md`.
 
 ### 2) Planning Outputs
 
@@ -52,21 +84,21 @@ Use Obsidian wiki-links (`[[File Name]]`) to connect documents.
 
 ### 3) Execution
 
-Follow `act.md` in order:
+Follow `neuroplast/act.md` in order:
 
 - Read project concept artifacts
 - Ensure `ARCHITECTURE.md` exists in the repository root
-- Create a plan in `/brain/plans/`
-- Execute plan with references to `/brain/learning/`
+- Create a plan in `/neuroplast/plans/`
+- Execute plan with references to `/neuroplast/learning/`
 - Run concept/changelog/think instructions
 
 ### 4) Changelog Discipline
 
-`CHANGELOG_INSTRUCTIONS.md` expects date-based changelog files (`YYYY-MM-DD.md`) under `/brain/project-concept/changelog/` with links to associated plans.
+`neuroplast/CHANGELOG_INSTRUCTIONS.md` expects date-based changelog files (`YYYY-MM-DD.md`) under `/neuroplast/project-concept/changelog/` with links to associated plans.
 
 ### 5) Learning Capture
 
-`think.md` defines how to store non-sensitive lessons in `/brain/learning` by category.
+`neuroplast/think.md` defines how to store non-sensitive lessons in `/neuroplast/learning` by category.
 
 ## Prerequisites
 
@@ -81,7 +113,7 @@ Follow `act.md` in order:
 
 ## Suggested Next Steps
 
-1. Create the `/brain/...` folders referenced above.
-2. Add an initial project concept in `/brain/project-concept/`.
-3. Start daily changelog files in `/brain/project-concept/changelog/`.
+1. Create the `/neuroplast/...` folders referenced above.
+2. Add an initial project concept in `/neuroplast/project-concept/`.
+3. Start daily changelog files in `/neuroplast/project-concept/changelog/`.
 4. Add a root architecture file matching your preferred naming convention.
