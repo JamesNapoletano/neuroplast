@@ -1,8 +1,8 @@
 {
   "name": "neuroplast",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Bootstrap Neuroplast workflow instructions into any repository.",
-  "author": "jnap9",
+  "author": "James Napoletano",
   "license": "MIT",
   "type": "commonjs",
   "bin": {
@@ -19,7 +19,9 @@
   ],
   "scripts": {
     "init": "node ./bin/neuroplast.js init",
-    "init:obsidian": "node ./bin/neuroplast.js init --with-obsidian"
+    "init:obsidian": "node ./bin/neuroplast.js init --with-obsidian",
+    "sync": "node ./bin/neuroplast.js sync",
+    "sync:dry-run": "node ./bin/neuroplast.js sync --dry-run"
   },
   "keywords": [
     "workflow",
@@ -30,11 +32,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/jnap9/neuroplast.git"
+    "url": "https://github.com/JamesNapoletano/neuroplast.git"
   },
-  "homepage": "https://github.com/jnap9/neuroplast",
+  "homepage": "https://github.com/JamesNapoletano/neuroplast",
   "bugs": {
-    "url": "https://github.com/jnap9/neuroplast/issues"
+    "url": "https://github.com/JamesNapoletano/neuroplast/issues"
   },
   "publishConfig": {
     "access": "public"

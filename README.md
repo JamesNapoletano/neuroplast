@@ -16,9 +16,45 @@ Include shared Obsidian config files:
 npx neuroplast init --with-obsidian
 ```
 
+Apply one-time versioned updates to managed files:
+
+```bash
+npx neuroplast sync
+```
+
+Preview sync changes without writing files:
+
+```bash
+npx neuroplast sync --dry-run
+```
+
 The initializer is non-destructive: existing files are skipped and never overwritten.
 
 By default, instruction files are written under `/neuroplast/` in your target project.
+
+`init` also runs `sync` after file bootstrap so new package migrations are applied once per version.
+
+## Managed File Updates (Versioned Migrations)
+
+Neuroplast now supports one-time versioned migrations for library-managed files under `/neuroplast/`.
+
+- Sync state is persisted in `neuroplast/.neuroplast-state.json`.
+- Each migration has an ID and target version.
+- Applied migrations are recorded so they only run once.
+- Sync evaluation runs on all package version updates, including patch releases.
+- Downgrade detection skips automatic sync; use `--force` to override.
+- Use `--backup` with `sync` to keep pre-update file copies under `neuroplast/.backups/`.
+
+### Sync behavior by version
+
+- Same version: sync is skipped.
+- Higher version (major/minor/patch): sync runs once and records new sync version.
+- Lower version (downgrade): sync is skipped by default.
+
+### Current migration behavior
+
+- Tag backfill migration enforces required Obsidian tags across managed markdown folders under `/neuroplast/`.
+- Governed sync scope excludes `/neuroplast/.obsidian/` and `/neuroplast/.backups/`.
 
 ## What This Repository Is
 

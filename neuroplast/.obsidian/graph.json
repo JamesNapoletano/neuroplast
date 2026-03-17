@@ -1,0 +1,58 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "tag:#plan  ",
+      "color": {
+        "a": 1,
+        "rgb": 22758
+      }
+    },
+    {
+      "query": "tag:#learning  ",
+      "color": {
+        "a": 1,
+        "rgb": 3201384
+      }
+    },
+    {
+      "query": "tag:#changelog  ",
+      "color": {
+        "a": 1,
+        "rgb": 16230715
+      }
+    },
+    {
+      "query": "tag:#instruction  ",
+      "color": {
+        "a": 1,
+        "rgb": 13784291
+      }
+    },
+    {
+      "query": "tag:#project-concept  ",
+      "color": {
+        "a": 1,
+        "rgb": 14695998
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": true,
+  "centerStrength": 0.518713248970312,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 0.5087618855792577,
+  "close": true
+}
