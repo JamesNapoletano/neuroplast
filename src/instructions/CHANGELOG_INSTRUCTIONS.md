@@ -1,3 +1,22 @@
+---
+neuroplast:
+  role: instruction
+  step: changelog
+  requires:
+    - neuroplast/project-concept/changelog
+    - neuroplast/plans
+  writes_to:
+    - neuroplast/project-concept/changelog
+    - README.md
+  outputs:
+    - neuroplast/project-concept/changelog/YYYY-MM-DD.md
+    - README.md
+  optional: false
+  human_review: recommended
+  tags:
+    - instruction
+---
+
 # Changelog Instructions (AI-Operator Format)
 #instruction
 

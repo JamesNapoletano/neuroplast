@@ -1,3 +1,22 @@
+---
+neuroplast:
+  role: instruction
+  step: plan
+  requires:
+    - neuroplast/WORKFLOW_CONTRACT.md
+  writes_to:
+    - neuroplast/project-concept
+    - ARCHITECTURE.md
+  outputs:
+    - neuroplast/project-concept/* - High Level.md
+    - neuroplast/project-concept/* - Mid Level.md
+    - ARCHITECTURE.md
+  optional: false
+  human_review: recommended
+  tags:
+    - instruction
+---
+
 # Planning Instructions (AI-Operator Format)
 #instruction
 
@@ -13,8 +32,11 @@ Generate a structured, three-layer conceptual architecture for an application an
   - `<PageName> - High Level.md`
 - Per-page mid-level file(s):
   - `<PageName> - Mid Level.md`
-- Global architecture file:
-  - `Tech Stack Architecture.md`
+- Canonical architecture file:
+  - `ARCHITECTURE.md` (repository root)
+
+Optional supporting planning artifact in `/neuroplast/project-concept/`:
+- `Architecture Notes.md`
 
 All generated planning files must include `#project-concept` directly under the H1 title.
 
@@ -76,15 +98,15 @@ List any content or copy required before implementation.
 Describe how this page connects to other workflows.
 ## Open Questions
 List unresolved decisions or missing information.
-## Link to Global Tech Stack
-[[Tech Stack Architecture]]
+## Link to Canonical Architecture
+[[ARCHITECTURE]]
 ```
 
-### Layer 3 — Global Low-Level Tech Stack (Single File)
-Create one global file:
+### Layer 3 — Canonical Architecture Reference
+Create or update the repository root architecture file:
 
 ```md
-# Tech Stack Architecture (Global)
+# Neuroplast Architecture
 ## Scope
 Define what parts of the system this architecture covers.
 ## Recommended Tech Stack
@@ -121,11 +143,18 @@ Describe deployment structure and operational considerations.
 List key architectural decisions and their rationale.
 ```
 
+Optional supporting concept artifact:
+
+```md
+# Architecture Notes
+Summarize planning-stage architecture context that informs root `ARCHITECTURE.md` without replacing it.
+```
+
 ## Linking Rules
 - High Level → Mid Level
-- Mid Level → High Level + Tech Stack
-- Tech Stack → no required back-links
-- Use Obsidian wiki-links: `[[File Name]]`
+- Mid Level → High Level + `ARCHITECTURE.md`
+- `ARCHITECTURE.md` → no required back-links
+- Obsidian wiki-links are recommended for compatible editors, but the workflow meaning must remain clear in plain markdown.
 
 ## Behavioral Constraints
 - Maintain consistent naming across all layers.
@@ -136,8 +165,8 @@ List key architectural decisions and their rationale.
 ## Validation Checklist
 - [ ] Every page has both High Level and Mid Level files.
 - [ ] Every High Level file links to the matching Mid Level file.
-- [ ] Every Mid Level file links to High Level and Tech Stack files.
-- [ ] `Tech Stack Architecture.md` exists with all required sections.
+- [ ] Every Mid Level file links to High Level and `ARCHITECTURE.md`.
+- [ ] Root `ARCHITECTURE.md` exists with all required sections.
 - [ ] File names are consistent and links resolve.
 
 ## Failure Handling

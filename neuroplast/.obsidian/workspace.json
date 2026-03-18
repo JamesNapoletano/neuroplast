@@ -4,17 +4,21 @@
     "type": "split",
     "children": [
       {
-        "id": "b7e3a6573ee85cf5",
+        "id": "f7739c7f0d985f3f",
         "type": "tabs",
         "children": [
           {
-            "id": "3791d26b9a15a49f",
+            "id": "97ee8072a9ddedef",
             "type": "leaf",
             "state": {
-              "type": "graph",
-              "state": {},
-              "icon": "lucide-git-fork",
-              "title": "Graph view"
+              "type": "markdown",
+              "state": {
+                "file": "act.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "act"
             }
           }
         ]
@@ -176,23 +180,39 @@
       "bases:Create new base": false
     }
   },
-  "active": "3791d26b9a15a49f",
+  "active": "97ee8072a9ddedef",
   "lastOpenFiles": [
-    "project-concept/npm-package.md",
-    "learning/obsidian-tag-policy-needs-closed-loop-execution.md",
-    "plans/obsidian-tag-enforcement-and-migration.md",
-    "learning/versioned-managed-file-migrations.md",
-    "learning/source-obsidian-workspace-ignore-rule.md",
-    "learning/root-instruction-duplication-avoidance.md",
-    "learning/path-standardization.md",
-    "learning/npm-release-metadata-and-payload-checks.md",
-    "learning/npm-packaging-cli-init-pattern.md",
-    "learning/init-output-path-contract.md",
-    "project-concept/changelog/2026-03-14.md",
-    "project-concept/changelog/2026-03-17.md",
-    "learning/cli-flag-removal-and-template-scope.md",
-    "learning/changelog-driven-readme-sync.md",
-    "plans/versioned-managed-file-sync.md",
-    "plans/init-output-under-neuroplast-folder.md"
+    "local-extensions/package-maintainer/CHANGELOG_INSTRUCTIONS.md",
+    "local-extensions/package-maintainer/act.md",
+    "WORKFLOW_CONTRACT.md",
+    "learning/active-extensions-should-load-by-step-not-by-memory.md",
+    "project-concept/migration-guide-1.1.1.md",
+    "learning/version-bumped-migrations-are-required-for-existing-install-backfills.md",
+    "local-extensions/package-maintainer/README.md",
+    "local-extensions/package-maintainer",
+    "local-extensions",
+    "learning/optional-extensions-prevent-maintainer-policy-from-leaking-into-core-workflows.md",
+    "extensions/package-maintainer/README.md",
+    "extensions/package-maintainer/CHANGELOG_INSTRUCTIONS.md",
+    "extensions/package-maintainer/act.md",
+    "extensions/README.md",
+    "extensions/package-maintainer",
+    "extensions",
+    "project-concept/neuroplast-portability-plan-v2.md",
+    "plans/optional-workflow-extensions.md",
+    "learning/sync-impact-decisions-should-be-explicit-before-managed-file-changes.md",
+    "plans/sync-migration-decision-gate.md",
+    "learning/adapters-should-explicitly-separate-guidance-from-execution.md",
+    "plans/adapter-mandatory-start-clarification.md",
+    "learning/validation-should-enforce-contract-not-orchestrate-environments.md",
+    "learning/environment-guides-should-document-usage-not-behavior.md",
+    "adapters/windsurf.md",
+    "adapters/vscode-copilot.md",
+    "adapters/terminal.md",
+    "adapters/README.md",
+    "adapters/opencode.md",
+    "adapters/cursor.md",
+    "adapters",
+    "capabilities.yaml"
   ]
 }

@@ -1,0 +1,19 @@
+schema_version: 1
+advisory: true
+description: Declares environment capabilities so Neuroplast workflows can degrade gracefully without changing the canonical file contract.
+supports_file_reading: true
+supports_file_writing: true
+supports_terminal_commands: true
+supports_long_context: true
+supports_multi_step_execution: true
+supports_agent_memory: true
+supports_parallel_tasks: true
+graceful_degradation:
+  no_terminal_commands:
+    strategy: Use file-only workflow steps, avoid inventing command output, and record terminal-dependent blockers in the active plan.
+  limited_context:
+    strategy: Work in smaller scopes, restate required context in plan files, and prefer incremental updates over broad rewrites.
+  no_multi_step_execution:
+    strategy: Complete one bounded step at a time and leave clear continuation instructions in the current plan.
+  no_agent_memory:
+    strategy: Persist context in `/neuroplast/plans/`, changelog entries, and learning notes instead of relying on session memory.

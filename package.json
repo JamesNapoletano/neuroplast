@@ -1,6 +1,6 @@
 {
   "name": "neuroplast",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Bootstrap Neuroplast workflow instructions into any repository.",
   "author": "James Napoletano",
   "license": "MIT",
@@ -21,7 +21,8 @@
     "init": "node ./bin/neuroplast.js init",
     "init:obsidian": "node ./bin/neuroplast.js init --with-obsidian",
     "sync": "node ./bin/neuroplast.js sync",
-    "sync:dry-run": "node ./bin/neuroplast.js sync --dry-run"
+    "sync:dry-run": "node ./bin/neuroplast.js sync --dry-run",
+    "validate": "node ./bin/neuroplast.js validate"
   },
   "keywords": [
     "workflow",

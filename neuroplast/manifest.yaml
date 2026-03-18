@@ -1,0 +1,69 @@
+workflow_version: 2
+contract_version: 1
+metadata_schema_version: 1
+required_directories:
+  - neuroplast/project-concept
+  - neuroplast/project-concept/changelog
+  - neuroplast/plans
+  - neuroplast/learning
+required_instruction_files:
+  - neuroplast/WORKFLOW_CONTRACT.md
+  - neuroplast/conceptualize.md
+  - neuroplast/PLANNING_INSTRUCTIONS.md
+  - neuroplast/act.md
+  - neuroplast/CONCEPT_INSTRUCTIONS.md
+  - neuroplast/CHANGELOG_INSTRUCTIONS.md
+  - neuroplast/think.md
+required_support_files:
+  - neuroplast/capabilities.yaml
+document_roles:
+  manifest: neuroplast/manifest.yaml
+  capabilities: neuroplast/capabilities.yaml
+  contract: neuroplast/WORKFLOW_CONTRACT.md
+  architecture: ARCHITECTURE.md
+  concept_dir: neuroplast/project-concept
+  changelog_dir: neuroplast/project-concept/changelog
+  plans_dir: neuroplast/plans
+  learning_dir: neuroplast/learning
+  environment_guides_dir: neuroplast/adapters
+  extensions_dir: neuroplast/extensions
+optional_features:
+  - obsidian-config
+  - obsidian-wiki-links
+  - environment-guides
+  - workflow-extensions
+extensions:
+  bundled_dir: neuroplast/extensions
+  local_dir: neuroplast/local-extensions
+  active_bundled: []
+  active_local:
+    - package-maintainer
+portability_profile:
+  filesystem_first: true
+  editor_agnostic: true
+  model_agnostic: true
+  agent_agnostic: true
+  environment_guides_optional: true
+metadata_boundaries:
+  normative:
+    - manifest.yaml structure and document role mappings
+    - instruction frontmatter fields: role
+    - instruction frontmatter fields: step
+    - instruction frontmatter fields: requires
+    - instruction frontmatter fields: writes_to
+    - instruction frontmatter fields: outputs
+    - instruction frontmatter fields: optional
+  advisory:
+    - instruction frontmatter fields: human_review
+    - instruction frontmatter fields: tags
+validation_targets:
+  - required_directories_exist
+  - required_instruction_files_exist
+  - required_support_files_exist
+  - architecture_file_exists
+  - manifest_is_parseable
+  - capabilities_profile_is_parseable
+  - instruction_frontmatter_schema_valid
+  - workflow_paths_match_manifest_roles
+  - environment_guides_do_not_override_contract
+  - active_workflow_extensions_are_valid

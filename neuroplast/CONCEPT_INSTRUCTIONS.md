@@ -1,3 +1,22 @@
+---
+neuroplast:
+  role: instruction
+  step: concept-consistency
+  requires:
+    - ARCHITECTURE.md
+    - neuroplast/project-concept
+  writes_to:
+    - ARCHITECTURE.md
+    - neuroplast/project-concept
+  outputs:
+    - ARCHITECTURE.md
+    - neuroplast/project-concept/*.md
+  optional: false
+  human_review: recommended
+  tags:
+    - instruction
+---
+
 # Concept Consistency Instructions (AI-Operator Format)
 #instruction
 

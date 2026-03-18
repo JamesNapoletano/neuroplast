@@ -2,17 +2,24 @@
 #project-concept
 
 ## Overview
-Convert the neuroplast Obsidian workflow vault into an installable npm package that automatically places its instruction files and configuration into any project it is installed into.
+Convert the neuroplast workflow system into an installable npm package that automatically places its contract, instruction files, and optional configuration into any project it is installed into.
 
 ## Problem Statement
-The neuroplast repository contains valuable workflow instructions and Obsidian configurations that would benefit from being easily bootstrapped into new projects without manual copying.
+The neuroplast repository contains valuable workflow instructions, a canonical workflow contract, and optional Obsidian-compatible configuration that would benefit from being easily bootstrapped into new projects without manual copying.
 
 ## Solution
 Create an npm package with an explicit CLI initializer that:
-1. Copies instruction files (`act.md`, `conceptualize.md`, etc.) to `/neuroplast/`
-2. Optionally installs `.obsidian/` configuration under `/neuroplast/.obsidian/`
-3. Creates the expected `/neuroplast/` folder structure
-4. Applies one-time versioned migrations to managed files (via `sync`) when future template behavior changes require controlled updates
+1. Copies the machine-readable manifest (`manifest.yaml`) to `/neuroplast/`
+2. Copies the advisory capability profile (`capabilities.yaml`) to `/neuroplast/`
+3. Copies the workflow contract (`WORKFLOW_CONTRACT.md`) to `/neuroplast/`
+4. Copies instruction files (`act.md`, `conceptualize.md`, etc.) to `/neuroplast/`
+5. Optionally installs `.obsidian/` configuration under `/neuroplast/.obsidian/`
+6. Ships optional environment guidance docs under `/neuroplast/adapters/`
+7. Ships optional bundled workflow extension scaffolding under `/neuroplast/extensions/`
+8. Supports repo-local custom workflow extensions declared in the manifest
+9. Creates the expected `/neuroplast/` folder structure
+10. Applies one-time versioned migrations to managed files (via `sync`) when future template behavior changes require controlled updates
+11. Validates workflow contract, metadata, and active extension declarations via `validate`
 
 ## Key Requirements
 
@@ -39,12 +46,17 @@ neuroplast/
 ### Files to Install
 | Source | Destination | Condition |
 |--------|------------|-----------|
+| `manifest.yaml` | `<project>/neuroplast/` | if not exists |
+| `capabilities.yaml` | `<project>/neuroplast/` | if not exists |
+| `WORKFLOW_CONTRACT.md` | `<project>/neuroplast/` | if not exists |
 | `conceptualize.md` | `<project>/neuroplast/` | if not exists |
 | `act.md` | `<project>/neuroplast/` | if not exists |
 | `think.md` | `<project>/neuroplast/` | if not exists |
 | `CONCEPT_INSTRUCTIONS.md` | `<project>/neuroplast/` | if not exists |
 | `CHANGELOG_INSTRUCTIONS.md` | `<project>/neuroplast/` | if not exists |
 | `PLANNING_INSTRUCTIONS.md` | `<project>/neuroplast/` | if not exists |
+| `extensions/README.md` | `<project>/neuroplast/extensions/` | if not exists |
+| `adapters/*.md` | `<project>/neuroplast/adapters/` | if not exists |
 | `.obsidian/` | `<project>/neuroplast/.obsidian/` | only with flag |
 
 ## Usage Scenarios
@@ -58,7 +70,13 @@ neuroplast/
 - Log installation actions to console
 - Resolve target directory via `INIT_CWD` fallback to `process.cwd()`
 - Handle errors gracefully without destructive behavior
+- Treat `WORKFLOW_CONTRACT.md` plus root `ARCHITECTURE.md` as the canonical portability and architecture anchors
+- Treat `manifest.yaml` as the canonical machine-readable workflow map
+- Treat `capabilities.yaml` as the advisory machine-readable capability profile for graceful degradation
+- Treat bundled extension scaffolding and repo-local workflow extensions as optional additive layers declared in the manifest
+- Treat `adapters/` docs as optional usage guidance only
 - Persist migration state in `neuroplast/.neuroplast-state.json`
+- Keep validation focused on contract, metadata, and active extension integrity rather than environment orchestration
 - Use semver-ordered migration modules (`src/migrations/*`) with idempotent update logic
 - For folder-policy migrations (for example Obsidian tag enforcement), evaluate all governed markdown files under `/neuroplast/` (excluding `.obsidian` and `.backups`), not only state-tracked bootstrap files
 - Keep migration layer active even when there are no currently enabled content migrations

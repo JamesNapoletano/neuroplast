@@ -1,3 +1,33 @@
+---
+neuroplast:
+  role: instruction
+  step: act
+  requires:
+    - neuroplast/WORKFLOW_CONTRACT.md
+    - neuroplast/capabilities.yaml
+    - neuroplast/project-concept
+    - ARCHITECTURE.md
+    - neuroplast/CONCEPT_INSTRUCTIONS.md
+    - neuroplast/CHANGELOG_INSTRUCTIONS.md
+    - neuroplast/think.md
+  writes_to:
+    - neuroplast/plans
+    - ARCHITECTURE.md
+    - neuroplast/project-concept
+    - neuroplast/project-concept/changelog
+    - neuroplast/learning
+  outputs:
+    - neuroplast/plans/*.md
+    - project files
+    - ARCHITECTURE.md
+    - neuroplast/project-concept/changelog/YYYY-MM-DD.md
+    - neuroplast/learning/*.md
+  optional: false
+  human_review: recommended
+  tags:
+    - instruction
+---
+
 # Execution Instructions (AI-Operator Format)
 #instruction
 
@@ -12,6 +42,8 @@ Execute work based on concept artifacts and maintain architecture, changelog, an
 - Files under `/neuroplast/plans/` must include `#plan` directly under the H1 title.
 
 ## Inputs
+- `WORKFLOW_CONTRACT.md`
+- `capabilities.yaml`
 - `/neuroplast/project-concept/` artifacts
 - `ARCHITECTURE.md` in repository root
 - Existing notes in `/neuroplast/learning/`
@@ -27,15 +59,18 @@ Execute work based on concept artifacts and maintain architecture, changelog, an
 - New learning entry in `/neuroplast/learning/` (if relevant)
 
 ## Steps
-1. Read project context from `/neuroplast/project-concept/`.
-2. Ensure `ARCHITECTURE.md` exists in repository root. If missing, create it.
-3. Create or update a plan file in `/neuroplast/plans/` for the current work.
-4. Ensure all created or updated markdown files include the correct Obsidian tag from the tagging policy.
-5. Execute the plan, using relevant prior learnings from `/neuroplast/learning/`.
-6. Verify implementation quality and completeness.
-7. Execute `CONCEPT_INSTRUCTIONS.md`.
-8. Execute `CHANGELOG_INSTRUCTIONS.md`.
-9. Execute `think.md`.
+1. Read `WORKFLOW_CONTRACT.md`.
+2. Read `capabilities.yaml` and adjust execution strategy if environment limits are declared.
+3. Read project context from `/neuroplast/project-concept/`.
+4. Ensure `ARCHITECTURE.md` exists in repository root. If missing, create it.
+5. Create or update a plan file in `/neuroplast/plans/` for the current work.
+6. Ensure all created or updated markdown files include the correct Obsidian tag from the tagging policy.
+7. Execute the plan, using relevant prior learnings from `/neuroplast/learning/`.
+8. If environment capabilities block part of execution, record the limitation and fallback path in the current plan before proceeding or stopping.
+9. Verify implementation quality and completeness.
+10. Execute `CONCEPT_INSTRUCTIONS.md`.
+11. Execute `CHANGELOG_INSTRUCTIONS.md`.
+12. Execute `think.md`.
 
 ## Validation Checklist
 - [ ] `/neuroplast/plans/` contains a current plan file.

@@ -1,3 +1,19 @@
+---
+neuroplast:
+  role: instruction
+  step: think
+  requires:
+    - neuroplast/learning
+  writes_to:
+    - neuroplast/learning
+  outputs:
+    - neuroplast/learning/*.md
+  optional: false
+  human_review: recommended
+  tags:
+    - instruction
+---
+
 # Learning Capture Instructions (AI-Operator Format)
 #instruction
 

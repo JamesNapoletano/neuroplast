@@ -1,3 +1,25 @@
+---
+neuroplast:
+  role: instruction
+  step: conceptualize
+  requires:
+    - neuroplast/WORKFLOW_CONTRACT.md
+    - neuroplast/PLANNING_INSTRUCTIONS.md
+  writes_to:
+    - neuroplast/project-concept
+    - neuroplast/project-concept/changelog
+    - neuroplast/learning
+    - neuroplast/plans
+    - ARCHITECTURE.md
+  outputs:
+    - neuroplast/project-concept/*.md
+    - ARCHITECTURE.md
+  optional: false
+  human_review: recommended
+  tags:
+    - instruction
+---
+
 # Conceptualization Instructions (AI-Operator Format)
 #instruction
 
@@ -5,6 +27,7 @@
 Create project concept artifacts only. Do not implement product code in this phase.
 
 ## Inputs
+- `WORKFLOW_CONTRACT.md`
 - `PLANNING_INSTRUCTIONS.md`
 - Existing vault/project files (if present)
 
@@ -16,19 +39,21 @@ Create project concept artifacts only. Do not implement product code in this pha
 - Planning artifacts defined by `PLANNING_INSTRUCTIONS.md`, stored in `/neuroplast/project-concept/`
 
 ## Steps
-1. Read `PLANNING_INSTRUCTIONS.md` fully before writing files.
-2. Ensure required folders exist:
+1. Read `WORKFLOW_CONTRACT.md` fully before writing files.
+2. Read `PLANNING_INSTRUCTIONS.md` fully before writing files.
+3. Ensure required folders exist:
    - `/neuroplast/project-concept/`
    - `/neuroplast/project-concept/changelog/`
    - `/neuroplast/learning/`
    - `/neuroplast/plans/`
-3. Generate concept/planning documents exactly as specified in `PLANNING_INSTRUCTIONS.md`.
-4. Save all planning outputs under `/neuroplast/project-concept/`.
-5. When done, instruct the developer to continue with `act.md` in the same agent session.
+4. Generate concept/planning documents exactly as specified in `PLANNING_INSTRUCTIONS.md`.
+5. Save planning outputs under `/neuroplast/project-concept/` and create or update root `ARCHITECTURE.md` when planning outputs define the canonical architecture.
+6. When done, instruct the developer to continue with `act.md` in the same agent session.
 
 ## Validation Checklist
 - [ ] All required folders exist.
 - [ ] All planning files required by `PLANNING_INSTRUCTIONS.md` are created.
+- [ ] Root `ARCHITECTURE.md` exists when planning established or refined the canonical architecture.
 - [ ] No implementation code was added during conceptualization.
 - [ ] Outputs are in `/neuroplast/project-concept/`.
 
