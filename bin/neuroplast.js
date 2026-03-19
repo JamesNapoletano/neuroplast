@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const packageJson = require("../package.json");
@@ -78,6 +79,21 @@ const knownManagedFiles = [
   ...adapterFiles.map((fileName) => path.join("neuroplast", "adapters", fileName)),
   ...extensionFiles.map((fileName) => path.join("neuroplast", "extensions", fileName)),
   ...obsidianFiles.map((fileName) => path.join("neuroplast", ".obsidian", fileName))
+];
+
+const refreshManagedFiles = [
+  ...workflowFiles.map((fileName) => ({
+    source: path.join("src", "instructions", fileName),
+    destination: path.join("neuroplast", fileName)
+  })),
+  ...adapterFiles.map((fileName) => ({
+    source: path.join("src", "adapters", fileName),
+    destination: path.join("neuroplast", "adapters", fileName)
+  })),
+  ...extensionFiles.map((fileName) => ({
+    source: path.join("src", "extensions", fileName),
+    destination: path.join("neuroplast", "extensions", fileName)
+  }))
 ];
 
 if (command === "init") {
@@ -175,6 +191,14 @@ function runSync({ isPostInit }) {
     return;
   }
 
+  const managedRefreshResult = refreshManagedStaticFiles(state);
+
+  if (managedRefreshResult.scanned > 0) {
+    logInfo(
+      `Managed file refresh complete (${managedRefreshResult.updated} updated, ${managedRefreshResult.created} created, ${managedRefreshResult.preserved} preserved, ${managedRefreshResult.adopted} baselines adopted).`
+    );
+  }
+
   const migrationContext = createMigrationContext(state);
   const pendingMigrations = MIGRATIONS.filter((migration) => {
     const isTargetVersionReached = compareSemver(migration.version, PACKAGE_VERSION) <= 0;
@@ -198,6 +222,7 @@ function runSync({ isPostInit }) {
   }
 
   if (!syncOptions.dryRun) {
+    finalizeManagedStaticFiles(state, managedRefreshResult.controlledPaths);
     state.lastSyncedVersion = PACKAGE_VERSION;
     saveState(state);
   } else {
@@ -303,31 +328,34 @@ function loadState() {
 
   if (!fs.existsSync(statePath)) {
     return {
-      schemaVersion: 1,
+      schemaVersion: 2,
       installedVersion: null,
       lastSyncedVersion: null,
       appliedMigrations: [],
-      managedFiles: []
+      managedFiles: [],
+      managedFileState: {}
     };
   }
 
   try {
     const parsed = JSON.parse(fs.readFileSync(statePath, "utf8"));
     return {
-      schemaVersion: 1,
+      schemaVersion: Number.isInteger(parsed.schemaVersion) ? parsed.schemaVersion : 1,
       installedVersion: parsed.installedVersion || null,
       lastSyncedVersion: parsed.lastSyncedVersion || null,
       appliedMigrations: Array.isArray(parsed.appliedMigrations) ? parsed.appliedMigrations : [],
-      managedFiles: Array.isArray(parsed.managedFiles) ? parsed.managedFiles.map(normalizeRelativePath) : []
+      managedFiles: Array.isArray(parsed.managedFiles) ? parsed.managedFiles.map(normalizeRelativePath) : [],
+      managedFileState: normalizeManagedFileState(parsed.managedFileState)
     };
   } catch (error) {
     logError(`Could not parse ${STATE_FILE}; creating a fresh state file.`);
     return {
-      schemaVersion: 1,
+      schemaVersion: 2,
       installedVersion: null,
       lastSyncedVersion: null,
       appliedMigrations: [],
-      managedFiles: []
+      managedFiles: [],
+      managedFileState: {}
     };
   }
 }
@@ -335,13 +363,15 @@ function loadState() {
 function saveState(state) {
   const statePath = path.join(targetRoot, STATE_FILE);
   ensureDirectory(path.dirname(statePath), syncOptions);
+  pruneManagedFileState(state, getRefreshManagedFilePaths());
 
   fs.writeFileSync(statePath, JSON.stringify({
-    schemaVersion: 1,
+    schemaVersion: 2,
     installedVersion: state.installedVersion || PACKAGE_VERSION,
     lastSyncedVersion: state.lastSyncedVersion || PACKAGE_VERSION,
     appliedMigrations: Array.from(new Set(state.appliedMigrations)),
-    managedFiles: Array.from(new Set(state.managedFiles.map(normalizeRelativePath))).sort()
+    managedFiles: Array.from(new Set(state.managedFiles.map(normalizeRelativePath))).sort(),
+    managedFileState: sortObjectByKeys(serializeManagedFileState(state.managedFileState))
   }, null, 2) + "\n", "utf8");
 }
 
@@ -359,6 +389,191 @@ function trackManagedFile(state, relativePath) {
   if (!state.managedFiles.includes(normalized)) {
     state.managedFiles.push(normalized);
   }
+}
+
+function refreshManagedStaticFiles(state) {
+  const result = {
+    scanned: 0,
+    created: 0,
+    updated: 0,
+    preserved: 0,
+    adopted: 0,
+    controlledPaths: []
+  };
+
+  const controlledPathSet = new Set();
+  const backupRoot = syncOptions.backup
+    ? path.join(targetRoot, "neuroplast", ".backups", createTimestampLabel())
+    : null;
+
+  for (const file of refreshManagedFiles) {
+    result.scanned += 1;
+
+    const sourcePath = path.join(packageRoot, file.source);
+    const destinationPath = path.join(targetRoot, file.destination);
+    const relativeDestinationPath = normalizeRelativePath(file.destination);
+
+    if (!fs.existsSync(sourcePath)) {
+      logError(`Missing source file in package: ${sourcePath}`);
+      continue;
+    }
+
+    trackManagedFile(state, relativeDestinationPath);
+
+    const sourceHash = hashFileContents(fs.readFileSync(sourcePath, "utf8"));
+    const baseline = getManagedFileBaseline(state, relativeDestinationPath);
+
+    if (!fs.existsSync(destinationPath)) {
+      ensureDirectory(path.dirname(destinationPath), syncOptions);
+
+      if (!syncOptions.dryRun) {
+        fs.copyFileSync(sourcePath, destinationPath);
+      }
+
+      logCreated(relativeDestinationPath, syncOptions.dryRun);
+      result.created += 1;
+      controlledPathSet.add(relativeDestinationPath);
+      continue;
+    }
+
+    const currentHash = hashFileContents(fs.readFileSync(destinationPath, "utf8"));
+
+    if (!baseline) {
+      if (currentHash === sourceHash) {
+        logInfo(`Adopted managed baseline for ${relativeDestinationPath}.`);
+        result.adopted += 1;
+        controlledPathSet.add(relativeDestinationPath);
+      } else {
+        logPreserved(relativeDestinationPath, syncOptions.dryRun, "local edits detected (no stored baseline)");
+        result.preserved += 1;
+      }
+
+      continue;
+    }
+
+    if (currentHash !== baseline.contentHash) {
+      logPreserved(relativeDestinationPath, syncOptions.dryRun, "local edits detected");
+      result.preserved += 1;
+      continue;
+    }
+
+    controlledPathSet.add(relativeDestinationPath);
+
+    if (currentHash === sourceHash) {
+      continue;
+    }
+
+    if (!syncOptions.dryRun) {
+      maybeBackupFile(destinationPath, backupRoot);
+      fs.copyFileSync(sourcePath, destinationPath);
+    }
+
+    logUpdated(relativeDestinationPath, syncOptions.dryRun);
+    result.updated += 1;
+  }
+
+  result.controlledPaths = Array.from(controlledPathSet).sort();
+  return result;
+}
+
+function finalizeManagedStaticFiles(state, controlledPaths) {
+  for (const relativePath of controlledPaths) {
+    const absolutePath = path.join(targetRoot, relativePath);
+
+    if (!fs.existsSync(absolutePath)) {
+      continue;
+    }
+
+    setManagedFileBaseline(state, relativePath, {
+      contentHash: hashFileContents(fs.readFileSync(absolutePath, "utf8")),
+      lastSyncedVersion: PACKAGE_VERSION
+    });
+  }
+}
+
+function getManagedFileBaseline(state, relativePath) {
+  const normalized = normalizeRelativePath(relativePath);
+  const baseline = state.managedFileState && state.managedFileState[normalized];
+
+  if (!baseline || typeof baseline !== "object") {
+    return null;
+  }
+
+  if (typeof baseline.contentHash !== "string" || !baseline.contentHash) {
+    return null;
+  }
+
+  return {
+    contentHash: baseline.contentHash,
+    lastSyncedVersion: typeof baseline.lastSyncedVersion === "string" ? baseline.lastSyncedVersion : null
+  };
+}
+
+function setManagedFileBaseline(state, relativePath, baseline) {
+  const normalized = normalizeRelativePath(relativePath);
+
+  if (!state.managedFileState || typeof state.managedFileState !== "object") {
+    state.managedFileState = {};
+  }
+
+  state.managedFileState[normalized] = {
+    contentHash: baseline.contentHash,
+    lastSyncedVersion: baseline.lastSyncedVersion || PACKAGE_VERSION
+  };
+}
+
+function normalizeManagedFileState(input) {
+  if (!input || typeof input !== "object" || Array.isArray(input)) {
+    return {};
+  }
+
+  const normalized = {};
+
+  for (const [relativePath, value] of Object.entries(input)) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
+      continue;
+    }
+
+    if (typeof value.contentHash !== "string" || !value.contentHash) {
+      continue;
+    }
+
+    normalized[normalizeRelativePath(relativePath)] = {
+      contentHash: value.contentHash,
+      lastSyncedVersion: typeof value.lastSyncedVersion === "string" ? value.lastSyncedVersion : null
+    };
+  }
+
+  return normalized;
+}
+
+function serializeManagedFileState(managedFileState) {
+  return normalizeManagedFileState(managedFileState);
+}
+
+function pruneManagedFileState(state, keepPaths) {
+  if (!state.managedFileState || typeof state.managedFileState !== "object") {
+    state.managedFileState = {};
+    return;
+  }
+
+  const keepSet = new Set(keepPaths.map(normalizeRelativePath));
+
+  for (const relativePath of Object.keys(state.managedFileState)) {
+    if (!keepSet.has(relativePath)) {
+      delete state.managedFileState[relativePath];
+    }
+  }
+}
+
+function sortObjectByKeys(input) {
+  const sorted = {};
+
+  for (const key of Object.keys(input).sort()) {
+    sorted[key] = input[key];
+  }
+
+  return sorted;
 }
 
 function createMigrationContext(state) {
@@ -775,6 +990,14 @@ function parseScalar(value) {
   return value;
 }
 
+function hashFileContents(content) {
+  return crypto.createHash("sha256").update(content, "utf8").digest("hex");
+}
+
+function getRefreshManagedFilePaths() {
+  return refreshManagedFiles.map((file) => normalizeRelativePath(file.destination));
+}
+
 function getSyncDecision({ lastSyncedVersion, currentVersion, force }) {
   if (force) {
     return {
@@ -869,7 +1092,7 @@ function createTimestampLabel() {
 }
 
 function printHelp() {
-  console.log(`\nNeuroplast CLI\n\nUsage:\n  neuroplast init [--with-obsidian] [--dry-run]\n  neuroplast sync [--dry-run] [--backup] [--force]\n  neuroplast validate\n\nCommands:\n  init                 Copy Neuroplast workflow files into /neuroplast and create /neuroplast folders\n  sync                 Apply one-time versioned updates to managed Neuroplast files\n  validate             Validate the Neuroplast contract, metadata, and environment-guide boundaries\n\nOptions:\n  --with-obsidian      Include neuroplast/.obsidian config files (init only)\n  --dry-run            Preview actions without writing files\n  --backup             Create backups before sync file updates\n  --force              Run sync even when version is unchanged or downgraded\n  -h, --help           Show this help\n`);
+  console.log(`\nNeuroplast CLI\n\nUsage:\n  neuroplast init [--with-obsidian] [--dry-run]\n  neuroplast sync [--dry-run] [--backup] [--force]\n  neuroplast validate\n\nCommands:\n  init                 Copy Neuroplast workflow files into /neuroplast and create /neuroplast folders\n  sync                 Apply versioned migrations and safe refreshes to managed Neuroplast files\n  validate             Validate the Neuroplast contract, metadata, and environment-guide boundaries\n\nOptions:\n  --with-obsidian      Include neuroplast/.obsidian config files (init only)\n  --dry-run            Preview actions without writing files\n  --backup             Create backups before sync file updates\n  --force              Run sync even when version is unchanged or downgraded\n  -h, --help           Show this help\n`);
 }
 
 function logInfo(message) {
@@ -893,6 +1116,11 @@ function logSkip(relativePath, preview = false) {
 function logUpdated(relativePath, preview = false) {
   const prefix = preview ? "[neuroplast][update][dry-run]" : "[neuroplast][update]";
   console.log(`${prefix} ${relativePath}`);
+}
+
+function logPreserved(relativePath, preview = false, reason = "local edits detected") {
+  const prefix = preview ? "[neuroplast][preserve][dry-run]" : "[neuroplast][preserve]";
+  console.log(`${prefix} ${relativePath} (${reason})`);
 }
 
 function logValidationOk(message) {

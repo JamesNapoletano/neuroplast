@@ -1,9 +1,10 @@
 {
-  "schemaVersion": 1,
-  "installedVersion": "1.1.0",
-  "lastSyncedVersion": "1.1.0",
+  "schemaVersion": 2,
+  "installedVersion": "1.1.1",
+  "lastSyncedVersion": "1.1.1",
   "appliedMigrations": [
-    "2026-03-17-obsidian-tag-backfill"
+    "2026-03-17-obsidian-tag-backfill",
+    "2026-03-18-managed-file-backfill"
   ],
   "managedFiles": [
     "neuroplast/.obsidian/app.json",
@@ -13,8 +14,85 @@
     "neuroplast/CHANGELOG_INSTRUCTIONS.md",
     "neuroplast/CONCEPT_INSTRUCTIONS.md",
     "neuroplast/PLANNING_INSTRUCTIONS.md",
+    "neuroplast/WORKFLOW_CONTRACT.md",
     "neuroplast/act.md",
+    "neuroplast/adapters/README.md",
+    "neuroplast/adapters/claude-code.md",
+    "neuroplast/adapters/cursor.md",
+    "neuroplast/adapters/opencode.md",
+    "neuroplast/adapters/terminal.md",
+    "neuroplast/adapters/vscode-copilot.md",
+    "neuroplast/adapters/windsurf.md",
+    "neuroplast/capabilities.yaml",
     "neuroplast/conceptualize.md",
+    "neuroplast/extensions/README.md",
+    "neuroplast/manifest.yaml",
     "neuroplast/think.md"
-  ]
+  ],
+  "managedFileState": {
+    "neuroplast/CHANGELOG_INSTRUCTIONS.md": {
+      "contentHash": "8c258018ce960194764cef5c971830f2b9667a70a9f31fe0426165a758a7c976",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/CONCEPT_INSTRUCTIONS.md": {
+      "contentHash": "de6586daefdfa741aa996dd510118c283e50692d742f91eb85ea55be9cb4fb34",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/PLANNING_INSTRUCTIONS.md": {
+      "contentHash": "5818b3fa6753ce36c75c6b95c911e0345d4dd04861d69440468370fd6db954da",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/WORKFLOW_CONTRACT.md": {
+      "contentHash": "8294d76893d2b79f8bf09ef9f46cb72487156b94a93fa5127db441d23036c0ca",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/act.md": {
+      "contentHash": "dba8479fdf3f39fd606552696ef13bfb5ce319c43ee91ebe18884fa19421404d",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/adapters/README.md": {
+      "contentHash": "0657fa00613ede35d641a5a51e3b0619e021a3e61e47f6f0ccb2a67ba83a0c6d",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/adapters/claude-code.md": {
+      "contentHash": "a9fef5bac333277218f56da31f9beb591ac36280a0e1f916f318fd2961c019e7",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/adapters/cursor.md": {
+      "contentHash": "396078594beb506b1348e9f28dceee8ec4e5ba82347bb752b1af89b41dbd1ee0",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/adapters/opencode.md": {
+      "contentHash": "24885f9104c5991d37842ffbb240fbd5809b290595bbc2243a0411dc7f2dc7a0",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/adapters/terminal.md": {
+      "contentHash": "25ca5a4bde37f04c1d33762f023f3be035e543e995018e304ee46c8c87ce6e9e",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/adapters/vscode-copilot.md": {
+      "contentHash": "39411c3acef283493a62f6609c158adeaa081d945bbd6728fdcb1a462c5fe786",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/adapters/windsurf.md": {
+      "contentHash": "ff634f0ca2fcafad03811453c8a3910ce2f29d202c03248bc65b35dfeb1daf30",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/capabilities.yaml": {
+      "contentHash": "49a6669e80f99b79929cebfe05a938eaa2b454f7b362b527398a1826e261122e",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/conceptualize.md": {
+      "contentHash": "0989e473f7a7b54061920865e127fb6aac955607135355c087b0fcab488642a5",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/extensions/README.md": {
+      "contentHash": "544d0757a75ad475b96686779a5bb9e199270e56353d13117aed6016682e45d1",
+      "lastSyncedVersion": "1.1.1"
+    },
+    "neuroplast/think.md": {
+      "contentHash": "3290167503f19cd581702c77a3424ca0dfac30e6d7d5ff1ae4f969c92fa89460",
+      "lastSyncedVersion": "1.1.1"
+    }
+  }
 }

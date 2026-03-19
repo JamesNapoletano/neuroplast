@@ -22,7 +22,7 @@ Include shared Obsidian config files:
 npx neuroplast init --with-obsidian
 ```
 
-Apply one-time versioned updates to managed files:
+Apply one-time versioned updates and safe managed-file refreshes:
 
 ```bash
 npx neuroplast sync
@@ -40,7 +40,7 @@ Validate the workflow contract and metadata:
 npx neuroplast validate
 ```
 
-The initializer is non-destructive: existing files are skipped and never overwritten.
+The initializer is non-destructive: existing files are skipped and never overwritten during `init`.
 
 By default, instruction files are written under `/neuroplast/` in your target project.
 
@@ -48,14 +48,22 @@ By default, instruction files are written under `/neuroplast/` in your target pr
 
 ## Managed File Updates (Versioned Migrations)
 
-Neuroplast now supports one-time versioned migrations for library-managed files under `/neuroplast/`.
+Neuroplast now supports one-time versioned migrations plus safe refreshes for library-managed files under `/neuroplast/`.
 
 - Sync state is persisted in `neuroplast/.neuroplast-state.json`.
 - Each migration has an ID and target version.
 - Applied migrations are recorded so they only run once.
+- Managed package files also store a baseline content hash and last synced version.
 - Sync evaluation runs on all package version updates, including patch releases.
 - Downgrade detection skips automatic sync; use `--force` to override.
 - Use `--backup` with `sync` to keep pre-update file copies under `neuroplast/.backups/`.
+
+### Managed refresh behavior
+
+- Missing managed workflow, adapter, and bundled extension files are recreated during `sync`.
+- Unchanged managed files are refreshed to the latest packaged version.
+- Locally modified managed files are preserved and reported instead of being overwritten.
+- Older installs without baseline metadata only adopt a file into safe refresh management when the current file already matches the packaged content exactly.
 
 ### Sync behavior by version
 
@@ -63,7 +71,7 @@ Neuroplast now supports one-time versioned migrations for library-managed files 
 - Higher version (major/minor/patch): sync runs once and records new sync version.
 - Lower version (downgrade): sync is skipped by default.
 
-### Current migration behavior
+### Current sync behavior
 
 - Tag backfill migration enforces required Obsidian tags across managed markdown folders under `/neuroplast/`.
 - Governed sync scope excludes `/neuroplast/.obsidian/` and `/neuroplast/.backups/`.

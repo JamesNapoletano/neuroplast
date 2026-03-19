@@ -40,7 +40,7 @@ Neuroplast is an npm package that provides an explicit CLI initializer (`neuropl
 | Component | Responsibility | Technology |
 |-----------|----------------|------------|
 | `package.json` | Package metadata, CLI command mapping | NPM standard |
-| `bin/neuroplast.js` | Main initialization logic, file copying | Node.js fs/path |
+| `bin/neuroplast.js` | Main initialization, safe managed refresh, migration, and validation logic | Node.js fs/path/crypto |
 | `src/migrations/` | Versioned managed-file upgrade logic | Node.js modules |
 | `src/instructions/` | Source workflow, metadata, capabilities, and instruction files | Markdown + YAML |
 | `src/extensions/` | Optional bundled workflow extension scaffolding | Markdown |
@@ -55,15 +55,16 @@ Neuroplast is an npm package that provides an explicit CLI initializer (`neuropl
 4. **Validate phase (validate command only)** → checks manifest, capabilities, required paths, frontmatter, and environment-guide boundaries
 5. **State loader** → reads `neuroplast/.neuroplast-state.json`
 6. **Version gate** → compares `lastSyncedVersion` to current package version (major/minor/patch aware)
-7. **Migration runner** → applies pending migrations by semver/version + migration ID
-8. **State writer** → records applied migrations and managed files
-9. **Completion logging** → prints create/skip/update actions
+7. **Managed refresh phase** → safely refreshes package-managed static files when their installed copy still matches the last synced baseline
+8. **Migration runner** → applies pending migrations by semver/version + migration ID
+9. **State writer** → records applied migrations, managed files, and per-file baseline metadata
+10. **Completion logging** → prints create/skip/update/preserve actions
 
 ### Low-Level Architecture
 
 #### File Installation Specifications
 
-**Instruction Files (always installed if missing):**
+**Instruction Files (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally):**
 ```
 src/instructions/manifest.yaml            → ./neuroplast/manifest.yaml
 src/instructions/capabilities.yaml       → ./neuroplast/capabilities.yaml
@@ -76,7 +77,7 @@ src/instructions/CHANGELOG_INSTRUCTIONS.md → ./neuroplast/CHANGELOG_INSTRUCTIO
 src/instructions/PLANNING_INSTRUCTIONS.md → ./neuroplast/PLANNING_INSTRUCTIONS.md
 ```
 
-**Environment Guides (always installed if missing):**
+**Environment Guides (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally):**
 ```
 src/adapters/README.md                  → ./neuroplast/adapters/README.md
 src/adapters/opencode.md               → ./neuroplast/adapters/opencode.md
@@ -87,7 +88,7 @@ src/adapters/vscode-copilot.md         → ./neuroplast/adapters/vscode-copilot.
 src/adapters/terminal.md               → ./neuroplast/adapters/terminal.md
 ```
 
-**Bundled Workflow Extension Scaffolding (always installed if missing, remain inactive unless declared in manifest):**
+**Bundled Workflow Extension Scaffolding (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally; remain inactive unless declared in manifest):**
 ```
 src/extensions/README.md → ./neuroplast/extensions/README.md
 ```
@@ -123,6 +124,7 @@ State tracks:
 - last synced package version
 - applied migration IDs
 - known managed files
+- per-file baseline metadata for safe managed refreshes (`contentHash`, `lastSyncedVersion`)
 
 #### Migration System
 
@@ -132,6 +134,10 @@ State tracks:
   - `version`
   - `description`
   - `run(context)`
+- Safe refresh handles package-managed static file replacement separately from migrations.
+- Safe refresh targets workflow files, bundled adapter guides, and bundled extension scaffolding (not repo-local extensions or `.obsidian` config).
+- Existing managed files are refreshed only when their current contents still match the stored baseline; locally edited files are preserved and reported.
+- Older installs without baseline metadata only auto-adopt a managed file when its current contents already match the packaged version.
 - Runner applies migrations where `migration.version <= package.version` and migration ID has not already been applied.
 - Migration context resolves managed markdown scope by scanning `/neuroplast/**/*.md` (excluding `.obsidian` and `.backups`) for folder-policy enforcement tasks.
 - Sync gate runs on any package version change, including patch updates.
@@ -160,7 +166,8 @@ State tracks:
 
 | Error Type | Handling | Action |
 |-----------|----------|--------|
-| File exists (instruction) | Skip with log message | Continue |
+| File exists (instruction during init) | Skip with log message | Continue |
+| File locally modified (sync refresh) | Preserve with log message | Continue |
 | File exists (.obsidian file) | Skip that file | Continue |
 | Permission denied | Log error, continue | Non-fatal |
 | Disk full | Fail fast, exit 1 | Fatal |
@@ -169,7 +176,7 @@ State tracks:
 
 - **Node.js** (18+ required)
 - **npm** (distribution + npx command execution)
-- **Built-in modules only**: `fs`, `path`, `process`
+- **Built-in modules only**: `crypto`, `fs`, `path`, `process`
 - **No external dependencies** (minimize install failures)
 
 ## Portability Roadmap Direction

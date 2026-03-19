@@ -8,6 +8,7 @@ Summarize what changed in the 1.1.1 upgrade path and what `sync` now backfills f
 - `sync` now includes a backfill migration for package-managed files added after the original 1.1.0 migration set.
 - The backfill covers `manifest.yaml`, `capabilities.yaml`, `WORKFLOW_CONTRACT.md`, bundled environment guides, and bundled extension scaffolding.
 - The migration is non-destructive and only creates missing package-managed files.
+- Future sync releases may also safe-refresh unchanged managed files once baseline metadata has been recorded.
 - Repo-local extensions are not part of the published package and are not backfilled by package migrations.
 
 ## Extension Notes

@@ -37,9 +37,10 @@ neuroplast/
 ### Installation Behavior
   - **Default**: `npx neuroplast init` installs instruction files to `/neuroplast/`
   - **Optional flag**: `--with-obsidian` to include `/neuroplast/.obsidian/` config
-- **Non-destructive**: Only creates files that don't exist (no overwrites)
+- **Non-destructive init**: `init` only creates files that do not exist
 - **Creates folders**: `/neuroplast/` structure
-- **Managed updates**: `init` runs sync migrations once per version; users can also run `npx neuroplast sync`
+- **Managed updates**: `init` runs sync once per version; users can also run `npx neuroplast sync`
+- **Safe refreshes**: `sync` recreates missing managed package files, refreshes unchanged ones, and preserves locally edited copies
 - **Version sensitivity**: Sync checks every package upgrade, including patch updates
 - **Downgrade safety**: Downgrades skip sync by default; operator can opt in via `--force`
 
@@ -76,7 +77,9 @@ neuroplast/
 - Treat bundled extension scaffolding and repo-local workflow extensions as optional additive layers declared in the manifest
 - Treat `adapters/` docs as optional usage guidance only
 - Persist migration state in `neuroplast/.neuroplast-state.json`
+- Persist per-file baseline metadata for package-managed static files so sync can distinguish unchanged installs from local edits
 - Keep validation focused on contract, metadata, and active extension integrity rather than environment orchestration
 - Use semver-ordered migration modules (`src/migrations/*`) with idempotent update logic
+- Keep full-file safe refreshes separate from content-transforming migrations
 - For folder-policy migrations (for example Obsidian tag enforcement), evaluate all governed markdown files under `/neuroplast/` (excluding `.obsidian` and `.backups`), not only state-tracked bootstrap files
 - Keep migration layer active even when there are no currently enabled content migrations
