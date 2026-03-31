@@ -40,17 +40,28 @@ Neuroplast is an npm package that provides an explicit CLI initializer (`neuropl
 | Component | Responsibility | Technology |
 |-----------|----------------|------------|
 | `package.json` | Package metadata, CLI command mapping | NPM standard |
-| `bin/neuroplast.js` | Main initialization, safe managed refresh, migration, and validation logic | Node.js fs/path/crypto |
+| `bin/neuroplast.js` | Thin CLI entrypoint that delegates to runtime orchestration | Node.js |
+| `src/cli/runtime.js` | Command parsing, dispatch, and init orchestration | Node.js modules |
+| `src/cli/sync.js` | Managed refresh, migration loading, and sync flow | Node.js modules |
+| `src/cli/validate.js` | Validation workflow and contract checks | Node.js modules |
+| `src/cli/state.js` | Sync state loading, saving, and managed-file metadata | Node.js modules |
+| `src/cli/filesystem.js` | Safe directory creation, copy-if-missing, and backups | Node.js modules |
+| `src/cli/parsing.js` | Lightweight YAML and frontmatter parsing helpers | Node.js modules |
+| `src/cli/shared.js` | Shared semver, hashing, timestamp, and path helpers | Node.js modules |
+| `src/cli/constants.js` | Managed file maps and package-level runtime constants | Node.js modules |
+| `src/cli/logging.js` | Stable CLI log formatting helpers | Node.js modules |
 | `src/migrations/` | Versioned managed-file upgrade logic | Node.js modules |
 | `src/instructions/` | Source workflow, metadata, capabilities, and instruction files | Markdown + YAML |
 | `src/extensions/` | Optional bundled workflow extension scaffolding | Markdown |
 | `src/adapters/` | Optional environment guidance documents | Markdown |
 | `src/obsidian/` | Optional Obsidian config | JSON files |
+| `test/` | Black-box CLI reliability tests using temp repositories | Node.js `node:test` |
+| `.github/workflows/` | Automated multi-version verification and smoke packaging checks | GitHub Actions |
 
 #### Data Flow
 
 1. **User runs CLI** → `npx neuroplast init` or `npx neuroplast sync`
-2. **`bin/neuroplast.js` executes** → reads command and flags
+2. **`bin/neuroplast.js` executes** → delegates to `src/cli/runtime.js`
 3. **Init phase (init command only)** → creates folders + copies missing files
 4. **Validate phase (validate command only)** → checks manifest, capabilities, required paths, frontmatter, and environment-guide boundaries
 5. **State loader** → reads `neuroplast/.neuroplast-state.json`
@@ -158,9 +169,19 @@ State tracks:
 |-----------|------------|---------|
 | Package Manager | npm | Distribution platform |
 | Runtime | Node.js 18+ | CLI execution |
+| Test Runner | `node:test` | Black-box CLI regression coverage |
 | File Operations | fs module | Read/copy/mkdir |
 | Path Handling | path module | Cross-platform paths |
 | Exit Codes | process.exit() | Error signaling |
+
+#### Verification Architecture
+
+- Automated CLI tests run the published entrypoint as a child process against temporary repositories via `INIT_CWD`.
+- Reliability coverage currently targets `init`, `sync`, `validate`, downgrade handling, backup behavior, baseline adoption, and managed-file preservation.
+- CI runs the test suite on supported Node versions and performs a packed-package smoke install before invoking the CLI in a temporary project.
+- Runtime maintainability is now organized into focused CLI modules so future behavior changes can be made without expanding the command surface.
+- Validation supports both human-readable output with remediation guidance and optional machine-readable JSON output for automation.
+- Validation now includes sync-state integrity checks and extension step-shape warnings to improve operator trust without expanding CLI scope.
 
 #### Error Handling Strategy
 

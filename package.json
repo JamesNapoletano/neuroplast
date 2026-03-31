@@ -18,6 +18,7 @@
         "LICENSE"
     ],
     "scripts": {
+        "test": "node --test test/*.test.js",
         "init": "node ./bin/neuroplast.js init",
         "init:obsidian": "node ./bin/neuroplast.js init --with-obsidian",
         "sync": "node ./bin/neuroplast.js sync",

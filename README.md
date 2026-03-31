@@ -40,6 +40,18 @@ Validate the workflow contract and metadata:
 npx neuroplast validate
 ```
 
+Emit machine-readable validation results for CI or wrapper tooling:
+
+```bash
+npx neuroplast validate --json
+```
+
+Run the repository reliability suite while developing Neuroplast itself:
+
+```bash
+npm test
+```
+
 The initializer is non-destructive: existing files are skipped and never overwritten during `init`.
 
 By default, instruction files are written under `/neuroplast/` in your target project.
@@ -75,6 +87,13 @@ Neuroplast now supports one-time versioned migrations plus safe refreshes for li
 
 - Tag backfill migration enforces required Obsidian tags across managed markdown folders under `/neuroplast/`.
 - Governed sync scope excludes `/neuroplast/.obsidian/` and `/neuroplast/.backups/`.
+- `sync --dry-run` now announces preview mode explicitly and reports create/update/preserve/adopt/unchanged counts before any real write.
+
+## Validation Trust UX
+
+- Human-readable validation output now includes a clear next corrective action for warnings and errors.
+- `npx neuroplast validate --json` emits machine-readable findings and summary counts for CI or wrapper tooling.
+- Validation now also checks sync-state parseability and warns when active extension files will not be step-loaded automatically.
 
 ## Optional Workflow Extensions
 
@@ -207,6 +226,7 @@ Follow `neuroplast/act.md` in order:
 - Instruction frontmatter is workflow metadata only and intentionally excludes model-tuning fields.
 - `neuroplast validate` checks contract structure, required files, metadata parseability, instruction frontmatter, environment-guide boundaries, and any active workflow extension declarations.
 - Validation is scoped to contract and metadata compliance, not environment orchestration.
+- `npm test` runs black-box CLI regression tests against temporary repositories.
 
 ## Suggested Next Steps
 

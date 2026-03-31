@@ -1,0 +1,75 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            node: 18
+            smoke: false
+          - os: ubuntu-latest
+            node: 20
+            smoke: true
+          - os: ubuntu-latest
+            node: 22
+            smoke: false
+          - os: windows-latest
+            node: 20
+            smoke: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Verify CLI help
+        shell: pwsh
+        run: node ./bin/neuroplast.js --help
+
+      - name: Run test suite
+        shell: pwsh
+        run: npm test
+
+      - name: Validate repository contract
+        shell: pwsh
+        run: npm run validate
+
+      - name: Pack package
+        id: pack
+        shell: pwsh
+        run: |
+          $packResult = npm pack --json | ConvertFrom-Json
+          $filename = if ($packResult -is [array]) { $packResult[0].filename } else { $packResult.filename }
+          $tarball = (Resolve-Path $filename).Path
+          "PACK_TARBALL=$tarball" >> $env:GITHUB_ENV
+
+      - name: Smoke install packed CLI
+        if: matrix.smoke
+        shell: pwsh
+        run: |
+          $smokeDir = Join-Path $env:RUNNER_TEMP "neuroplast-smoke-node${{ matrix.node }}"
+          New-Item -ItemType Directory -Path $smokeDir -Force | Out-Null
+          Push-Location $smokeDir
+          npm init -y | Out-Null
+          npm install $env:PACK_TARBALL
+          npx --no-install neuroplast init
+          Set-Content -Path "ARCHITECTURE.md" -Value "# Architecture`n`nSmoke-test architecture file.`n"
+          npx --no-install neuroplast validate
+          Pop-Location
