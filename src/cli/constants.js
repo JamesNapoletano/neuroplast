@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const packageJson = require("../../package.json");
 
 const PACKAGE_VERSION = packageJson.version;
@@ -41,9 +42,7 @@ const adapterFiles = [
   "terminal.md"
 ];
 
-const extensionFiles = [
-  path.join("README.md")
-];
+const extensionFiles = listManagedExtensionFiles();
 
 const knownManagedFiles = [
   ...workflowFiles.map((fileName) => path.join("neuroplast", fileName)),
@@ -84,3 +83,34 @@ module.exports = {
   refreshManagedFiles,
   getRefreshManagedFilePaths
 };
+
+function listManagedExtensionFiles() {
+  const extensionsRoot = path.join(packageRoot, "src", "extensions");
+
+  if (!fs.existsSync(extensionsRoot)) {
+    return [];
+  }
+
+  return listMarkdownFilesRelative(extensionsRoot);
+}
+
+function listMarkdownFilesRelative(rootDir) {
+  const results = [];
+
+  for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+    const absolutePath = path.join(rootDir, entry.name);
+
+    if (entry.isDirectory()) {
+      for (const nestedPath of listMarkdownFilesRelative(absolutePath)) {
+        results.push(path.join(entry.name, nestedPath));
+      }
+      continue;
+    }
+
+    if (entry.isFile() && entry.name.endsWith(".md")) {
+      results.push(entry.name);
+    }
+  }
+
+  return results.sort((a, b) => a.localeCompare(b));
+}

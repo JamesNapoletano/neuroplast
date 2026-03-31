@@ -404,24 +404,24 @@ function validateWorkflowExtensions(context, manifest, findings) {
       continue;
     }
 
-    const extensionPath = path.join(context.targetRoot, bundledDir, extensionName);
-    if (!fs.existsSync(extensionPath)) {
-      findings.push(createFinding({
-        level: "error",
-        code: "bundled_extension_missing",
-        message: `Missing active bundled workflow extension: ${normalizeRelative(context.targetRoot, extensionPath)}`,
-        remediation: `Create ${normalizeRelative(context.targetRoot, extensionPath)} or remove '${extensionName}' from extensions.active_bundled.`
+      const extensionPath = path.join(context.targetRoot, bundledDir, extensionName);
+      if (!fs.existsSync(extensionPath) || !fs.statSync(extensionPath).isDirectory()) {
+        findings.push(createFinding({
+          level: "error",
+          code: "bundled_extension_missing",
+          message: `Missing active bundled workflow extension: ${normalizeRelative(context.targetRoot, extensionPath)}`,
+          remediation: `Create ${normalizeRelative(context.targetRoot, extensionPath)} or remove '${extensionName}' from extensions.active_bundled.`
       }));
       continue;
     }
 
-    findings.push(createFinding({
-      level: "ok",
-      code: "bundled_extension_exists",
-      message: `Active bundled workflow extension exists: ${normalizeRelative(context.targetRoot, extensionPath)}`
-    }));
-    validateExtensionStepShape(context, extensionPath, findings);
-  }
+      findings.push(createFinding({
+        level: "ok",
+        code: "bundled_extension_exists",
+        message: `Active bundled workflow extension exists: ${normalizeRelative(context.targetRoot, extensionPath)}`
+      }));
+      validateExtensionShape(context, extensionPath, findings);
+    }
 
   if (activeLocal.length > 0) {
     validateExists(context, path.join(context.targetRoot, localDir), "repo-local workflow extensions directory", findings);
@@ -438,24 +438,24 @@ function validateWorkflowExtensions(context, manifest, findings) {
       continue;
     }
 
-    const extensionPath = path.join(context.targetRoot, localDir, extensionName);
-    if (!fs.existsSync(extensionPath)) {
-      findings.push(createFinding({
-        level: "error",
-        code: "local_extension_missing",
-        message: `Missing active repo-local workflow extension: ${normalizeRelative(context.targetRoot, extensionPath)}`,
-        remediation: `Create ${normalizeRelative(context.targetRoot, extensionPath)} or remove '${extensionName}' from extensions.active_local.`
+      const extensionPath = path.join(context.targetRoot, localDir, extensionName);
+      if (!fs.existsSync(extensionPath) || !fs.statSync(extensionPath).isDirectory()) {
+        findings.push(createFinding({
+          level: "error",
+          code: "local_extension_missing",
+          message: `Missing active repo-local workflow extension: ${normalizeRelative(context.targetRoot, extensionPath)}`,
+          remediation: `Create ${normalizeRelative(context.targetRoot, extensionPath)} or remove '${extensionName}' from extensions.active_local.`
       }));
       continue;
     }
 
-    findings.push(createFinding({
-      level: "ok",
-      code: "local_extension_exists",
-      message: `Active repo-local workflow extension exists: ${normalizeRelative(context.targetRoot, extensionPath)}`
-    }));
-    validateExtensionStepShape(context, extensionPath, findings);
-  }
+      findings.push(createFinding({
+        level: "ok",
+        code: "local_extension_exists",
+        message: `Active repo-local workflow extension exists: ${normalizeRelative(context.targetRoot, extensionPath)}`
+      }));
+      validateExtensionShape(context, extensionPath, findings);
+    }
 }
 
 function validateSyncStateIntegrity(context, findings) {
@@ -532,24 +532,46 @@ function validateSyncStateIntegrity(context, findings) {
   }
 }
 
-function validateExtensionStepShape(context, extensionPath, findings) {
-  const allowedFiles = new Set([
-    "README.md",
-    "conceptualize.md",
-    "PLANNING_INSTRUCTIONS.md",
-    "act.md",
-    "CONCEPT_INSTRUCTIONS.md",
-    "CHANGELOG_INSTRUCTIONS.md",
-    "think.md"
-  ]);
-
+function validateExtensionShape(context, extensionPath, findings) {
+  const allowedFiles = new Set(getCanonicalExtensionFiles());
+  const stepFiles = new Set(getCanonicalExtensionStepFiles());
+  const relativeExtensionPath = normalizeRelative(context.targetRoot, extensionPath);
   const entries = fs.readdirSync(extensionPath, { withFileTypes: true });
+  let hasReadme = false;
+  let readmeHasBoundaryReminder = false;
+  const recognizedStepFiles = [];
+
   for (const entry of entries) {
+    const relativePath = normalizeRelative(context.targetRoot, path.join(extensionPath, entry.name));
+
+    if (entry.isDirectory()) {
+      findings.push(createFinding({
+        level: "warning",
+        code: "extension_nested_directory_present",
+        message: `Active workflow extension includes a nested directory that will not be step-loaded automatically: ${relativePath}`,
+        remediation: "Keep active extension step files at the extension root and move extra documentation behind the extension README if needed."
+      }));
+      continue;
+    }
+
+    if (!entry.isFile()) {
+      continue;
+    }
+
+    if (entry.name === "README.md") {
+      hasReadme = true;
+      const readmeContent = fs.readFileSync(path.join(extensionPath, entry.name), "utf8");
+      readmeHasBoundaryReminder = readmeContent.includes("must not override the Neuroplast workflow contract");
+    }
+
+    if (stepFiles.has(entry.name)) {
+      recognizedStepFiles.push(entry.name);
+    }
+
     if (!entry.isFile() || !entry.name.endsWith(".md") || allowedFiles.has(entry.name)) {
       continue;
     }
 
-    const relativePath = normalizeRelative(context.targetRoot, path.join(extensionPath, entry.name));
     findings.push(createFinding({
       level: "warning",
       code: "extension_step_shape_unrecognized",
@@ -557,6 +579,56 @@ function validateExtensionStepShape(context, extensionPath, findings) {
       remediation: "Use canonical phase filenames for step-specific extension files or move extra notes behind README-linked documentation."
     }));
   }
+
+  if (!hasReadme) {
+    findings.push(createFinding({
+      level: "error",
+      code: "extension_readme_missing",
+      message: `Active workflow extension is missing README.md: ${relativeExtensionPath}`,
+      remediation: `Add ${relativeExtensionPath}/README.md describing the extension purpose, activation, and additive boundary.`
+    }));
+  } else if (!readmeHasBoundaryReminder) {
+    findings.push(createFinding({
+      level: "error",
+      code: "extension_boundary_missing",
+      message: `Active workflow extension README is missing the non-overriding boundary reminder: ${relativeExtensionPath}/README.md`,
+      remediation: `Add the required boundary reminder to ${relativeExtensionPath}/README.md so the extension stays explicitly additive.`
+    }));
+  }
+
+  if (recognizedStepFiles.length === 0) {
+    findings.push(createFinding({
+      level: "error",
+      code: "extension_step_files_missing",
+      message: `Active workflow extension does not provide any canonical step files: ${relativeExtensionPath}`,
+      remediation: `Add at least one canonical step file (${getCanonicalExtensionStepFiles().join(", ")}) to ${relativeExtensionPath}.`
+    }));
+    return;
+  }
+
+  findings.push(createFinding({
+    level: "ok",
+    code: "extension_shape_valid",
+    message: `Active workflow extension follows the minimal file convention: ${relativeExtensionPath}`
+  }));
+}
+
+function getCanonicalExtensionFiles() {
+  return [
+    "README.md",
+    ...getCanonicalExtensionStepFiles()
+  ];
+}
+
+function getCanonicalExtensionStepFiles() {
+  return [
+    "conceptualize.md",
+    "PLANNING_INSTRUCTIONS.md",
+    "act.md",
+    "CONCEPT_INSTRUCTIONS.md",
+    "CHANGELOG_INSTRUCTIONS.md",
+    "think.md"
+  ];
 }
 
 function createFinding({ level, code, message, remediation = null }) {

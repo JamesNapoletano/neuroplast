@@ -3,6 +3,11 @@
 ## Purpose
 Explain how to run Neuroplast in plain terminal-driven workflows where editor or agent features may be minimal.
 
+## Support Status
+- Verification status: **Actively verified**
+- Capability assumptions: file reads, file writes, and terminal command execution are available.
+- Evidence boundary: this is the canonical first-loop portability proof path for Neuroplast.
+
 ## Canonical References
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/manifest.yaml`
@@ -18,6 +23,19 @@ Before executing any Neuroplast workflow step in a terminal-only environment:
 
 ## Workflow Entrypoint
 Read the workflow contract, then any manifest-declared active workflow extensions, then the current instruction file directly from the filesystem, then work step by step through the required artifacts.
+
+## Verified First Loop
+Use this sequence to prove the filesystem contract in a realistic consumer repository:
+
+1. Run `npx neuroplast init` in the target repository.
+2. Read `neuroplast/WORKFLOW_CONTRACT.md`, `neuroplast/manifest.yaml`, `neuroplast/capabilities.yaml`, and any active extension files declared in the manifest.
+3. Create or confirm root `ARCHITECTURE.md`.
+4. Add one concept artifact under `neuroplast/project-concept/` and one plan file under `neuroplast/plans/`.
+5. Execute one bounded implementation step through `neuroplast/act.md`.
+6. Run `npx neuroplast validate` to confirm the contract and metadata are still valid.
+7. When Neuroplast is later updated, run `npx neuroplast sync` to apply package-managed refreshes while preserving local edits.
+
+This path proves that the workflow stays usable from files and commands alone.
 
 ## Recommended Prompt
 `Operate the Neuroplast workflow from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Use the filesystem contract as the source of truth, keep changes non-destructive, and record plan, changelog, and learning updates in the required locations.`

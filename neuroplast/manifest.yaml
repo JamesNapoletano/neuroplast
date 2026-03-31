@@ -35,7 +35,10 @@ optional_features:
 extensions:
   bundled_dir: neuroplast/extensions
   local_dir: neuroplast/local-extensions
-  active_bundled: []
+  active_bundled:
+    - verification-first
+    - artifact-sync
+    - context-continuity
   active_local:
     - package-maintainer
 portability_profile:

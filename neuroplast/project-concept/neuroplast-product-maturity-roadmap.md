@@ -25,7 +25,17 @@ Prioritize foundational hardening first, then improve maintainability and trust 
 - Portability claims are backed by concrete examples and support boundaries.
 - Release and adoption practices become repeatable for maintainers and teams.
 
+## Current Phase 4 Implementation Notes
+- Bundled workflow extensions now ship as three separate opt-in paths: `verification-first`, `artifact-sync`, and `context-continuity`.
+- Active extension validation now expects a documented extension root with `README.md`, additive boundary language, and at least one canonical step file.
+
+## Current Phase 5 Implementation Notes
+- Portability proof now treats the terminal-only guide as the canonical actively verified first-loop environment.
+- README and adapter docs now publish an explicit support matrix that distinguishes actively verified environments from documentation-only guides.
+- Onboarding now points new users to a short first successful loop that demonstrates `init`, contract-first reading, `validate`, and later `sync` usage.
+
 ## Related
 - [[project-concept/neuroplast-portability-plan-v2.md]]
 - [[plans/product-maturity-roadmap-phases.md]]
 - [[project-concept/changelog/2026-03-24.md]]
+- [[plans/phase-4-bundled-extensions-implementation.md]]

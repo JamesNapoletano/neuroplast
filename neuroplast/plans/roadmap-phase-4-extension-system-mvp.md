@@ -3,7 +3,7 @@
 
 **Created:** 2026-03-24
 **Related to:** [[project-concept/neuroplast-product-maturity-roadmap.md]]
-**Changelog:** [[project-concept/changelog/2026-03-24.md]]
+**Changelog:** [[project-concept/changelog/2026-03-24.md]], [[project-concept/changelog/2026-03-30.md]]
 
 ## Overview
 Turn the extension model into a practical product feature by shipping at least one useful bundled extension path, tightening extension validation, and documenting extension authoring clearly.
@@ -16,24 +16,24 @@ Turn the extension model into a practical product feature by shipping at least o
 ## Tasks
 
 ### 1. Complete extension validation and structure
-- [ ] Verify active extensions by expected step files, not only directory existence.
-- [ ] Define a minimal extension file convention for bundled and repo-local extensions.
-- [ ] Confirm extension boundaries remain additive and non-overriding.
+- [x] Verify active extensions by expected step files, not only directory existence.
+- [x] Define a minimal extension file convention for bundled and repo-local extensions.
+- [x] Confirm extension boundaries remain additive and non-overriding.
 
 ### 2. Ship real extension value
-- [ ] Add at least one bundled extension example with clear use-case value.
+- [x] Add at least one bundled extension example with clear use-case value.
 - [ ] Keep maintainer-only workflow policy repo-local unless it proves broadly reusable.
-- [ ] Ensure packaged defaults remain safe when no extensions are enabled.
+- [x] Ensure packaged defaults remain safe when no extensions are enabled.
 
 ### 3. Improve extension authoring guidance
-- [ ] Add maintainer-facing docs for creating bundled and local extensions.
-- [ ] Explain activation, per-step overlay loading, and compatibility expectations.
-- [ ] Link extension docs from the main product roadmap and extension README files.
+- [x] Add maintainer-facing docs for creating bundled and local extensions.
+- [x] Explain activation, per-step overlay loading, and compatibility expectations.
+- [x] Link extension docs from the main product roadmap and extension README files.
 
 ## Success Criteria
-- [ ] Bundled extensions provide real workflow value beyond scaffolding.
-- [ ] Validation can catch malformed active extension setups.
-- [ ] Users can add an extension from documentation alone.
+- [x] Bundled extensions provide real workflow value beyond scaffolding.
+- [x] Validation can catch malformed active extension setups.
+- [x] Users can add an extension from documentation alone.
 
 ## Risks
 - Overly opinionated extensions could leak maintainer policy into the base workflow.
@@ -45,3 +45,5 @@ Turn the extension model into a practical product feature by shipping at least o
 - `neuroplast/local-extensions/`
 - [[plans/optional-workflow-extensions.md]]
 - [[project-concept/changelog/2026-03-24.md]]
+- [[plans/phase-4-bundled-extensions-implementation.md]]
+- [[project-concept/changelog/2026-03-30.md]]

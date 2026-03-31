@@ -58,6 +58,32 @@ By default, instruction files are written under `/neuroplast/` in your target pr
 
 `init` also runs `sync` after file bootstrap so new package migrations are applied once per version.
 
+## First Successful Loop
+
+After `npx neuroplast init`, read these files in order before doing any real work:
+
+1. `neuroplast/WORKFLOW_CONTRACT.md`
+2. `neuroplast/manifest.yaml`
+3. `neuroplast/capabilities.yaml`
+4. Any active workflow extensions declared in `neuroplast/manifest.yaml`
+5. The current instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
+
+### Terminal-first portability proof walkthrough
+
+The terminal-only path is the current actively verified portability proof for Neuroplast because it exercises the workflow from the filesystem contract alone.
+
+Use this first loop in a realistic consumer repository:
+
+1. Run `npx neuroplast init` in the target repository.
+2. Read the contract, manifest, capability profile, and any active extensions.
+3. Create or confirm root `ARCHITECTURE.md`.
+4. Add one concept artifact under `neuroplast/project-concept/` and one execution plan under `neuroplast/plans/`.
+5. Execute one bounded step through `neuroplast/act.md`.
+6. Run `npx neuroplast validate` to confirm the contract and metadata are still valid.
+7. On later package updates, run `npx neuroplast sync` to apply package-managed refreshes without overwriting local edits.
+
+This walkthrough shows the file contract in action without requiring any editor-specific integration.
+
 ## Managed File Updates (Versioned Migrations)
 
 Neuroplast now supports one-time versioned migrations plus safe refreshes for library-managed files under `/neuroplast/`.
@@ -97,13 +123,32 @@ Neuroplast now supports one-time versioned migrations plus safe refreshes for li
 
 ## Optional Workflow Extensions
 
-- Bundled reusable extension scaffolding is installed under `neuroplast/extensions/`.
+- Bundled reusable workflow extensions are installed under `neuroplast/extensions/`.
 - Repo-local custom extensions may be created under `neuroplast/local-extensions/`.
 - Activate extensions in `neuroplast/manifest.yaml` under `extensions.active_bundled` and `extensions.active_local`.
 - Active extensions are additive guidance only and must not override the core workflow contract.
 - Read active extensions after the core contract/manifest/capabilities documents and before executing the matching canonical instruction file.
 - Use the seamless step-loading convention: for each active extension, load the matching file for the current phase when it exists.
+- Active extensions should include a `README.md`, the additive boundary reminder, and at least one canonical step file.
+- Bundled extensions shipped with Neuroplast:
+  - `verification-first`
+  - `artifact-sync`
+  - `context-continuity`
 - The `package-maintainer` extension in this repository is repo-local only and is not shipped as part of the published package.
+
+## Portability Support Matrix
+
+- **Actively verified** means the environment has a maintained first-loop proof path that is rerun against the canonical file contract.
+- **Documentation-only** means the guide is kept aligned with the contract, but it is not yet treated as a separately verified portability proof.
+
+| Environment | Status | Capability assumptions | Notes |
+| --- | --- | --- | --- |
+| Terminal-only | Actively verified | File reads, file writes, and terminal commands | Canonical proof path for `init` -> read files -> execute one loop -> `validate` -> later `sync`. |
+| OpenCode | Documentation-only | File reads and writes; terminal access may vary by runtime | Guide stays aligned with the contract but is not yet maintained as a separately verified proof path. |
+| Claude Code | Documentation-only | File reads and writes; tool permissions may vary; terminal usually available | Use the same file contract and recordkeeping path as the terminal proof. |
+| Cursor | Documentation-only | File reads and writes; editor automation may vary | Treat editor assistance as convenience, not workflow authority. |
+| Windsurf | Documentation-only | File reads and writes; runtime capabilities may vary by mode | Fall back to the file contract when tool support is partial. |
+| VS Code + Copilot | Documentation-only | File reads and writes; terminal availability depends on local setup | Keep the workflow grounded in files rather than editor chat state. |
 
 ## What This Repository Is
 
@@ -132,7 +177,7 @@ Source-of-truth package files in this repository:
   - `CHANGELOG_INSTRUCTIONS.md`
   - `think.md`
 - `src/obsidian/.obsidian/` — optional shared Obsidian config templates
-- `src/extensions/` — optional bundled workflow extension scaffolding
+- `src/extensions/` — optional bundled workflow extensions and authoring scaffold
 - `src/adapters/` — optional environment guidance documents
 - `bin/neuroplast.js` — CLI initializer that creates folders and copies templates
 - `.gitignore` — currently ignores `.obsidian/workspace.json`
@@ -148,7 +193,7 @@ Installed output in target projects (created by `npx neuroplast init`):
 - `neuroplast/CONCEPT_INSTRUCTIONS.md`
 - `neuroplast/CHANGELOG_INSTRUCTIONS.md`
 - `neuroplast/think.md`
-- `neuroplast/extensions/` — optional bundled workflow extension scaffolding
+- `neuroplast/extensions/` — optional bundled workflow extensions and shared scaffolding
 - `neuroplast/local-extensions/` — optional repo-local custom workflow extensions
 - `neuroplast/adapters/` — documentation-only environment guides
 - `neuroplast/.obsidian/` (optional via `--with-obsidian`)
@@ -174,7 +219,7 @@ Start from `neuroplast/WORKFLOW_CONTRACT.md`, then `neuroplast/conceptualize.md`
 
 Optional environment guides live under `neuroplast/adapters/` and explain how to apply the same contract in specific tools without changing workflow behavior.
 
-Optional workflow extensions live under `neuroplast/extensions/` (bundled scaffolding/shared extensions) or `neuroplast/local-extensions/` (repo-local) and can add custom guidance without changing the canonical workflow behavior.
+Optional workflow extensions live under `neuroplast/extensions/` (bundled shared extensions) or `neuroplast/local-extensions/` (repo-local) and can add custom guidance without changing the canonical workflow behavior.
 
 ### 2) Planning Outputs
 
@@ -220,11 +265,12 @@ Follow `neuroplast/act.md` in order:
 - `neuroplast/manifest.yaml` is the canonical machine-readable workflow map.
 - `neuroplast/capabilities.yaml` is the advisory capability profile for constrained environments.
 - `neuroplast/adapters/` contains optional environment guides and is not an alternate workflow definition.
-- `neuroplast/extensions/` contains optional bundled workflow extension scaffolding or shared extensions that are only active when declared in `neuroplast/manifest.yaml`.
+- Terminal-only is the current actively verified portability proof path; other bundled environment guides are documentation-only until separately verified.
+- `neuroplast/extensions/` contains optional bundled workflow extensions that are only active when declared in `neuroplast/manifest.yaml`.
 - `neuroplast/local-extensions/` is reserved for repo-local custom extensions declared in `neuroplast/manifest.yaml`.
 - This repository keeps `package-maintainer` as a repo-local extension rather than a published bundled extension.
 - Instruction frontmatter is workflow metadata only and intentionally excludes model-tuning fields.
-- `neuroplast validate` checks contract structure, required files, metadata parseability, instruction frontmatter, environment-guide boundaries, and any active workflow extension declarations.
+- `neuroplast validate` checks contract structure, required files, metadata parseability, instruction frontmatter, environment-guide boundaries, and whether any active workflow extensions follow the minimal file convention.
 - Validation is scoped to contract and metadata compliance, not environment orchestration.
 - `npm test` runs black-box CLI regression tests against temporary repositories.
 

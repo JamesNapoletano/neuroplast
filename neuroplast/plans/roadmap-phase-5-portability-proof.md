@@ -3,7 +3,7 @@
 
 **Created:** 2026-03-24
 **Related to:** [[project-concept/neuroplast-product-maturity-roadmap.md]]
-**Changelog:** [[project-concept/changelog/2026-03-24.md]]
+**Changelog:** [[project-concept/changelog/2026-03-24.md]], [[project-concept/changelog/2026-03-30.md]]
 
 ## Overview
 Prove Neuroplast portability with concrete examples, clearer support boundaries, and practical onboarding paths across the environments it already documents.
@@ -15,24 +15,24 @@ Prove Neuroplast portability with concrete examples, clearer support boundaries,
 ## Tasks
 
 ### 1. Create proof artifacts
-- [ ] Add one or more example host-repo walkthroughs or reference repos.
-- [ ] Show the file contract in action through a first-use flow.
-- [ ] Demonstrate sync and validate usage in a realistic consumer repository.
+- [x] Add one or more example host-repo walkthroughs or reference repos.
+- [x] Show the file contract in action through a first-use flow.
+- [x] Demonstrate sync and validate usage in a realistic consumer repository.
 
 ### 2. Clarify support boundaries
-- [ ] Publish a support matrix for documented environments and capability assumptions.
-- [ ] Distinguish actively verified environments from documentation-only guides.
-- [ ] Keep adapter guidance aligned on contract usage, extension loading, and graceful degradation.
+- [x] Publish a support matrix for documented environments and capability assumptions.
+- [x] Distinguish actively verified environments from documentation-only guides.
+- [x] Keep adapter guidance aligned on contract usage, extension loading, and graceful degradation.
 
 ### 3. Improve onboarding flow
-- [ ] Create a short getting-started path focused on the first successful planning/execution cycle.
-- [ ] Reduce ambiguity around what users should read first after `init`.
-- [ ] Make portability expectations concrete rather than aspirational.
+- [x] Create a short getting-started path focused on the first successful planning/execution cycle.
+- [x] Reduce ambiguity around what users should read first after `init`.
+- [x] Make portability expectations concrete rather than aspirational.
 
 ## Success Criteria
-- [ ] Portability claims are backed by examples and explicit support boundaries.
-- [ ] New users can reach a successful first loop quickly.
-- [ ] Adapter guidance becomes more consistent and evidence-based.
+- [x] Portability claims are backed by examples and explicit support boundaries.
+- [x] New users can reach a successful first loop quickly.
+- [x] Adapter guidance becomes more consistent and evidence-based.
 
 ## Risks
 - Environment docs can drift unless validation or review expectations are tightened.

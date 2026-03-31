@@ -19,6 +19,7 @@ const {
 } = require("./helpers/cli-harness");
 
 const MANAGED_FILE = "neuroplast/extensions/README.md";
+const MANAGED_BUNDLED_EXTENSION_FILE = "neuroplast/extensions/verification-first/README.md";
 const OBSIDIAN_FILE = "neuroplast/.obsidian/core-plugins.json";
 
 test("init creates the default scaffold without obsidian config", (t) => {
@@ -28,6 +29,7 @@ test("init creates the default scaffold without obsidian config", (t) => {
   assert.equal(exists(repoRoot, "neuroplast/manifest.yaml"), true);
   assert.equal(exists(repoRoot, "neuroplast/adapters/README.md"), true);
   assert.equal(exists(repoRoot, MANAGED_FILE), true);
+  assert.equal(exists(repoRoot, MANAGED_BUNDLED_EXTENSION_FILE), true);
   assert.equal(exists(repoRoot, OBSIDIAN_FILE), false);
   assert.equal(exists(repoRoot, "ARCHITECTURE.md"), false);
 
@@ -92,6 +94,42 @@ test("validate --json emits machine-readable output", (t) => {
   assert.equal(payload.findings.some((finding) => finding.code === "sync_state_parseable"), true);
 });
 
+test("validate fails when an active bundled extension is missing README.md", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-bundled-extension-readme-missing" });
+
+  writeFile(repoRoot, "neuroplast/manifest.yaml", `${readFile(repoRoot, "neuroplast/manifest.yaml").replace("active_bundled: []", "active_bundled:\n    - verification-first")}`);
+  remove(repoRoot, "neuroplast/extensions/verification-first/README.md");
+
+  const result = runCli(["validate"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /Active workflow extension is missing README\.md: neuroplast\/extensions\/verification-first/);
+});
+
+test("validate fails when an active local extension has no canonical step files", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-local-extension-missing-steps" });
+
+  writeFile(repoRoot, "neuroplast/local-extensions/no-steps/README.md", "# No Steps\n\nThis extension is additive guidance and must not override the Neuroplast workflow contract.\n");
+  writeFile(repoRoot, "neuroplast/manifest.yaml", `${readFile(repoRoot, "neuroplast/manifest.yaml").replace("active_local: []", "active_local:\n    - no-steps")}`);
+
+  const result = runCli(["validate"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /Active workflow extension does not provide any canonical step files: neuroplast\/local-extensions\/no-steps/);
+});
+
+test("validate succeeds when a bundled extension follows the minimal file convention", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-bundled-extension-valid" });
+
+  writeFile(repoRoot, "neuroplast/manifest.yaml", `${readFile(repoRoot, "neuroplast/manifest.yaml").replace("active_bundled: []", "active_bundled:\n    - verification-first")}`);
+
+  const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.findings.some((finding) => finding.code === "extension_shape_valid" && finding.message.includes("neuroplast/extensions/verification-first")), true);
+});
+
 test("validate fails when sync state is not parseable", (t) => {
   const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-bad-state" });
   writeFile(repoRoot, "neuroplast/.neuroplast-state.json", "{broken\n");
@@ -127,7 +165,7 @@ test("sync --dry-run reports changes without writing files or state", (t) => {
   assertSuccess(result);
   assert.match(result.output, /Dry run enabled: previewing sync changes without modifying files or state\./);
   assert.match(result.output, /\[neuroplast\]\[create\]\[dry-run\] neuroplast\/extensions\/README\.md/);
-  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 16 baselines adopted, 0 unchanged\)\./);
+  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 28 baselines adopted, 0 unchanged\)\./);
   assert.match(result.output, /Dry run enabled: no files or state were modified\./);
   assert.equal(exists(repoRoot, MANAGED_FILE), false);
   assert.equal(readFile(repoRoot, STATE_PATH), stateBefore);
@@ -148,7 +186,7 @@ test("sync summary distinguishes unchanged files from preserved edits", (t) => {
   const result = runCli(["sync"], { targetRoot: repoRoot });
 
   assertSuccess(result);
-  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 17 unchanged\)\./);
+  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 29 unchanged\)\./);
 });
 
 test("sync skips on package downgrade by default", (t) => {

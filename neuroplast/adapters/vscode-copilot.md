@@ -3,6 +3,11 @@
 ## Purpose
 Explain how to use Neuroplast with VS Code and Copilot features without turning the workflow into an editor-specific system.
 
+## Support Status
+- Verification status: **Documentation-only**
+- Capability assumptions: file reads and writes are available; terminal access depends on local setup and extension usage.
+- Evidence boundary: this guide is contract-aligned, but the terminal-only guide remains the canonical actively verified first-loop proof.
+
 ## Canonical References
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/manifest.yaml`

@@ -35,6 +35,31 @@ Describe how optional workflow extensions augment Neuroplast without changing th
 
 ## Bundled Extension Example
 - Bundled extensions can provide reusable guidance for shared workflows that multiple installs may opt into.
+- Current bundled extensions shipped with Neuroplast:
+  - `verification-first` — adds explicit verification planning and completion discipline.
+  - `artifact-sync` — keeps behavior changes aligned with README, architecture, and changelog artifacts.
+  - `context-continuity` — improves resumability by pushing assumptions, blockers, and handoff context into files.
+
+## Minimal Extension File Convention
+- Each active extension should include a `README.md` at the extension root.
+- The extension `README.md` should describe the purpose, activation path, and covered canonical step files.
+- The extension `README.md` must include the additive boundary reminder: `This extension is additive guidance and must not override the Neuroplast workflow contract.`
+- Each active extension must provide at least one canonical step file:
+  - `conceptualize.md`
+  - `PLANNING_INSTRUCTIONS.md`
+  - `act.md`
+  - `CONCEPT_INSTRUCTIONS.md`
+  - `CHANGELOG_INSTRUCTIONS.md`
+  - `think.md`
+- Keep step files at the extension root so automatic step-loading remains predictable.
+
+## Authoring Guidance
+1. Decide whether the extension is broadly reusable (`neuroplast/extensions/`) or repo-local (`neuroplast/local-extensions/`).
+2. Add a `README.md` that explains purpose, activation, step coverage, and additive boundaries.
+3. Add only the canonical step files the extension actually needs.
+4. Declare the extension in `neuroplast/manifest.yaml` under `extensions.active_bundled` or `extensions.active_local`.
+5. Keep the guidance additive; do not override workflow phases, required file paths, artifact roles, or safe write rules.
+6. Run `neuroplast validate` after activating the extension.
 
 ## Boundary Reminder
 This guide is optional documentation and must not override the Neuroplast workflow contract.

@@ -3,6 +3,11 @@
 ## Purpose
 Explain how to use Neuroplast in Claude Code while keeping the workflow contract authoritative.
 
+## Support Status
+- Verification status: **Documentation-only**
+- Capability assumptions: file reads and writes are available; tool permissions may vary; terminal access is often available but must be confirmed.
+- Evidence boundary: this guide is contract-aligned, but the terminal-only guide remains the canonical actively verified first-loop proof.
+
 ## Canonical References
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/manifest.yaml`

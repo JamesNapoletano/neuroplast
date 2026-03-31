@@ -3,6 +3,11 @@
 ## Purpose
 Explain how to use Neuroplast in Cursor without introducing a Cursor-specific fork of the workflow.
 
+## Support Status
+- Verification status: **Documentation-only**
+- Capability assumptions: file reads and writes are available; editor automation and terminal integrations may vary by setup.
+- Evidence boundary: this guide is contract-aligned, but the terminal-only guide remains the canonical actively verified first-loop proof.
+
 ## Canonical References
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/manifest.yaml`

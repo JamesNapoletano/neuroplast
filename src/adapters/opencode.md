@@ -3,6 +3,11 @@
 ## Purpose
 Explain how to use Neuroplast in OpenCode without changing the canonical workflow contract.
 
+## Support Status
+- Verification status: **Documentation-only**
+- Capability assumptions: file reads and writes are available; terminal access may vary by runtime.
+- Evidence boundary: this guide is kept aligned with the contract, but the terminal-only guide remains the canonical actively verified first-loop proof.
+
 ## Canonical References
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/manifest.yaml`

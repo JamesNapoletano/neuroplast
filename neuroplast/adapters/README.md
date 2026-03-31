@@ -11,9 +11,24 @@ These files explain how to apply the same Neuroplast workflow contract in differ
 - Environment-specific prompts and tips may improve usability, but they must not fork behavior.
 - They must not override the Neuroplast workflow contract.
 
+## Support Status Definitions
+- **Actively verified**: maintainers rerun a documented first-loop workflow in that environment and confirm the canonical contract still works as described.
+- **Documentation-only**: the guide is kept aligned with the canonical contract, but it is not yet maintained as an independently verified proof path.
+
+## Current Support Matrix
+| Environment | Status | Capability assumptions | Notes |
+| --- | --- | --- | --- |
+| Terminal-only | Actively verified | File reads, file writes, terminal commands | Canonical portability proof path and first-loop walkthrough. |
+| OpenCode | Documentation-only | File reads and writes; terminal access may vary by runtime | Contract-aligned guide, not yet a separately verified proof path. |
+| Claude Code | Documentation-only | File reads and writes; tool permissions may vary; terminal usually available | Contract-aligned guide, not yet a separately verified proof path. |
+| Cursor | Documentation-only | File reads and writes; editor automation may vary | Contract-aligned guide, not yet a separately verified proof path. |
+| Windsurf | Documentation-only | File reads and writes; runtime capabilities may vary by mode | Contract-aligned guide, not yet a separately verified proof path. |
+| VS Code + Copilot | Documentation-only | File reads and writes; terminal availability depends on local setup | Contract-aligned guide, not yet a separately verified proof path. |
+
 ## Shared Guide Template
 Each guide should cover:
 1. Purpose of the environment guide
+2. Support status and capability assumptions
 2. Mandatory start sequence
 3. How to load any active workflow extensions declared in `neuroplast/manifest.yaml`
 4. Workflow entrypoint

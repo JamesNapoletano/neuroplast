@@ -52,7 +52,7 @@ Neuroplast is an npm package that provides an explicit CLI initializer (`neuropl
 | `src/cli/logging.js` | Stable CLI log formatting helpers | Node.js modules |
 | `src/migrations/` | Versioned managed-file upgrade logic | Node.js modules |
 | `src/instructions/` | Source workflow, metadata, capabilities, and instruction files | Markdown + YAML |
-| `src/extensions/` | Optional bundled workflow extension scaffolding | Markdown |
+| `src/extensions/` | Optional bundled workflow extensions and authoring scaffold | Markdown |
 | `src/adapters/` | Optional environment guidance documents | Markdown |
 | `src/obsidian/` | Optional Obsidian config | JSON files |
 | `test/` | Black-box CLI reliability tests using temp repositories | Node.js `node:test` |
@@ -99,9 +99,21 @@ src/adapters/vscode-copilot.md         → ./neuroplast/adapters/vscode-copilot.
 src/adapters/terminal.md               → ./neuroplast/adapters/terminal.md
 ```
 
-**Bundled Workflow Extension Scaffolding (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally; remain inactive unless declared in manifest):**
+**Bundled Workflow Extensions (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally; remain inactive unless declared in manifest):**
 ```
 src/extensions/README.md → ./neuroplast/extensions/README.md
+src/extensions/verification-first/README.md → ./neuroplast/extensions/verification-first/README.md
+src/extensions/verification-first/PLANNING_INSTRUCTIONS.md → ./neuroplast/extensions/verification-first/PLANNING_INSTRUCTIONS.md
+src/extensions/verification-first/act.md → ./neuroplast/extensions/verification-first/act.md
+src/extensions/verification-first/CHANGELOG_INSTRUCTIONS.md → ./neuroplast/extensions/verification-first/CHANGELOG_INSTRUCTIONS.md
+src/extensions/artifact-sync/README.md → ./neuroplast/extensions/artifact-sync/README.md
+src/extensions/artifact-sync/act.md → ./neuroplast/extensions/artifact-sync/act.md
+src/extensions/artifact-sync/CHANGELOG_INSTRUCTIONS.md → ./neuroplast/extensions/artifact-sync/CHANGELOG_INSTRUCTIONS.md
+src/extensions/artifact-sync/think.md → ./neuroplast/extensions/artifact-sync/think.md
+src/extensions/context-continuity/README.md → ./neuroplast/extensions/context-continuity/README.md
+src/extensions/context-continuity/PLANNING_INSTRUCTIONS.md → ./neuroplast/extensions/context-continuity/PLANNING_INSTRUCTIONS.md
+src/extensions/context-continuity/act.md → ./neuroplast/extensions/context-continuity/act.md
+src/extensions/context-continuity/think.md → ./neuroplast/extensions/context-continuity/think.md
 ```
 
 **Optional Obsidian Config (with `--with-obsidian` flag):**
@@ -146,7 +158,7 @@ State tracks:
   - `description`
   - `run(context)`
 - Safe refresh handles package-managed static file replacement separately from migrations.
-- Safe refresh targets workflow files, bundled adapter guides, and bundled extension scaffolding (not repo-local extensions or `.obsidian` config).
+- Safe refresh targets workflow files, bundled adapter guides, and bundled workflow extension files (not repo-local extensions or `.obsidian` config).
 - Existing managed files are refreshed only when their current contents still match the stored baseline; locally edited files are preserved and reported.
 - Older installs without baseline metadata only auto-adopt a managed file when its current contents already match the packaged version.
 - Runner applies migrations where `migration.version <= package.version` and migration ID has not already been applied.
@@ -159,7 +171,7 @@ State tracks:
 #### Validation System
 
 - `validate` checks required directories, required workflow files, support files, root `ARCHITECTURE.md`, parseable manifest/capabilities YAML, instruction frontmatter structure, and environment-guide boundaries.
-- `validate` also checks any active bundled or repo-local workflow extensions declared in the manifest.
+- `validate` also checks any active bundled or repo-local workflow extensions declared in the manifest and enforces a minimal active-extension file convention.
 - Validation uses a built-in lightweight YAML/frontmatter parser to avoid external runtime dependencies.
 - Validation is intentionally scoped to workflow contract compliance rather than editor or environment orchestration.
 
@@ -181,7 +193,8 @@ State tracks:
 - CI runs the test suite on supported Node versions and performs a packed-package smoke install before invoking the CLI in a temporary project.
 - Runtime maintainability is now organized into focused CLI modules so future behavior changes can be made without expanding the command surface.
 - Validation supports both human-readable output with remediation guidance and optional machine-readable JSON output for automation.
-- Validation now includes sync-state integrity checks and extension step-shape warnings to improve operator trust without expanding CLI scope.
+- Validation now includes sync-state integrity checks plus active-extension shape validation to improve operator trust without expanding CLI scope.
+- Portability proof currently treats the terminal-only guide as the actively verified first-loop environment; other bundled guides remain documentation-only until separately exercised.
 
 #### Error Handling Strategy
 
@@ -208,7 +221,9 @@ Neuroplast's portability model is centered on the `/neuroplast/` filesystem cont
 - Planned portability layers should build on an explicit workflow contract, machine-readable manifest metadata, instruction frontmatter, a capability profile, and validation rules.
 - Environment-specific guidance should remain optional and must not override the core workflow contract.
 - Optional bundled environment guides live under `neuroplast/adapters/` and mirror source docs under `src/adapters/`.
-- Optional bundled workflow extension scaffolding lives under `neuroplast/extensions/`; repo-local custom extensions may live under `neuroplast/local-extensions/`.
+- Support boundaries should distinguish actively verified environments from documentation-only guides instead of implying equal evidence across every adapter.
+- Optional bundled workflow extensions live under `neuroplast/extensions/`; repo-local custom extensions may live under `neuroplast/local-extensions/`.
+- Bundled extensions currently ship as three separate opt-in paths: `verification-first`, `artifact-sync`, and `context-continuity`.
 - Obsidian-compatible conventions can remain supported, but they should enhance the workflow rather than define its portability model.
 - Workflow extensions should remain opt-in and additive so maintainer- or repo-specific policy does not leak into the base instruction set.
 - This repository keeps `package-maintainer` as a repo-local extension rather than shipping it as a bundled extension.
