@@ -46,6 +46,12 @@ Emit machine-readable validation results for CI or wrapper tooling:
 npx neuroplast validate --json
 ```
 
+Run the full maintainer pre-release verification flow:
+
+```bash
+npm run release:verify
+```
+
 Run the repository reliability suite while developing Neuroplast itself:
 
 ```bash
@@ -119,7 +125,59 @@ Neuroplast now supports one-time versioned migrations plus safe refreshes for li
 
 - Human-readable validation output now includes a clear next corrective action for warnings and errors.
 - `npx neuroplast validate --json` emits machine-readable findings and summary counts for CI or wrapper tooling.
+- `validate --json` now includes `schemaVersion`, and the stable payload contract for the current major version is documented in `schemas/validate-json.schema.json`.
 - Validation now also checks sync-state parseability and warns when active extension files will not be step-loaded automatically.
+
+## Compatibility and Upgrade Policy
+
+### Stable within a major version
+
+- CLI command names: `init`, `sync`, `validate`
+- The `/neuroplast/` root layout and required folder paths
+- Root `ARCHITECTURE.md` as the canonical architecture artifact
+- Core manifest document-role paths and required workflow files
+- Non-destructive `init` behavior for existing files
+- Non-destructive `sync` behavior for locally edited managed files
+- `validate --json` schema contract for the active `schemaVersion`
+
+### May evolve within a major version
+
+- Human-readable CLI output wording
+- Additive validation findings and documentation improvements
+- Additional optional bundled extensions or additive metadata fields
+- Documentation-only adapter guidance
+
+### Deprecation and upgrade expectations
+
+- When practical, deprecations should be documented before removal rather than changed silently.
+- Release notes should state whether consumers need to run `npx neuroplast sync`, `npx neuroplast sync --dry-run`, or no follow-up command.
+- If a release changes managed assets or upgrade behavior materially, maintainers should publish upgrade notes or a migration guide alongside the change.
+
+## Using `validate --json` in CI
+
+Use `validate --json` when a consuming repository wants machine-readable pass/fail output without scraping human logs.
+
+Example GitHub Actions step after Neuroplast has been initialized in the repository:
+
+```yaml
+- name: Validate Neuroplast contract
+  run: npx neuroplast validate --json
+```
+
+Current CI consumer expectations:
+
+- exit code `0` means no validation errors were found
+- exit code `1` means at least one validation error was found
+- `schemaVersion` identifies the machine-readable payload contract
+- `summary.errors`, `summary.warnings`, and `findings` can be consumed by wrapper tooling
+
+If your automation depends on the JSON shape, pin the Neuroplast major version and review `schemas/validate-json.schema.json` when adopting a newer major release.
+
+## Maintainer Release Operations
+
+- Run `npm run release:verify` before publish.
+- The release verification flow runs `npm run validate`, `npm test`, checks the `npm pack --json` payload against expected shipped assets, and performs a packed-install smoke test.
+- Repo-local maintainer assets such as `neuroplast/local-extensions/package-maintainer/` are intentionally excluded from the published package payload.
 
 ## Optional Workflow Extensions
 

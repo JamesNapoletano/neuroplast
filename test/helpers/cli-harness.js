@@ -6,6 +6,7 @@ const os = require("node:os");
 const path = require("node:path");
 
 const packageJson = require("../../package.json");
+const { VALIDATE_JSON_SCHEMA_VERSION } = require("../../src/cli/validate");
 
 const projectRoot = path.resolve(__dirname, "..", "..");
 const cliPath = path.join(projectRoot, "bin", "neuroplast.js");
@@ -114,6 +115,7 @@ function hashContent(content) {
 module.exports = {
   PACKAGE_VERSION,
   STATE_PATH,
+  VALIDATE_JSON_SCHEMA_VERSION,
   assertSuccess,
   createInitializedRepo,
   createTempRepo,

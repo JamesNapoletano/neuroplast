@@ -14,16 +14,18 @@
     "files": [
         "bin",
         "src",
+        "schemas",
         "README.md",
         "LICENSE"
     ],
     "scripts": {
-        "test": "node --test test/*.test.js",
+        "test": "node --test",
         "init": "node ./bin/neuroplast.js init",
         "init:obsidian": "node ./bin/neuroplast.js init --with-obsidian",
         "sync": "node ./bin/neuroplast.js sync",
         "sync:dry-run": "node ./bin/neuroplast.js sync --dry-run",
-        "validate": "node ./bin/neuroplast.js validate"
+        "validate": "node ./bin/neuroplast.js validate",
+        "release:verify": "node ./scripts/release-verify.js"
     },
     "keywords": [
         "workflow",

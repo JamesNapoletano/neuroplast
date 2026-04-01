@@ -172,6 +172,7 @@ State tracks:
 
 - `validate` checks required directories, required workflow files, support files, root `ARCHITECTURE.md`, parseable manifest/capabilities YAML, instruction frontmatter structure, and environment-guide boundaries.
 - `validate` also checks any active bundled or repo-local workflow extensions declared in the manifest and enforces a minimal active-extension file convention.
+- `validate --json` now includes a `schemaVersion` field and is documented as a stable machine-readable contract for the active major version via `schemas/validate-json.schema.json`.
 - Validation uses a built-in lightweight YAML/frontmatter parser to avoid external runtime dependencies.
 - Validation is intentionally scoped to workflow contract compliance rather than editor or environment orchestration.
 
@@ -190,11 +191,19 @@ State tracks:
 
 - Automated CLI tests run the published entrypoint as a child process against temporary repositories via `INIT_CWD`.
 - Reliability coverage currently targets `init`, `sync`, `validate`, downgrade handling, backup behavior, baseline adoption, and managed-file preservation.
-- CI runs the test suite on supported Node versions and performs a packed-package smoke install before invoking the CLI in a temporary project.
+- Release verification is consolidated in `npm run release:verify`, which runs repository validation, black-box CLI tests, `npm pack --json` payload checks, and a packed-install smoke validation loop.
+- The `npm test` entrypoint relies on Node's built-in test discovery instead of shell-expanded globs so the same verification path works on Windows and POSIX CI runners.
+- CI now runs that release verification entrypoint on supported Node versions so local maintainer checks and hosted verification stay aligned.
 - Runtime maintainability is now organized into focused CLI modules so future behavior changes can be made without expanding the command surface.
 - Validation supports both human-readable output with remediation guidance and optional machine-readable JSON output for automation.
 - Validation now includes sync-state integrity checks plus active-extension shape validation to improve operator trust without expanding CLI scope.
 - Portability proof currently treats the terminal-only guide as the actively verified first-loop environment; other bundled guides remain documentation-only until separately exercised.
+
+#### Release and Compatibility Policy
+
+- Stable within a major version: CLI command names, the `/neuroplast/` root layout, root `ARCHITECTURE.md`, core manifest role paths, non-destructive init/sync behavior, and the documented `validate --json` schema contract.
+- Evolving within a major version: human-readable CLI wording, additive validation findings, documentation-only guides, additive manifest fields, and new optional bundled extensions.
+- Sync-sensitive changes must record a plan-level decision of `migration required` or `no migration needed` before release work is treated as complete.
 
 #### Error Handling Strategy
 

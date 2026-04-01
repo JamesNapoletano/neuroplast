@@ -43,33 +43,6 @@ jobs:
         shell: pwsh
         run: node ./bin/neuroplast.js --help
 
-      - name: Run test suite
+      - name: Run release verification
         shell: pwsh
-        run: npm test
-
-      - name: Validate repository contract
-        shell: pwsh
-        run: npm run validate
-
-      - name: Pack package
-        id: pack
-        shell: pwsh
-        run: |
-          $packResult = npm pack --json | ConvertFrom-Json
-          $filename = if ($packResult -is [array]) { $packResult[0].filename } else { $packResult.filename }
-          $tarball = (Resolve-Path $filename).Path
-          "PACK_TARBALL=$tarball" >> $env:GITHUB_ENV
-
-      - name: Smoke install packed CLI
-        if: matrix.smoke
-        shell: pwsh
-        run: |
-          $smokeDir = Join-Path $env:RUNNER_TEMP "neuroplast-smoke-node${{ matrix.node }}"
-          New-Item -ItemType Directory -Path $smokeDir -Force | Out-Null
-          Push-Location $smokeDir
-          npm init -y | Out-Null
-          npm install $env:PACK_TARBALL
-          npx --no-install neuroplast init
-          Set-Content -Path "ARCHITECTURE.md" -Value "# Architecture`n`nSmoke-test architecture file.`n"
-          npx --no-install neuroplast validate
-          Pop-Location
+        run: npm run release:verify

@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JamesNapoletano/neuroplast/schemas/validate-json.schema.json",
+  "title": "Neuroplast Validate JSON Output",
+  "description": "Stable machine-readable output contract for 'neuroplast validate --json' within a major version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ok",
+    "schemaVersion",
+    "summary",
+    "findings"
+  ],
+  "properties": {
+    "ok": {
+      "type": "boolean"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checks",
+        "warnings",
+        "errors"
+      ],
+      "properties": {
+        "checks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "warnings": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "errors": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "level",
+          "code",
+          "message",
+          "remediation"
+        ],
+        "properties": {
+          "level": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "warning",
+              "error"
+            ]
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "remediation": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

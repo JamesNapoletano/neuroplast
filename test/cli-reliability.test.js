@@ -6,6 +6,7 @@ const assert = require("node:assert/strict");
 const {
   PACKAGE_VERSION,
   STATE_PATH,
+  VALIDATE_JSON_SCHEMA_VERSION,
   assertSuccess,
   createInitializedRepo,
   exists,
@@ -89,9 +90,27 @@ test("validate --json emits machine-readable output", (t) => {
   assertSuccess(result);
   const payload = JSON.parse(result.stdout);
   assert.equal(payload.ok, true);
+  assert.equal(payload.schemaVersion, VALIDATE_JSON_SCHEMA_VERSION);
   assert.equal(typeof payload.summary.checks, "number");
   assert.equal(Array.isArray(payload.findings), true);
   assert.equal(payload.findings.some((finding) => finding.code === "sync_state_parseable"), true);
+});
+
+test("validate --json follows the documented schema contract", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-json-schema" });
+
+  const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.schemaVersion, VALIDATE_JSON_SCHEMA_VERSION);
+  assert.deepEqual(Object.keys(payload).sort(), ["findings", "ok", "schemaVersion", "summary"]);
+  assert.deepEqual(Object.keys(payload.summary).sort(), ["checks", "errors", "warnings"]);
+
+  for (const finding of payload.findings) {
+    assert.deepEqual(Object.keys(finding).sort(), ["code", "level", "message", "remediation"]);
+    assert.match(finding.level, /^(ok|warning|error)$/);
+  }
 });
 
 test("validate fails when an active bundled extension is missing README.md", (t) => {

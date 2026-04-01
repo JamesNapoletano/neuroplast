@@ -5,6 +5,8 @@ const { STATE_FILE } = require("./constants");
 const { parseFrontmatter, parseSimpleYaml } = require("./parsing");
 const { normalizeRelative } = require("./shared");
 
+const VALIDATE_JSON_SCHEMA_VERSION = 1;
+
 function runValidate(context) {
   const findings = [];
   const manifestPath = path.join(context.targetRoot, "neuroplast", "manifest.yaml");
@@ -47,6 +49,7 @@ function runValidate(context) {
   if (isJsonMode(context)) {
     process.stdout.write(JSON.stringify({
       ok: errorCount === 0,
+      schemaVersion: VALIDATE_JSON_SCHEMA_VERSION,
       summary: {
         checks: findings.length,
         warnings: warningCount,
@@ -652,5 +655,6 @@ function slugifyLabel(label) {
 }
 
 module.exports = {
+  VALIDATE_JSON_SCHEMA_VERSION,
   runValidate
 };
