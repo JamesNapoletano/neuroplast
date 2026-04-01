@@ -111,8 +111,7 @@ function resolveCommand(command) {
 
 function resolveArgs(command, args) {
   if (process.platform === "win32" && (command === "npm" || command === "npx")) {
-    const scriptPath = path.join(process.env.APPDATA || "", "npm", `${command}.cmd`);
-    return ["/d", "/s", "/c", quoteWindowsCommand([scriptPath, ...args])];
+    return ["/d", "/s", "/c", quoteWindowsCommand([`${command}.cmd`, ...args])];
   }
 
   return args;

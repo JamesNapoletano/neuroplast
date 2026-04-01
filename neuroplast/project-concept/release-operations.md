@@ -39,6 +39,11 @@ Treat these as sync-sensitive and review them explicitly before release:
 - Re-run `npm pack --json` locally and compare payload entries against expected managed assets.
 - Check whether the smoke repo needs an `ARCHITECTURE.md` before `validate` runs.
 
+### `release:verify` fails on Windows with `The system cannot find the path specified.`
+- Check whether repository-local verification scripts are hardcoding `%APPDATA%\npm\npm.cmd` or `%APPDATA%\npm\npx.cmd`.
+- Prefer invoking `npm.cmd` and `npx.cmd` through `cmd.exe` so Windows resolves them from `PATH`, which matches GitHub Actions `setup-node` behavior.
+- Re-run `npm run release:verify` after the wrapper uses platform-native command resolution.
+
 ### `npm test` fails on Windows CI with a literal `*.test.js` path
 - Avoid npm scripts that depend on shell glob expansion for test file selection.
 - Prefer `node --test` so Node discovers tests directly across Windows and POSIX runners.

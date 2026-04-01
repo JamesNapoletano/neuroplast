@@ -192,6 +192,7 @@ State tracks:
 - Automated CLI tests run the published entrypoint as a child process against temporary repositories via `INIT_CWD`.
 - Reliability coverage currently targets `init`, `sync`, `validate`, downgrade handling, backup behavior, baseline adoption, and managed-file preservation.
 - Release verification is consolidated in `npm run release:verify`, which runs repository validation, black-box CLI tests, `npm pack --json` payload checks, and a packed-install smoke validation loop.
+- The release verification wrapper invokes `npm` and `npx` through platform-native resolution so the same verification script works on Windows runners that expose Node tooling via `PATH` instead of `%APPDATA%\npm`.
 - The `npm test` entrypoint relies on Node's built-in test discovery instead of shell-expanded globs so the same verification path works on Windows and POSIX CI runners.
 - CI now runs that release verification entrypoint on supported Node versions so local maintainer checks and hosted verification stay aligned.
 - Runtime maintainability is now organized into focused CLI modules so future behavior changes can be made without expanding the command surface.
