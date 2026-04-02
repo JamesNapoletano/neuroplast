@@ -45,9 +45,13 @@ Reposition Neuroplast as an explicit implementation of the Local Cognitive Proto
 - [ ] Initialized repositories still validate with the Neuroplast profile.
 - [ ] `.lcp/manifest.yaml` is installed and validated as a bridge entrypoint.
 - [ ] Docs clearly identify LCP as the normative external protocol source.
+- [ ] Changelog records the follow-up 1.2.0 version-statement doc sync.
 
 ## Migration Decision
 Migration required: yes
 
 ## Reason
 This work changes package-managed assets, validation behavior, and the installed repository surface by adding an `.lcp/` compatibility layer while preserving existing `/neuroplast/` behavior.
+
+## Follow-up
+- Version-statement references were synced in a later documentation pass tracked by [[plans/minor-version-doc-sync-1.2.0.md]] and logged in [[project-concept/changelog/2026-04-02.md]].

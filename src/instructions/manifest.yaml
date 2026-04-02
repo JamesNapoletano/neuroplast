@@ -3,7 +3,7 @@ contract_version: 1
 metadata_schema_version: 1
 lcp:
   normative_protocol_source: https://github.com/JamesNapoletano/lcp
-  compatibility_statement: Neuroplast v1.1.2 implements LCP v1
+  compatibility_statement: Neuroplast v1.2.0 implements LCP v1
   bridge_manifest: .lcp/manifest.yaml
 required_directories:
   - neuroplast/project-concept

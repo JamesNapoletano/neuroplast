@@ -39,4 +39,4 @@ The `.lcp/` documents describe and reference Neuroplast-managed artifacts; they 
 
 ## Version Statement
 
-- `Neuroplast v1.1.2 implements LCP v1`
+- `Neuroplast v1.2.0 implements LCP v1`
