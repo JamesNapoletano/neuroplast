@@ -7,7 +7,8 @@ const {
   workflowFiles,
   obsidianFiles,
   adapterFiles,
-  extensionFiles
+  extensionFiles,
+  lcpBridgeFiles
 } = require("./constants");
 const {
   logInfo,
@@ -135,6 +136,18 @@ function runInit(context) {
     );
   }
 
+  for (const fileName of lcpBridgeFiles) {
+    copyIfMissing(
+      context,
+      path.join(context.packageRoot, "src", "lcp-files", fileName),
+      path.join(context.targetRoot, ".lcp", fileName),
+      {
+        ...context.syncOptions,
+        trackManagedFile: (relativePath) => trackManagedFile(state, relativePath)
+      }
+    );
+  }
+
   if (context.withObsidian) {
     const obsidianTargetDir = path.join(context.targetRoot, "neuroplast", ".obsidian");
     ensureDirectory(context, obsidianTargetDir, context.syncOptions);
@@ -163,7 +176,7 @@ function runInit(context) {
 }
 
 function printHelp() {
-  console.log(`\nNeuroplast CLI\n\nUsage:\n  neuroplast init [--with-obsidian] [--dry-run]\n  neuroplast sync [--dry-run] [--backup] [--force]\n  neuroplast validate [--json]\n\nCommands:\n  init                 Copy Neuroplast workflow files into /neuroplast and create /neuroplast folders\n  sync                 Apply versioned migrations and safe refreshes to managed Neuroplast files\n  validate             Validate the Neuroplast contract, metadata, and environment-guide boundaries\n\nOptions:\n  --with-obsidian      Include neuroplast/.obsidian config files (init only)\n  --dry-run            Preview actions without writing files\n  --backup             Create backups before sync file updates\n  --force              Run sync even when version is unchanged or downgraded\n  --json               Emit machine-readable validation output (validate only)\n  -h, --help           Show this help\n`);
+  console.log(`\nNeuroplast CLI\n\nUsage:\n  neuroplast init [--with-obsidian] [--dry-run]\n  neuroplast sync [--dry-run] [--backup] [--force]\n  neuroplast validate [--json]\n\nCommands:\n  init                 Copy Neuroplast workflow files, LCP bridge files, and create managed folders\n  sync                 Apply versioned migrations and safe refreshes to managed Neuroplast and LCP bridge files\n  validate             Validate the LCP bridge, Neuroplast profile, metadata, and environment-guide boundaries\n\nOptions:\n  --with-obsidian      Include neuroplast/.obsidian config files (init only)\n  --dry-run            Preview actions without writing files\n  --backup             Create backups before sync file updates\n  --force              Run sync even when version is unchanged or downgraded\n  --json               Emit machine-readable validation output (validate only)\n  -h, --help           Show this help\n`);
 }
 
 module.exports = {

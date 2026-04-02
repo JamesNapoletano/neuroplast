@@ -1,6 +1,10 @@
 workflow_version: 2
 contract_version: 1
 metadata_schema_version: 1
+lcp:
+  normative_protocol_source: https://github.com/JamesNapoletano/lcp
+  compatibility_statement: Neuroplast v1.1.2 implements LCP v1
+  bridge_manifest: .lcp/manifest.yaml
 required_directories:
   - neuroplast/project-concept
   - neuroplast/project-concept/changelog
@@ -43,9 +47,12 @@ portability_profile:
   model_agnostic: true
   agent_agnostic: true
   environment_guides_optional: true
+compatibility_profile:
+  name: neuroplast-default
+  lcp_bridge_entrypoint: .lcp/manifest.yaml
 metadata_boundaries:
   normative:
-    - manifest.yaml structure and document role mappings
+    - Neuroplast manifest structure and document role mappings
     - instruction frontmatter fields: role
     - instruction frontmatter fields: step
     - instruction frontmatter fields: requires
@@ -56,6 +63,8 @@ metadata_boundaries:
     - instruction frontmatter fields: human_review
     - instruction frontmatter fields: tags
 validation_targets:
+  - lcp_bridge_manifest_is_parseable
+  - lcp_bridge_documents_resolve
   - required_directories_exist
   - required_instruction_files_exist
   - required_support_files_exist

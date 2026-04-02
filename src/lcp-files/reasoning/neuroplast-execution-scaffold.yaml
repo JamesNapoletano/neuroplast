@@ -1,0 +1,14 @@
+lcp_version: "1.0"
+kind: reasoning_scaffold
+id: neuroplast.execution-scaffold
+title: Neuroplast execution scaffold
+summary: Explicit scaffold for carrying out bounded work while preserving durable context.
+scope:
+  root: .
+updated_at: "2026-04-02T00:00:00Z"
+scaffold:
+  checkpoints:
+    - read context
+    - update plan
+    - execute bounded work
+    - record changelog and learning updates

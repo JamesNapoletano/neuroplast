@@ -1,0 +1,15 @@
+lcp_version: "1.0"
+kind: workflow
+id: neuroplast.loop
+title: Neuroplast execution loop
+summary: Declarative description of the Neuroplast working loop.
+scope:
+  root: .
+updated_at: "2026-04-02T00:00:00Z"
+workflow:
+  stages:
+    - conceptualize
+    - plan
+    - act
+    - changelog
+    - think

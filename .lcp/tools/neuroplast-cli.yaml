@@ -1,0 +1,13 @@
+lcp_version: "1.0"
+kind: tool_description
+id: neuroplast.cli
+title: Neuroplast CLI
+summary: Tooling for initializing, syncing, and validating Neuroplast repositories.
+scope:
+  root: .
+updated_at: "2026-04-02T00:00:00Z"
+tool:
+  commands:
+    - init
+    - sync
+    - validate

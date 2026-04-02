@@ -21,17 +21,15 @@ neuroplast:
 #instruction
 
 ## Purpose
-Generate a structured, three-layer conceptual architecture for an application and store all planning artifacts as markdown files.
+Generate a structured planning and design context for the local repository domain and store the resulting artifacts as markdown files.
 
 ## Inputs
-- Application concept and page list (from user or prior planning context)
+- Repository concept, domain context, and relevant work surfaces (from user or prior planning context)
 - Existing project files for naming consistency (if present)
 
 ## Outputs
-- Per-page high-level file(s):
-  - `<PageName> - High Level.md`
-- Per-page mid-level file(s):
-  - `<PageName> - Mid Level.md`
+- Domain-specific high-level artifact file(s)
+- Domain-specific mid-level design/context file(s)
 - Canonical architecture file:
   - `ARCHITECTURE.md` (repository root)
 
@@ -45,7 +43,7 @@ All output files should be placed in the designated planning output folder (typi
 ## Layer Definitions
 
 ### Layer 1 — High-Level Page Specs (Per Page)
-Create one file per page:
+Create one file per primary work surface, artifact family, subject area, or equivalent unit when that decomposition is useful.
 
 ```md
 # <Page Name> — High Level
@@ -68,7 +66,7 @@ High-level overview of what the user sees and does.
 ```
 
 ### Layer 2 — Mid-Level Architecture (Per Page)
-Create one file per page:
+Create one file per primary work surface, artifact family, subject area, or equivalent unit when that decomposition is useful.
 
 ```md
 # <Page Name> — Mid Level Architecture
@@ -170,7 +168,7 @@ Summarize planning-stage architecture context that informs root `ARCHITECTURE.md
 - [ ] File names are consistent and links resolve.
 
 ## Failure Handling
-- If page list is missing or ambiguous, stop and request a page inventory before generating files.
+- If the set of work surfaces or planning units is missing or ambiguous, stop and request an inventory before generating files.
 - If output directory is missing, create it before writing files.
 - If naming conflicts are found, normalize names and re-validate links.
 

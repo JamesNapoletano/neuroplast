@@ -1,0 +1,13 @@
+lcp_version: "1.0"
+kind: rule
+id: neuroplast.boundaries
+title: Neuroplast implementation boundaries
+summary: Boundaries that keep Neuroplast aligned with LCP.
+scope:
+  root: .
+updated_at: "2026-04-02T00:00:00Z"
+severity: error
+rule:
+  requirements:
+    - Neuroplast must reference the official LCP repository as the normative protocol source.
+    - Neuroplast must not claim to define LCP independently.

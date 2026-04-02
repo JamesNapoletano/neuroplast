@@ -1,0 +1,12 @@
+lcp_version: "1.0"
+kind: knowledge_artifact
+id: neuroplast.compatibility
+title: Neuroplast compatibility knowledge
+summary: Summary of how Neuroplast fits inside LCP while preserving its own defaults.
+scope:
+  root: .
+updated_at: "2026-04-02T00:00:00Z"
+knowledge:
+  statements:
+    - Neuroplast is an implementation of LCP.
+    - Neuroplast preserves `/neuroplast/` as its implementation-owned layout.

@@ -4,6 +4,8 @@ const path = require("path");
 const { STATE_FILE } = require("./constants");
 const { parseFrontmatter, parseSimpleYaml } = require("./parsing");
 const { normalizeRelative } = require("./shared");
+const { validateLcpBridge } = require("../lcp/validate");
+const { getNeuroplastProfile } = require("../lcp/profile");
 
 const VALIDATE_JSON_SCHEMA_VERSION = 1;
 
@@ -12,10 +14,13 @@ function runValidate(context) {
   const manifestPath = path.join(context.targetRoot, "neuroplast", "manifest.yaml");
   const capabilitiesPath = path.join(context.targetRoot, "neuroplast", "capabilities.yaml");
   const contractPath = path.join(context.targetRoot, "neuroplast", "WORKFLOW_CONTRACT.md");
+  const profile = getNeuroplastProfile();
 
   if (!isJsonMode(context)) {
     context.logInfo(`Validating Neuroplast contract in: ${context.targetRoot}`);
   }
+
+  validateLcpBridge(context, findings, createFinding);
 
   const manifest = validateYamlFile(context, {
     filePath: manifestPath,
@@ -30,12 +35,12 @@ function runValidate(context) {
   });
 
   validateExists(context, contractPath, "workflow contract", findings);
-  validateExists(context, path.join(context.targetRoot, "ARCHITECTURE.md"), "root architecture file", findings);
+  validateExists(context, path.join(context.targetRoot, profile.rootArchitecturePath), "root architecture file", findings);
 
   if (manifest) {
     validateManifestStructure(manifest, findings);
-    validateRequiredPaths(context, manifest, findings);
-    validateDocumentRoles(context, manifest, findings);
+    validateRequiredPaths(context, manifest, findings, profile);
+    validateDocumentRoles(context, manifest, findings, profile);
     validateInstructionFrontmatter(context, manifest, findings);
     validateEnvironmentGuides(context, manifest, findings);
     validateWorkflowExtensions(context, manifest, findings);
@@ -173,34 +178,23 @@ function validateManifestStructure(manifest, findings) {
   }
 }
 
-function validateRequiredPaths(context, manifest, findings) {
-  for (const relativeDir of manifest.required_directories || []) {
+function validateRequiredPaths(context, manifest, findings, profile) {
+  for (const relativeDir of manifest.required_directories || profile.requiredDirectories || []) {
     validateExists(context, path.join(context.targetRoot, relativeDir), `required directory ${relativeDir}`, findings);
   }
 
-  for (const relativeFile of manifest.required_instruction_files || []) {
+  for (const relativeFile of manifest.required_instruction_files || profile.requiredInstructionFiles || []) {
     validateExists(context, path.join(context.targetRoot, relativeFile), `required instruction file ${relativeFile}`, findings);
   }
 
-  for (const relativeFile of manifest.required_support_files || []) {
+  for (const relativeFile of manifest.required_support_files || profile.requiredSupportFiles || []) {
     validateExists(context, path.join(context.targetRoot, relativeFile), `required support file ${relativeFile}`, findings);
   }
 }
 
-function validateDocumentRoles(context, manifest, findings) {
+function validateDocumentRoles(context, manifest, findings, profile) {
   const roles = manifest.document_roles || {};
-  const expectedRoles = {
-    manifest: "neuroplast/manifest.yaml",
-    capabilities: "neuroplast/capabilities.yaml",
-    contract: "neuroplast/WORKFLOW_CONTRACT.md",
-    architecture: "ARCHITECTURE.md",
-    concept_dir: "neuroplast/project-concept",
-    changelog_dir: "neuroplast/project-concept/changelog",
-    plans_dir: "neuroplast/plans",
-    learning_dir: "neuroplast/learning",
-    environment_guides_dir: "neuroplast/adapters",
-    extensions_dir: "neuroplast/extensions"
-  };
+  const expectedRoles = profile.expectedDocumentRoles;
 
   for (const [roleName, expectedPath] of Object.entries(expectedRoles)) {
     if (roles[roleName] !== expectedPath) {

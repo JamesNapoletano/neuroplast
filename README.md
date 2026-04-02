@@ -1,12 +1,20 @@
 # Neuroplast
 
-An npm-delivered workflow bootstrap for AI-assisted product planning, architecture design, execution, changelog tracking, and continuous learning notes.
+Neuroplast is a repository-local cognitive augmentation toolkit for AI systems and an implementation of the Local Cognitive Protocol (LCP).
 
-The workflow is file-system-first and now ships with a machine-readable manifest plus lightweight instruction frontmatter.
+Normative protocol source:
 
-It also ships with an advisory `capabilities.yaml` profile so execution can degrade gracefully in constrained environments without changing the core file contract.
+- <https://github.com/JamesNapoletano/lcp>
 
-It can also ship optional workflow extensions so bundled or repo-local augmentations can add custom guidance without modifying the canonical instruction set.
+LCP is the standard. Neuroplast is an implementation of that standard.
+
+Neuroplast remains domain-agnostic. It can support software repositories, research repositories, marine biology repositories, educational repositories, collaborative learning repositories, and other local knowledge contexts.
+
+Neuroplast preserves its existing `/neuroplast/` working layout while also installing an explicit `.lcp/` bridge entrypoint for visible LCP alignment.
+
+Current version statement:
+
+- `Neuroplast v1.1.2 implements LCP v1`
 
 ## Quick Start
 
@@ -34,7 +42,7 @@ Preview sync changes without writing files:
 npx neuroplast sync --dry-run
 ```
 
-Validate the workflow contract and metadata:
+Validate the LCP bridge, Neuroplast profile, and metadata:
 
 ```bash
 npx neuroplast validate
@@ -60,7 +68,7 @@ npm test
 
 The initializer is non-destructive: existing files are skipped and never overwritten during `init`.
 
-By default, instruction files are written under `/neuroplast/` in your target project.
+By default, Neuroplast writes working files under `/neuroplast/` and installs a companion `.lcp/` bridge layout.
 
 `init` also runs `sync` after file bootstrap so new package migrations are applied once per version.
 
@@ -68,11 +76,12 @@ By default, instruction files are written under `/neuroplast/` in your target pr
 
 After `npx neuroplast init`, read these files in order before doing any real work:
 
-1. `neuroplast/WORKFLOW_CONTRACT.md`
-2. `neuroplast/manifest.yaml`
-3. `neuroplast/capabilities.yaml`
-4. Any active workflow extensions declared in `neuroplast/manifest.yaml`
-5. The current instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
+1. `.lcp/manifest.yaml`
+2. `neuroplast/WORKFLOW_CONTRACT.md`
+3. `neuroplast/manifest.yaml`
+4. `neuroplast/capabilities.yaml`
+5. Any active workflow extensions declared in `neuroplast/manifest.yaml`
+6. The current instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
 
 ### Terminal-first portability proof walkthrough
 
@@ -81,14 +90,29 @@ The terminal-only path is the current actively verified portability proof for Ne
 Use this first loop in a realistic consumer repository:
 
 1. Run `npx neuroplast init` in the target repository.
-2. Read the contract, manifest, capability profile, and any active extensions.
+2. Read the LCP bridge manifest, the Neuroplast contract, the Neuroplast manifest, the capability profile, and any active extensions.
 3. Create or confirm root `ARCHITECTURE.md`.
 4. Add one concept artifact under `neuroplast/project-concept/` and one execution plan under `neuroplast/plans/`.
 5. Execute one bounded step through `neuroplast/act.md`.
-6. Run `npx neuroplast validate` to confirm the contract and metadata are still valid.
+6. Run `npx neuroplast validate` to confirm the LCP bridge and Neuroplast profile are still valid.
 7. On later package updates, run `npx neuroplast sync` to apply package-managed refreshes without overwriting local edits.
 
 This walkthrough shows the file contract in action without requiring any editor-specific integration.
+
+## LCP Relationship
+
+- **LCP** is the normative external protocol source.
+- **Neuroplast** is an implementation of LCP for repository-local cognitive augmentation.
+- **`.lcp/`** provides the LCP-facing bridge entrypoint.
+- **`/neuroplast/`** remains the Neuroplast-owned working layout and compatibility profile.
+- **CLI/runtime behavior** is Neuroplast tooling, not LCP core semantics.
+
+See:
+
+- `docs/lcp-mapping.md`
+- `docs/lcp-compatibility.md`
+- `docs/domain-generalization.md`
+- `docs/migration-to-lcp.md`
 
 ## Managed File Updates (Versioned Migrations)
 

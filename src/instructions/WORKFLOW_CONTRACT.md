@@ -21,17 +21,36 @@ neuroplast:
 #instruction
 
 ## Purpose
-Define the canonical, filesystem-first contract that makes Neuroplast portable across AI-assisted development environments.
+Define the filesystem-first Neuroplast implementation contract that makes Neuroplast portable across AI-assisted environments while explicitly aligning to LCP.
+
+Normative protocol source:
+
+- <https://github.com/JamesNapoletano/lcp>
+
+Neuroplast is an implementation of LCP, not the protocol standard itself.
 
 ## Canonical Interface
-Neuroplast's primary interface is the `/neuroplast/` folder plus the root `ARCHITECTURE.md` file.
+Neuroplast exposes a dual-layout interface:
+
+- `.lcp/` provides the explicit LCP bridge entrypoint
+- `/neuroplast/` provides the Neuroplast-managed implementation workspace
+- root `ARCHITECTURE.md` is the Neuroplast default canonical architecture artifact
 
 The workflow must remain understandable and executable from files alone.
 
 ## Required Layout
 
 ### Root Artifact
-- `ARCHITECTURE.md` — canonical architecture reference for implementation and execution
+- `ARCHITECTURE.md` — Neuroplast default architecture reference for implementation and execution
+
+### LCP Bridge Files
+- `.lcp/manifest.yaml`
+- `.lcp/profiles/neuroplast-default.yaml`
+- `.lcp/workflows/neuroplast-loop.yaml`
+- `.lcp/rules/neuroplast-boundaries.yaml`
+- `.lcp/reasoning/neuroplast-execution-scaffold.yaml`
+- `.lcp/tools/neuroplast-cli.yaml`
+- `.lcp/knowledge/neuroplast-compatibility.yaml`
 
 ### Required `/neuroplast/` Files
 - `neuroplast/manifest.yaml`
@@ -63,7 +82,8 @@ The canonical workflow loop is:
 - `think` — capture reusable, non-sensitive learnings
 
 ## Artifact Roles
-- `neuroplast/manifest.yaml` stores the canonical machine-readable workflow map
+- `.lcp/manifest.yaml` stores the LCP bridge manifest for explicit protocol alignment
+- `neuroplast/manifest.yaml` stores the Neuroplast machine-readable workflow map
 - `neuroplast/capabilities.yaml` stores the advisory environment capability profile
 - `/neuroplast/project-concept/` stores concept and planning context
 - `/neuroplast/plans/` stores execution plans
@@ -72,7 +92,8 @@ The canonical workflow loop is:
 - `ARCHITECTURE.md` stores the canonical implementation architecture
 
 ## Machine-Readable Metadata
-- `neuroplast/manifest.yaml` is the normative machine-readable map of workflow structure, document roles, and portability profile.
+- `.lcp/manifest.yaml` is the LCP-facing bridge manifest.
+- `neuroplast/manifest.yaml` is the Neuroplast machine-readable map of workflow structure, document roles, and portability profile.
 - `neuroplast/capabilities.yaml` is the advisory machine-readable profile for environment limits and graceful degradation behavior.
 - Top-level instruction files may include Neuroplast YAML frontmatter that describes step role, dependencies, write targets, outputs, and review expectations.
 - Frontmatter must stay workflow-oriented and must not include provider-specific tuning fields.
@@ -102,6 +123,8 @@ The canonical workflow loop is:
 - If agent memory is unavailable, persist working context in `/neuroplast/plans/`, changelog entries, and learning notes.
 
 ## Validation Rules
+- `.lcp/manifest.yaml` must exist and remain parseable.
+- LCP bridge document references must resolve.
 - Required directories under `/neuroplast/` must exist.
 - Required instruction files must exist and match the manifest.
 - Required support files (`manifest.yaml` and `capabilities.yaml`) must exist and be parseable.

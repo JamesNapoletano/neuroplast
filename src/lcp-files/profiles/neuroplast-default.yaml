@@ -1,0 +1,14 @@
+lcp_version: "1.0"
+kind: profile
+id: neuroplast.default
+title: Neuroplast default profile
+summary: Default Neuroplast implementation profile layered on top of LCP.
+refs:
+  - id: neuroplast-manifest
+    path: neuroplast/manifest.yaml
+scope:
+  root: .
+updated_at: "2026-04-02T00:00:00Z"
+profile:
+  version_statement: Neuroplast v1.1.2 implements LCP v1
+  working_layout_root: neuroplast/

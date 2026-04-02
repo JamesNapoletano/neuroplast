@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const packageJson = require("../../package.json");
+const { getLcpBridgeDirectories, getLcpBridgeFiles } = require("../lcp/bridge");
 
 const PACKAGE_VERSION = packageJson.version;
 const STATE_FILE = "neuroplast/.neuroplast-state.json";
@@ -10,7 +11,8 @@ const requiredDirs = [
   "neuroplast/project-concept",
   "neuroplast/project-concept/changelog",
   "neuroplast/learning",
-  "neuroplast/plans"
+  "neuroplast/plans",
+  ...getLcpBridgeDirectories()
 ];
 
 const workflowFiles = [
@@ -43,12 +45,14 @@ const adapterFiles = [
 ];
 
 const extensionFiles = listManagedExtensionFiles();
+const lcpBridgeFiles = getLcpBridgeFiles();
 
 const knownManagedFiles = [
   ...workflowFiles.map((fileName) => path.join("neuroplast", fileName)),
   ...adapterFiles.map((fileName) => path.join("neuroplast", "adapters", fileName)),
   ...extensionFiles.map((fileName) => path.join("neuroplast", "extensions", fileName)),
-  ...obsidianFiles.map((fileName) => path.join("neuroplast", ".obsidian", fileName))
+  ...obsidianFiles.map((fileName) => path.join("neuroplast", ".obsidian", fileName)),
+  ...lcpBridgeFiles.map((fileName) => path.join(".lcp", fileName))
 ];
 
 const refreshManagedFiles = [
@@ -63,6 +67,10 @@ const refreshManagedFiles = [
   ...extensionFiles.map((fileName) => ({
     source: path.join("src", "extensions", fileName),
     destination: path.join("neuroplast", "extensions", fileName)
+  })),
+  ...lcpBridgeFiles.map((fileName) => ({
+    source: path.join("src", "lcp-files", fileName),
+    destination: path.join(".lcp", fileName)
   }))
 ];
 
@@ -79,6 +87,7 @@ module.exports = {
   obsidianFiles,
   adapterFiles,
   extensionFiles,
+  lcpBridgeFiles,
   knownManagedFiles,
   refreshManagedFiles,
   getRefreshManagedFilePaths

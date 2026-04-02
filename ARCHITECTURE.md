@@ -1,9 +1,23 @@
 # Neuroplast NPM Package Architecture
 
 ## System Overview
-Neuroplast is an npm package that provides an explicit CLI initializer (`neuroplast init`) to install workflow instruction files and folder structures into host projects.
+Neuroplast is an npm package that implements the Local Cognitive Protocol (LCP) for repository-local cognitive augmentation.
+
+Normative protocol source:
+
+- <https://github.com/JamesNapoletano/lcp>
+
+Neuroplast installs a Neuroplast working layout plus an LCP bridge layout into host projects.
 
 ## Architecture Layers
+
+### Semantic Boundary
+
+Neuroplast is organized into three layers:
+
+1. **LCP semantic layer** — external protocol semantics defined by the LCP repository.
+2. **Neuroplast compatibility profile** — `/neuroplast/`, `ARCHITECTURE.md`, and managed instruction defaults.
+3. **Neuroplast implementation tooling** — CLI runtime, sync logic, migrations, validation, and state.
 
 ### High-Level Architecture
 
@@ -43,7 +57,7 @@ Neuroplast is an npm package that provides an explicit CLI initializer (`neuropl
 | `bin/neuroplast.js` | Thin CLI entrypoint that delegates to runtime orchestration | Node.js |
 | `src/cli/runtime.js` | Command parsing, dispatch, and init orchestration | Node.js modules |
 | `src/cli/sync.js` | Managed refresh, migration loading, and sync flow | Node.js modules |
-| `src/cli/validate.js` | Validation workflow and contract checks | Node.js modules |
+| `src/cli/validate.js` | Validation workflow for LCP bridge and Neuroplast profile checks | Node.js modules |
 | `src/cli/state.js` | Sync state loading, saving, and managed-file metadata | Node.js modules |
 | `src/cli/filesystem.js` | Safe directory creation, copy-if-missing, and backups | Node.js modules |
 | `src/cli/parsing.js` | Lightweight YAML and frontmatter parsing helpers | Node.js modules |
@@ -51,6 +65,8 @@ Neuroplast is an npm package that provides an explicit CLI initializer (`neuropl
 | `src/cli/constants.js` | Managed file maps and package-level runtime constants | Node.js modules |
 | `src/cli/logging.js` | Stable CLI log formatting helpers | Node.js modules |
 | `src/migrations/` | Versioned managed-file upgrade logic | Node.js modules |
+| `src/lcp/` | LCP bridge/profile definitions and validation helpers | Node.js modules |
+| `src/lcp-files/` | Packaged `.lcp/` bridge documents | YAML |
 | `src/instructions/` | Source workflow, metadata, capabilities, and instruction files | Markdown + YAML |
 | `src/extensions/` | Optional bundled workflow extensions and authoring scaffold | Markdown |
 | `src/adapters/` | Optional environment guidance documents | Markdown |
