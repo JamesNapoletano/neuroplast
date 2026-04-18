@@ -20,6 +20,7 @@ const workflowFiles = [
   "capabilities.yaml",
   "WORKFLOW_CONTRACT.md",
   "conceptualize.md",
+  "reverse-engineering.md",
   "act.md",
   "think.md",
   "CONCEPT_INSTRUCTIONS.md",

@@ -96,11 +96,12 @@ After `npx neuroplast init`, read these files in order before doing any real wor
 3. `neuroplast/manifest.yaml`
 4. `neuroplast/capabilities.yaml`
 5. Any active workflow extensions declared in `neuroplast/manifest.yaml`
-6. The current instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
+6. The current instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
 
 Use the instruction files with this operating model:
 
 - Start with `neuroplast/act.md` for normal bounded work once the project already has enough context.
+- Start with `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization.
 - Start with `neuroplast/conceptualize.md` when the project is new, the request is ambiguous, or the project mind needs reframing.
 - Treat `/neuroplast/project-concept/`, `/neuroplast/plans/`, `/neuroplast/project-concept/changelog/`, and `/neuroplast/learning/` as the durable memory surface shared by the human and the AI.
 
@@ -276,6 +277,7 @@ Source-of-truth package files in this repository:
   - `capabilities.yaml`
   - `WORKFLOW_CONTRACT.md`
   - `conceptualize.md`
+  - `reverse-engineering.md`
   - `PLANNING_INSTRUCTIONS.md`
   - `act.md`
   - `CONCEPT_INSTRUCTIONS.md`
@@ -294,6 +296,7 @@ Installed output in target projects (created by `npx neuroplast init`):
 - `neuroplast/capabilities.yaml`
 - `ARCHITECTURE.md` — minimal root architecture scaffold created during `init` when missing
 - `neuroplast/conceptualize.md`
+- `neuroplast/reverse-engineering.md`
 - `neuroplast/PLANNING_INSTRUCTIONS.md`
 - `neuroplast/act.md`
 - `neuroplast/CONCEPT_INSTRUCTIONS.md`
@@ -320,9 +323,12 @@ The instruction files reference these folders, which are expected to be created 
 Start from `neuroplast/WORKFLOW_CONTRACT.md`, then choose the current instruction:
 
 - `neuroplast/act.md` for normal bounded work
+- `neuroplast/reverse-engineering.md` for code-grounded reconstruction of project context from an existing repository
 - `neuroplast/conceptualize.md` when the work is new, ambiguous, or needs reframing
 
 `neuroplast/conceptualize.md` points to the structured context rules in `neuroplast/PLANNING_INSTRUCTIONS.md`.
+
+`neuroplast/reverse-engineering.md` feeds code-grounded evidence into `neuroplast/conceptualize.md` when the repository exists but the durable project mind does not yet match reality.
 
 `neuroplast/manifest.yaml` provides the canonical machine-readable map of workflow files, roles, and portability expectations.
 
@@ -353,6 +359,10 @@ Follow `neuroplast/act.md` in order:
 - Update the active plan in `/neuroplast/plans/`
 - Execute the next bounded step with references to `/neuroplast/learning/`
 - Run concept/changelog/think instructions
+
+### Reverse-Engineering Sessions
+
+Follow `neuroplast/reverse-engineering.md` when the repository already exists but the project mind needs to be reconstructed from code evidence before normal conceptualization and execution can proceed.
 
 ### 4) Changelog Discipline
 

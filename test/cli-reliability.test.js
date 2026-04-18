@@ -25,6 +25,7 @@ const MANAGED_FILE = "neuroplast/extensions/README.md";
 const MANAGED_BUNDLED_EXTENSION_FILE = "neuroplast/extensions/verification-first/README.md";
 const OBSIDIAN_FILE = "neuroplast/.obsidian/core-plugins.json";
 const LCP_MANIFEST = ".lcp/manifest.yaml";
+const REVERSE_ENGINEERING_FILE = "neuroplast/reverse-engineering.md";
 
 test("init creates the default scaffold without obsidian config", (t) => {
   const { repoRoot, initResult } = createInitializedRepo(t, { label: "init-default" });
@@ -35,6 +36,7 @@ test("init creates the default scaffold without obsidian config", (t) => {
   assert.equal(exists(repoRoot, MANAGED_FILE), true);
   assert.equal(exists(repoRoot, MANAGED_BUNDLED_EXTENSION_FILE), true);
   assert.equal(exists(repoRoot, LCP_MANIFEST), true);
+  assert.equal(exists(repoRoot, REVERSE_ENGINEERING_FILE), true);
   assert.equal(exists(repoRoot, OBSIDIAN_FILE), false);
   assert.equal(exists(repoRoot, "ARCHITECTURE.md"), true);
   assert.match(readFile(repoRoot, "ARCHITECTURE.md"), /minimal `ARCHITECTURE\.md` scaffold/);
@@ -73,6 +75,16 @@ test("validate fails when the LCP bridge manifest is missing", (t) => {
 
   assert.equal(result.code, 1, result.output);
   assert.match(result.output, /Missing LCP manifest: \.lcp\/manifest\.yaml/);
+});
+
+test("validate fails when the required reverse-engineering instruction is missing", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-missing-reverse-engineering" });
+  remove(repoRoot, REVERSE_ENGINEERING_FILE);
+
+  const result = runCli(["validate"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /Missing required instruction file neuroplast\/reverse-engineering\.md/);
 });
 
 test("validate fails when the root architecture file is missing", (t) => {
@@ -288,7 +300,7 @@ test("sync --dry-run reports changes without writing files or state", (t) => {
   assertSuccess(result);
   assert.match(result.output, /Dry run enabled: previewing sync changes without modifying files or state\./);
   assert.match(result.output, /\[neuroplast\]\[create\]\[dry-run\] neuroplast\/extensions\/README\.md/);
-  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 35 baselines adopted, 0 unchanged\)\./);
+  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 36 baselines adopted, 0 unchanged\)\./);
   assert.match(result.output, /Dry run enabled: no files or state were modified\./);
   assert.equal(exists(repoRoot, MANAGED_FILE), false);
   assert.equal(readFile(repoRoot, STATE_PATH), stateBefore);
@@ -329,7 +341,7 @@ test("sync summary distinguishes unchanged files from preserved edits", (t) => {
   const result = runCli(["sync"], { targetRoot: repoRoot });
 
   assertSuccess(result);
-  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 36 unchanged\)\./);
+  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 37 unchanged\)\./);
 });
 
 test("sync skips on package downgrade by default", (t) => {

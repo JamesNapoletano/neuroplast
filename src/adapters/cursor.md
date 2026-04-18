@@ -19,9 +19,9 @@ Before executing any Neuroplast workflow step in Cursor:
 2. Read `neuroplast/manifest.yaml`
 3. Read `neuroplast/capabilities.yaml`
 4. If `neuroplast/manifest.yaml` declares active workflow extensions, read the matching files under `neuroplast/extensions/` and `neuroplast/local-extensions/`
-5. Then read and execute the relevant instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
+5. Then read and execute the relevant instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
 
-Prefer `neuroplast/act.md` for normal bounded work once enough project context exists. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
+Prefer `neuroplast/act.md` for normal bounded work once enough project context exists. Use `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
 
 ## Workflow Entrypoint
 Begin from the workflow contract, then any manifest-declared active workflow extensions, then open the current instruction file for the active step. Treat the files as the active project mind.

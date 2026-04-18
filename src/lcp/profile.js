@@ -11,6 +11,7 @@ function getNeuroplastProfile() {
     requiredInstructionFiles: [
       "neuroplast/WORKFLOW_CONTRACT.md",
       "neuroplast/conceptualize.md",
+      "neuroplast/reverse-engineering.md",
       "neuroplast/PLANNING_INSTRUCTIONS.md",
       "neuroplast/act.md",
       "neuroplast/CONCEPT_INSTRUCTIONS.md",

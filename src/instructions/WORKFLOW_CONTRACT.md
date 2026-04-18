@@ -65,6 +65,7 @@ Neuroplast should behave like a project mind, not only like a task checklist. Th
 - `neuroplast/capabilities.yaml`
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/conceptualize.md`
+- `neuroplast/reverse-engineering.md`
 - `neuroplast/PLANNING_INSTRUCTIONS.md`
 - `neuroplast/act.md`
 - `neuroplast/CONCEPT_INSTRUCTIONS.md`
@@ -85,11 +86,13 @@ The canonical workflow loop is:
 This loop defines the durable artifact lifecycle, not a requirement that every session start from scratch.
 
 - `act.md` is the normal entrypoint for everyday bounded work once the project mind already exists.
+- `reverse-engineering.md` is the specialized entrypoint for reconstructing project-mind context from an existing codebase before handing off to `conceptualize.md`.
 - `conceptualize.md` is for new initiatives, ambiguous requests, reframing, or major scope changes.
 - `PLANNING_INSTRUCTIONS.md` defines how to refresh project-mind context when the existing structure is missing or insufficient.
 
 ### Phase Roles
 - `conceptualize` — create or reframe durable project context when the work is new, unclear, or materially changed
+- `reverse-engineer` — reconstruct code-grounded project context when an existing repository lacks trustworthy project-mind artifacts
 - `plan` — define the current objective, bounded scope, and verification path in `/neuroplast/plans/`
 - `act` — perform the next bounded work session and keep project artifacts aligned
 - `changelog` — record what changed in the current cycle

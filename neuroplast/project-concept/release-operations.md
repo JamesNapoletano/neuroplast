@@ -12,6 +12,7 @@ Provide a repeatable maintainer runbook for local verification, sync-sensitive c
 5. Review documentation updates for any user-facing workflow changes.
 6. If compatibility expectations changed, update [[project-concept/release-and-compatibility-policy.md]] and README together.
 7. If upgrade guidance changed materially, add or update a migration guide in `/neuroplast/project-concept/`.
+8. If you add or promote a canonical instruction file, update init/sync managed-file wiring, required manifest/profile lists, architecture/readme inventories, and CLI tests in the same change.
 
 ## What `npm run release:verify` Covers
 - repository contract validation via `npm run validate`

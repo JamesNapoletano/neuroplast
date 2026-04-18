@@ -100,6 +100,7 @@ src/instructions/manifest.yaml            → ./neuroplast/manifest.yaml
 src/instructions/capabilities.yaml       → ./neuroplast/capabilities.yaml
 src/instructions/WORKFLOW_CONTRACT.md   → ./neuroplast/WORKFLOW_CONTRACT.md
 src/instructions/conceptualize.md     → ./neuroplast/conceptualize.md
+src/instructions/reverse-engineering.md → ./neuroplast/reverse-engineering.md
 src/instructions/act.md              → ./neuroplast/act.md
 src/instructions/think.md            → ./neuroplast/think.md
 src/instructions/CONCEPT_INSTRUCTIONS.md → ./neuroplast/CONCEPT_INSTRUCTIONS.md

@@ -11,9 +11,14 @@ Neuroplast already defines the durable artifact shapes in `PLANNING_INSTRUCTIONS
 - Give the new instruction a narrow purpose: gather code-grounded evidence, record open questions, stop.
 - Emit exactly one intermediate artifact (e.g., an evidence note) under `/neuroplast/project-concept/` that uses the same tagging and file conventions as normal concept artifacts.
 - End the instruction's step sequence with an explicit handoff to the existing canonical instruction (here, `conceptualize.md`), so the durable orientation/detailed-context/architecture files are produced by the same code path everything else in the workflow uses.
-- Keep the new file optional and repo-local first (outside `required_instruction_files`) until the shape is validated on a real codebase; only promote to `src/instructions/` and the manifest once the pattern has proven itself.
+- Keep the new file optional and repo-local first (outside `required_instruction_files`) until the shape is validated on a real codebase; once the pattern proves itself, promote it to `src/instructions/`, add it to the required manifest/profile lists, and update init/sync/test wiring in the same change.
+
+## Follow-through
+- Promoting an instruction from repo-local to required is not just a file move; the managed install list, validation contract, README inventories, architecture inventories, and CLI tests must all change together.
+- Keep the instruction specialized even after promotion. Required availability does not mean everyday default entrypoint.
 
 ## Related
 - [[neuroplast/reverse-engineering.md]]
 - [[neuroplast/conceptualize.md]]
 - [[neuroplast/PLANNING_INSTRUCTIONS.md]]
+- [[plans/required-reverse-engineering-instruction-shipping.md]]

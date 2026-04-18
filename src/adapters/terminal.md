@@ -19,9 +19,9 @@ Before executing any Neuroplast workflow step in a terminal-only environment:
 2. Read `neuroplast/manifest.yaml`
 3. Read `neuroplast/capabilities.yaml`
 4. If `neuroplast/manifest.yaml` declares active workflow extensions, read the matching files under `neuroplast/extensions/` and `neuroplast/local-extensions/`
-5. Then read and execute the relevant instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
+5. Then read and execute the relevant instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
 
-For normal day-to-day use, prefer `neuroplast/act.md` as the entrypoint once enough project context already exists. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
+For normal day-to-day use, prefer `neuroplast/act.md` as the entrypoint once enough project context already exists. Use `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
 
 ## Workflow Entrypoint
 Read the workflow contract, then any manifest-declared active workflow extensions, then the current instruction file directly from the filesystem, then work step by step through the required artifacts.
