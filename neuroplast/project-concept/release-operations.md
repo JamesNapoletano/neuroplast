@@ -8,9 +8,10 @@ Provide a repeatable maintainer runbook for local verification, sync-sensitive c
 1. Confirm the active plan records a sync-impact decision: `migration required` or `no migration needed`.
 2. If `migration required`, verify the migration shipped in the same change and is covered by tests.
 3. Run `npm run release:verify`.
-4. Review documentation updates for any user-facing workflow changes.
-5. If compatibility expectations changed, update [[project-concept/release-and-compatibility-policy.md]] and README together.
-6. If upgrade guidance changed materially, add or update a migration guide in `/neuroplast/project-concept/`.
+4. If `package.json` version changed, search for the canonical human-readable version statement across README, `docs/`, `src/lcp/`, `src/lcp-files/`, `src/instructions/`, and any managed `.lcp/` profile artifacts, then update all current release-facing references in the same change.
+5. Review documentation updates for any user-facing workflow changes.
+6. If compatibility expectations changed, update [[project-concept/release-and-compatibility-policy.md]] and README together.
+7. If upgrade guidance changed materially, add or update a migration guide in `/neuroplast/project-concept/`.
 
 ## What `npm run release:verify` Covers
 - repository contract validation via `npm run validate`

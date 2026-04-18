@@ -17,6 +17,14 @@ On every release version bump, search for the canonical version statement across
 - workflow manifests or compatibility statements under `src/instructions/`
 - LCP/compatibility documentation under `docs/`
 
+If the maintainer repository is itself initialized with Neuroplast, also verify that any repo-local managed artifacts and sync state are not still advertising the prior version after the source files are corrected.
+
+## Maintenance pattern
+- Treat version-statement synchronization as part of the same bounded release change as the `package.json` bump, not as an optional cleanup step.
+- Prefer one targeted repository search for the full canonical statement so current release-facing files are corrected together.
+- Preserve older plan and changelog records that mention prior versions as historical evidence rather than rewriting them.
+
 ## Related
 - [[plans/minor-version-doc-sync-1.2.0.md]]
+- [[plans/minor-version-doc-sync-1.2.1.md]]
 - [[project-concept/changelog/2026-04-02.md]]

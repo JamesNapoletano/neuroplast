@@ -23,7 +23,7 @@ Existing Neuroplast repositories remain valid. This release adds explicit LCP al
 
 ## Version Tracking
 
-- `Neuroplast v1.2.0 implements LCP v1`
+- `Neuroplast v1.2.1 implements LCP v1`
 
 Later:
 
