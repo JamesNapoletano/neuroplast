@@ -14,7 +14,7 @@ Neuroplast preserves its existing `/neuroplast/` working layout while also insta
 
 Current version statement:
 
-- `Neuroplast v1.2.1 implements LCP v1`
+- `Neuroplast v1.2.2 implements LCP v1`
 
 ## Quick Start
 

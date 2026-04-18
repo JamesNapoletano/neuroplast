@@ -183,6 +183,7 @@
   },
   "active": "97ee8072a9ddedef",
   "lastOpenFiles": [
+    "plans/minor-version-doc-sync-1.2.2.md",
     "plans/required-reverse-engineering-instruction-shipping.md",
     "plans/minor-version-doc-sync-1.2.1.md",
     "reverse-engineering.md",
@@ -209,7 +210,6 @@
     "project-concept/changelog/2026-03-31.md",
     "plans/product-differentiation-and-uniqueness-hardening.md",
     "learning/windows-release-verification-should-resolve-npm-from-path-not-appdata.md",
-    "plans/windows-ci-release-verify-command-resolution-fix.md",
     "extensions/context-continuity",
     "extensions/artifact-sync",
     "extensions/verification-first",

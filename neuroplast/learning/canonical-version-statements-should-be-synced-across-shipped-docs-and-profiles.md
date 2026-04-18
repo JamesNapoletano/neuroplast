@@ -27,4 +27,5 @@ If the maintainer repository is itself initialized with Neuroplast, also verify 
 ## Related
 - [[plans/minor-version-doc-sync-1.2.0.md]]
 - [[plans/minor-version-doc-sync-1.2.1.md]]
+- [[plans/minor-version-doc-sync-1.2.2.md]]
 - [[project-concept/changelog/2026-04-02.md]]
