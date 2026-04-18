@@ -5,10 +5,12 @@ const assert = require("node:assert/strict");
 
 const {
   PACKAGE_VERSION,
+  INIT_SYNC_JSON_SCHEMA_VERSION,
   STATE_PATH,
   VALIDATE_JSON_SCHEMA_VERSION,
   assertSuccess,
   createInitializedRepo,
+  createTempRepo,
   exists,
   hashContent,
   readFile,
@@ -34,7 +36,8 @@ test("init creates the default scaffold without obsidian config", (t) => {
   assert.equal(exists(repoRoot, MANAGED_BUNDLED_EXTENSION_FILE), true);
   assert.equal(exists(repoRoot, LCP_MANIFEST), true);
   assert.equal(exists(repoRoot, OBSIDIAN_FILE), false);
-  assert.equal(exists(repoRoot, "ARCHITECTURE.md"), false);
+  assert.equal(exists(repoRoot, "ARCHITECTURE.md"), true);
+  assert.match(readFile(repoRoot, "ARCHITECTURE.md"), /minimal `ARCHITECTURE\.md` scaffold/);
 
   const state = readState(repoRoot);
   assert.equal(state.installedVersion, PACKAGE_VERSION);
@@ -53,7 +56,7 @@ test("init --with-obsidian installs shared obsidian config", (t) => {
 });
 
 test("validate succeeds for a complete initialized repository", (t) => {
-  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-success" });
+  const { repoRoot } = createInitializedRepo(t, { label: "validate-success" });
 
   const result = runCli(["validate"], { targetRoot: repoRoot });
 
@@ -74,6 +77,7 @@ test("validate fails when the LCP bridge manifest is missing", (t) => {
 
 test("validate fails when the root architecture file is missing", (t) => {
   const { repoRoot } = createInitializedRepo(t, { label: "validate-missing-architecture" });
+  remove(repoRoot, "ARCHITECTURE.md");
 
   const result = runCli(["validate"], { targetRoot: repoRoot });
 
@@ -81,6 +85,53 @@ test("validate fails when the root architecture file is missing", (t) => {
   assert.match(result.output, /Missing root architecture file: ARCHITECTURE\.md/);
   assert.match(result.output, /Next step: Create or restore ARCHITECTURE\.md\./);
   assert.match(result.output, /Validation failed/);
+});
+
+test("init preserves an existing ARCHITECTURE.md", (t) => {
+  const repoRoot = createTempRepo(t, "init-preserve-architecture");
+  const architectureContent = "# Architecture\n\nCustom repo architecture.\n";
+  writeFile(repoRoot, "ARCHITECTURE.md", architectureContent);
+
+  const initResult = runCli(["init"], { targetRoot: repoRoot });
+
+  assertSuccess(initResult);
+  assert.equal(readFile(repoRoot, "ARCHITECTURE.md"), architectureContent);
+  assert.match(initResult.output, /\[neuroplast\]\[skip\] ARCHITECTURE\.md/);
+});
+
+test("init rejects unsupported flags", (t) => {
+  const repoRoot = createTempRepo(t, "init-invalid-flag");
+
+  const result = runCli(["init", "--backup"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /Unsupported option for init: --backup/);
+});
+
+test("init --json emits machine-readable output", (t) => {
+  const repoRoot = createTempRepo(t, "init-json");
+
+  const result = runCli(["init", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.ok, true);
+  assert.equal(payload.schemaVersion, INIT_SYNC_JSON_SCHEMA_VERSION);
+  assert.equal(payload.command, "init");
+  assert.equal(payload.options.json, true);
+  assert.equal(payload.result.init.withObsidian, false);
+  assert.equal(typeof payload.summary.created, "number");
+  assert.equal(Array.isArray(payload.events), true);
+  assert.equal(payload.events.some((event) => event.type === "create" && event.path === "ARCHITECTURE.md"), true);
+});
+
+test("validate rejects unexpected positional arguments", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "validate-invalid-arg" });
+
+  const result = runCli(["validate", "extra"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /Unexpected positional argument for validate: extra/);
 });
 
 test("validate fails when the manifest is not parseable", (t) => {
@@ -123,6 +174,47 @@ test("validate --json follows the documented schema contract", (t) => {
     assert.deepEqual(Object.keys(finding).sort(), ["code", "level", "message", "remediation"]);
     assert.match(finding.level, /^(ok|warning|error)$/);
   }
+});
+
+test("validate --json keeps schema-shaped findings when environment guides directory is missing", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-json-guides-dir-missing" });
+  remove(repoRoot, "neuroplast/adapters");
+
+  const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  const payload = JSON.parse(result.stdout);
+  const finding = payload.findings.find((entry) => entry.code === "environment_guides_dir_missing_on_disk");
+  assert.ok(finding);
+  assert.equal(typeof finding.message, "string");
+  assert.equal(typeof finding.remediation, "string");
+});
+
+test("init --json exposes the documented top-level contract", (t) => {
+  const repoRoot = createTempRepo(t, "init-json-shape");
+
+  const result = runCli(["init", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.deepEqual(Object.keys(payload).sort(), ["command", "events", "ok", "options", "packageVersion", "result", "schemaVersion", "summary", "targetRoot"]);
+  assert.deepEqual(Object.keys(payload.options).sort(), ["dryRun", "json", "withObsidian"]);
+  assert.deepEqual(Object.keys(payload.result).sort(), ["init", "sync"]);
+});
+
+test("sync --json exposes the documented top-level contract", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "sync-json-shape" });
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.1.1";
+  });
+
+  const result = runCli(["sync", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.deepEqual(Object.keys(payload).sort(), ["command", "events", "ok", "options", "packageVersion", "result", "schemaVersion", "summary", "targetRoot"]);
+  assert.deepEqual(Object.keys(payload.options).sort(), ["backup", "dryRun", "force", "json"]);
+  assert.deepEqual(Object.keys(payload.result).sort(), ["sync"]);
 });
 
 test("validate fails when an active bundled extension is missing README.md", (t) => {
@@ -200,6 +292,26 @@ test("sync --dry-run reports changes without writing files or state", (t) => {
   assert.match(result.output, /Dry run enabled: no files or state were modified\./);
   assert.equal(exists(repoRoot, MANAGED_FILE), false);
   assert.equal(readFile(repoRoot, STATE_PATH), stateBefore);
+});
+
+test("sync --json emits machine-readable output", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "sync-json" });
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.1.1";
+  });
+  remove(repoRoot, MANAGED_FILE);
+
+  const result = runCli(["sync", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.ok, true);
+  assert.equal(payload.schemaVersion, INIT_SYNC_JSON_SCHEMA_VERSION);
+  assert.equal(payload.command, "sync");
+  assert.equal(payload.result.sync.decision.shouldRun, true);
+  assert.equal(payload.result.sync.managedRefresh.created >= 1, true);
+  assert.equal(payload.result.sync.stateUpdated, true);
+  assert.equal(payload.events.some((event) => event.type === "create" && event.path === MANAGED_FILE), true);
 });
 
 test("sync summary distinguishes unchanged files from preserved edits", (t) => {

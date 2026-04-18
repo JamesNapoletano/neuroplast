@@ -319,7 +319,12 @@ function validateEnvironmentGuides(context, manifest, findings) {
 
   const absoluteGuidesDir = path.join(context.targetRoot, guidesDir);
   if (!fs.existsSync(absoluteGuidesDir)) {
-    findings.push({ level: "error", message: `Missing environment guides directory: ${guidesDir}` });
+    findings.push(createFinding({
+      level: "error",
+      code: "environment_guides_dir_missing_on_disk",
+      message: `Missing environment guides directory: ${guidesDir}`,
+      remediation: `Create or restore ${guidesDir} so bundled environment guides resolve from the manifest role path.`
+    }));
     return;
   }
 

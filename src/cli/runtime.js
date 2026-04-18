@@ -10,17 +10,7 @@ const {
   extensionFiles,
   lcpBridgeFiles
 } = require("./constants");
-const {
-  logInfo,
-  logError,
-  logCreated,
-  logSkip,
-  logUpdated,
-  logPreserved,
-  logValidationOk,
-  logValidationWarning,
-  logValidationError
-} = require("./logging");
+const { createCommandOutput } = require("./output");
 const { ensureDirectory, copyIfMissing } = require("./filesystem");
 const { loadState, saveState, trackManagedFile } = require("./state");
 const { runSync } = require("./sync");
@@ -41,14 +31,29 @@ function main({ argv = process.argv, env = process.env, cwd = process.cwd() } = 
     process.exit(1);
   }
 
+  const validationError = getArgumentValidationError(context.command, context.args.slice(1));
+  if (validationError) {
+    context.logError(validationError);
+    printHelp();
+    process.exit(1);
+  }
+
   if (context.command === "init") {
-    runInit(context);
-    runSync(context, { isPostInit: true });
+    const initResult = runInit(context);
+    const syncResult = runSync(context, { isPostInit: true });
+
+    if (context.outputJson) {
+      context.writeJsonResult({ init: initResult, sync: syncResult });
+    }
     return;
   }
 
   if (context.command === "sync") {
-    runSync(context, { isPostInit: false });
+    const syncResult = runSync(context, { isPostInit: false });
+
+    if (context.outputJson) {
+      context.writeJsonResult({ sync: syncResult });
+    }
     return;
   }
 
@@ -57,15 +62,25 @@ function main({ argv = process.argv, env = process.env, cwd = process.cwd() } = 
 
 function createContext(args, env, cwd) {
   const flagSet = new Set(args.slice(1));
+  const command = args[0];
+  const outputJson = flagSet.has("--json") && (command === "init" || command === "sync");
+  let context;
+  const output = createCommandOutput({
+    jsonMode: outputJson,
+    getPhase: () => (context && context.phase) || command || null
+  });
 
-  return {
+  context = {
     args,
-    command: args[0],
+    command,
+    outputJson,
+    phase: command || null,
     withObsidian: flagSet.has("--with-obsidian"),
     syncOptions: {
       dryRun: flagSet.has("--dry-run"),
       backup: flagSet.has("--backup"),
-      force: flagSet.has("--force")
+      force: flagSet.has("--force"),
+      json: flagSet.has("--json")
     },
     validationOptions: {
       json: flagSet.has("--json")
@@ -73,20 +88,34 @@ function createContext(args, env, cwd) {
     PACKAGE_VERSION,
     packageRoot,
     targetRoot: env.INIT_CWD || cwd,
-    logInfo,
-    logError,
-    logCreated,
-    logSkip,
-    logUpdated,
-    logPreserved,
-    logValidationOk,
-    logValidationWarning,
-    logValidationError
+    logInfo: output.logInfo,
+    logError: output.logError,
+    logCreated: output.logCreated,
+    logSkip: output.logSkip,
+    logUpdated: output.logUpdated,
+    logPreserved: output.logPreserved,
+    logValidationOk: output.logValidationOk,
+    logValidationWarning: output.logValidationWarning,
+    logValidationError: output.logValidationError,
+    output,
+    writeJsonResult(result) {
+      output.writePayload(output.buildPayload({
+        command: context.command,
+        packageVersion: PACKAGE_VERSION,
+        targetRoot: context.targetRoot,
+        options: getCommandOptions(context),
+        result
+      }));
+    }
   };
+
+  return context;
 }
 
 function runInit(context) {
   const state = loadState(context);
+  const checkpoint = context.output.checkpoint();
+  context.phase = "init";
 
   context.logInfo(`Initializing Neuroplast in: ${context.targetRoot}`);
 
@@ -148,6 +177,13 @@ function runInit(context) {
     );
   }
 
+  copyIfMissing(
+    context,
+    path.join(context.packageRoot, "src", "templates", "ARCHITECTURE.md"),
+    path.join(context.targetRoot, "ARCHITECTURE.md"),
+    context.syncOptions
+  );
+
   if (context.withObsidian) {
     const obsidianTargetDir = path.join(context.targetRoot, "neuroplast", ".obsidian");
     ensureDirectory(context, obsidianTargetDir, context.syncOptions);
@@ -173,10 +209,57 @@ function runInit(context) {
   }
 
   context.logInfo("Neuroplast initialization complete.");
+
+  return {
+    withObsidian: context.withObsidian,
+    dryRun: context.syncOptions.dryRun,
+    summary: context.output.summarizeSince(checkpoint)
+  };
+}
+
+function getArgumentValidationError(command, rawArgs) {
+  const allowedFlagsByCommand = {
+    init: new Set(["--with-obsidian", "--dry-run", "--json"]),
+    sync: new Set(["--dry-run", "--backup", "--force", "--json"]),
+    validate: new Set(["--json"])
+  };
+
+  const allowedFlags = allowedFlagsByCommand[command] || new Set();
+
+  for (const arg of rawArgs) {
+    if (!arg.startsWith("-")) {
+      return `Unexpected positional argument for ${command}: ${arg}`;
+    }
+
+    if (!allowedFlags.has(arg)) {
+      return `Unsupported option for ${command}: ${arg}`;
+    }
+  }
+
+  return null;
 }
 
 function printHelp() {
-  console.log(`\nNeuroplast CLI\n\nUsage:\n  neuroplast init [--with-obsidian] [--dry-run]\n  neuroplast sync [--dry-run] [--backup] [--force]\n  neuroplast validate [--json]\n\nCommands:\n  init                 Copy Neuroplast workflow files, LCP bridge files, and create managed folders\n  sync                 Apply versioned migrations and safe refreshes to managed Neuroplast and LCP bridge files\n  validate             Validate the LCP bridge, Neuroplast profile, metadata, and environment-guide boundaries\n\nOptions:\n  --with-obsidian      Include neuroplast/.obsidian config files (init only)\n  --dry-run            Preview actions without writing files\n  --backup             Create backups before sync file updates\n  --force              Run sync even when version is unchanged or downgraded\n  --json               Emit machine-readable validation output (validate only)\n  -h, --help           Show this help\n`);
+  console.log(`\nNeuroplast CLI\n\nUsage:\n  neuroplast init [--with-obsidian] [--dry-run] [--json]\n  neuroplast sync [--dry-run] [--backup] [--force] [--json]\n  neuroplast validate [--json]\n\nCommands:\n  init                 Copy Neuroplast workflow files, scaffold ARCHITECTURE.md if missing, and create managed folders\n  sync                 Apply versioned migrations and safe refreshes to managed Neuroplast and LCP bridge files\n  validate             Validate the LCP bridge, Neuroplast profile, metadata, and environment-guide boundaries\n\nOptions:\n  --with-obsidian      Include neuroplast/.obsidian config files (init only)\n  --dry-run            Preview actions without writing files\n  --backup             Create backups before sync file updates\n  --force              Run sync even when version is unchanged or downgraded\n  --json               Emit machine-readable output (init, sync, or validate)\n  -h, --help           Show this help\n`);
+}
+
+function getCommandOptions(context) {
+  const options = {
+    json: context.outputJson
+  };
+
+  if (context.command === "init") {
+    options.withObsidian = context.withObsidian;
+    options.dryRun = context.syncOptions.dryRun;
+  }
+
+  if (context.command === "sync") {
+    options.dryRun = context.syncOptions.dryRun;
+    options.backup = context.syncOptions.backup;
+    options.force = context.syncOptions.force;
+  }
+
+  return options;
 }
 
 module.exports = {

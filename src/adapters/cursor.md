@@ -21,11 +21,13 @@ Before executing any Neuroplast workflow step in Cursor:
 4. If `neuroplast/manifest.yaml` declares active workflow extensions, read the matching files under `neuroplast/extensions/` and `neuroplast/local-extensions/`
 5. Then read and execute the relevant instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
 
+Prefer `neuroplast/act.md` for normal bounded work once enough project context exists. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
+
 ## Workflow Entrypoint
-Begin from the workflow contract, then any manifest-declared active workflow extensions, then open the current instruction file for the active step.
+Begin from the workflow contract, then any manifest-declared active workflow extensions, then open the current instruction file for the active step. Treat the files as the active project mind.
 
 ## Recommended Prompt
-`Follow the Neuroplast workflow from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Keep behavior aligned with the documented folder contract, write only to approved locations, and preserve changelog and learning updates.`
+`Follow the Neuroplast project mind from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Load current project state from files, keep behavior aligned with the documented folder contract, write only to approved locations, and preserve changelog and learning updates.`
 
 ## Usage Notes
 - Treat agent/chat behavior as a convenience layer over the file contract.

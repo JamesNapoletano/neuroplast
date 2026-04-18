@@ -1,6 +1,6 @@
 # Neuroplast
 
-Neuroplast is a repository-local cognitive augmentation toolkit for AI systems and an implementation of the Local Cognitive Protocol (LCP).
+Neuroplast is a repository-local project mind for humans and AI systems, and an implementation of the Local Cognitive Protocol (LCP).
 
 Normative protocol source:
 
@@ -42,6 +42,19 @@ Preview sync changes without writing files:
 npx neuroplast sync --dry-run
 ```
 
+Emit machine-readable output for automation around `init` or `sync`:
+
+```bash
+npx neuroplast init --json
+npx neuroplast sync --json
+```
+
+Published JSON schemas for automation consumers:
+
+- `schemas/init-json.schema.json`
+- `schemas/sync-json.schema.json`
+- `schemas/validate-json.schema.json`
+
 Validate the LCP bridge, Neuroplast profile, and metadata:
 
 ```bash
@@ -68,6 +81,8 @@ npm test
 
 The initializer is non-destructive: existing files are skipped and never overwritten during `init`.
 
+`init` also creates a minimal root `ARCHITECTURE.md` scaffold when that file does not already exist, so a fresh repository can complete the first validation loop immediately.
+
 By default, Neuroplast writes working files under `/neuroplast/` and installs a companion `.lcp/` bridge layout.
 
 `init` also runs `sync` after file bootstrap so new package migrations are applied once per version.
@@ -83,6 +98,12 @@ After `npx neuroplast init`, read these files in order before doing any real wor
 5. Any active workflow extensions declared in `neuroplast/manifest.yaml`
 6. The current instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
 
+Use the instruction files with this operating model:
+
+- Start with `neuroplast/act.md` for normal bounded work once the project already has enough context.
+- Start with `neuroplast/conceptualize.md` when the project is new, the request is ambiguous, or the project mind needs reframing.
+- Treat `/neuroplast/project-concept/`, `/neuroplast/plans/`, `/neuroplast/project-concept/changelog/`, and `/neuroplast/learning/` as the durable memory surface shared by the human and the AI.
+
 ### Terminal-first portability proof walkthrough
 
 The terminal-only path is the current actively verified portability proof for Neuroplast because it exercises the workflow from the filesystem contract alone.
@@ -91,7 +112,7 @@ Use this first loop in a realistic consumer repository:
 
 1. Run `npx neuroplast init` in the target repository.
 2. Read the LCP bridge manifest, the Neuroplast contract, the Neuroplast manifest, the capability profile, and any active extensions.
-3. Create or confirm root `ARCHITECTURE.md`.
+3. Review the root `ARCHITECTURE.md` scaffold created by `init`, or confirm your existing architecture file.
 4. Add one concept artifact under `neuroplast/project-concept/` and one execution plan under `neuroplast/plans/`.
 5. Execute one bounded step through `neuroplast/act.md`.
 6. Run `npx neuroplast validate` to confirm the LCP bridge and Neuroplast profile are still valid.
@@ -148,7 +169,9 @@ Neuroplast now supports one-time versioned migrations plus safe refreshes for li
 ## Validation Trust UX
 
 - Human-readable validation output now includes a clear next corrective action for warnings and errors.
+- `init --json` and `sync --json` now emit machine-readable action summaries for wrapper tooling while preserving the human-readable default output.
 - `npx neuroplast validate --json` emits machine-readable findings and summary counts for CI or wrapper tooling.
+- Published JSON schemas now document the stable payload contracts for `init --json`, `sync --json`, and `validate --json` within the current major version.
 - `validate --json` now includes `schemaVersion`, and the stable payload contract for the current major version is documented in `schemas/validate-json.schema.json`.
 - Validation now also checks sync-state parseability and warns when active extension files will not be step-loaded automatically.
 
@@ -234,12 +257,12 @@ If your automation depends on the JSON shape, pin the Neuroplast major version a
 
 ## What This Repository Is
 
-This repository contains instruction files that guide an AI agent through a repeatable process:
+This repository contains instruction files that help a human and an AI maintain a usable project mind through a repeatable process:
 
-1. Conceptualize a project
-2. Produce architecture/planning artifacts
-3. Execute implementation steps
-4. Record changelog updates
+1. Orient to the project and preserve durable context
+2. Produce or refresh architecture/project-map artifacts
+3. Execute bounded work sessions
+4. Record what changed
 5. Capture reusable lessons learned
 
 It is set up as a workflow package template rather than a traditional code application.
@@ -269,6 +292,7 @@ Installed output in target projects (created by `npx neuroplast init`):
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/manifest.yaml`
 - `neuroplast/capabilities.yaml`
+- `ARCHITECTURE.md` — minimal root architecture scaffold created during `init` when missing
 - `neuroplast/conceptualize.md`
 - `neuroplast/PLANNING_INSTRUCTIONS.md`
 - `neuroplast/act.md`
@@ -291,9 +315,14 @@ The instruction files reference these folders, which are expected to be created 
 
 ## Workflow Overview
 
-### 1) Conceptualization
+### 1) Project-Mind Orientation
 
-Start from `neuroplast/WORKFLOW_CONTRACT.md`, then `neuroplast/conceptualize.md`, which points to planning rules in `neuroplast/PLANNING_INSTRUCTIONS.md`.
+Start from `neuroplast/WORKFLOW_CONTRACT.md`, then choose the current instruction:
+
+- `neuroplast/act.md` for normal bounded work
+- `neuroplast/conceptualize.md` when the work is new, ambiguous, or needs reframing
+
+`neuroplast/conceptualize.md` points to the structured context rules in `neuroplast/PLANNING_INSTRUCTIONS.md`.
 
 `neuroplast/manifest.yaml` provides the canonical machine-readable map of workflow files, roles, and portability expectations.
 
@@ -303,26 +332,26 @@ Optional environment guides live under `neuroplast/adapters/` and explain how to
 
 Optional workflow extensions live under `neuroplast/extensions/` (bundled shared extensions) or `neuroplast/local-extensions/` (repo-local) and can add custom guidance without changing the canonical workflow behavior.
 
-### 2) Planning Outputs
+### 2) Project-Mind Outputs
 
-Generate layered planning documents:
+Generate layered project-mind documents as needed:
 
-- Per-page high-level specs
-- Per-page mid-level architecture
-- Root `ARCHITECTURE.md` as the canonical architecture artifact
-- Optional supporting planning notes under `/neuroplast/project-concept/`
+- Orientation artifacts for major work surfaces, subject areas, or domains
+- Detailed context artifacts for those same areas when needed
+- Root `ARCHITECTURE.md` as the canonical architecture or project-map artifact
+- Optional supporting notes under `/neuroplast/project-concept/`
 
 Obsidian wiki-links (`[[File Name]]`) are supported and recommended, but the workflow must remain understandable in plain markdown.
 
-### 3) Execution
+### 3) Bounded Work Sessions
 
 Follow `neuroplast/act.md` in order:
 
 - Read project concept artifacts
 - Read `neuroplast/WORKFLOW_CONTRACT.md`
 - Ensure `ARCHITECTURE.md` exists in the repository root
-- Create a plan in `/neuroplast/plans/`
-- Execute plan with references to `/neuroplast/learning/`
+- Update the active plan in `/neuroplast/plans/`
+- Execute the next bounded step with references to `/neuroplast/learning/`
 - Run concept/changelog/think instructions
 
 ### 4) Changelog Discipline

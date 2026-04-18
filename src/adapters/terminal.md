@@ -21,6 +21,8 @@ Before executing any Neuroplast workflow step in a terminal-only environment:
 4. If `neuroplast/manifest.yaml` declares active workflow extensions, read the matching files under `neuroplast/extensions/` and `neuroplast/local-extensions/`
 5. Then read and execute the relevant instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
 
+For normal day-to-day use, prefer `neuroplast/act.md` as the entrypoint once enough project context already exists. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
+
 ## Workflow Entrypoint
 Read the workflow contract, then any manifest-declared active workflow extensions, then the current instruction file directly from the filesystem, then work step by step through the required artifacts.
 
@@ -30,15 +32,15 @@ Use this sequence to prove the filesystem contract in a realistic consumer repos
 1. Run `npx neuroplast init` in the target repository.
 2. Read `neuroplast/WORKFLOW_CONTRACT.md`, `neuroplast/manifest.yaml`, `neuroplast/capabilities.yaml`, and any active extension files declared in the manifest.
 3. Create or confirm root `ARCHITECTURE.md`.
-4. Add one concept artifact under `neuroplast/project-concept/` and one plan file under `neuroplast/plans/`.
-5. Execute one bounded implementation step through `neuroplast/act.md`.
+4. Add one project-context artifact under `neuroplast/project-concept/` and one active plan file under `neuroplast/plans/`.
+5. Execute one bounded work step through `neuroplast/act.md`.
 6. Run `npx neuroplast validate` to confirm the contract and metadata are still valid.
 7. When Neuroplast is later updated, run `npx neuroplast sync` to apply package-managed refreshes while preserving local edits.
 
 This path proves that the workflow stays usable from files and commands alone.
 
 ## Recommended Prompt
-`Operate the Neuroplast workflow from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Use the filesystem contract as the source of truth, keep changes non-destructive, and record plan, changelog, and learning updates in the required locations.`
+`Operate the Neuroplast project mind from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Use the filesystem contract as the source of truth, load current project state from files, keep changes non-destructive, and record plan, changelog, and learning updates in the required locations.`
 
 ## Usage Notes
 - Prefer smaller, explicit steps and persist progress often.

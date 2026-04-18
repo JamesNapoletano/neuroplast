@@ -32,7 +32,10 @@ neuroplast:
 #instruction
 
 ## Purpose
-Execute work based on concept artifacts and maintain architecture, changelog, and learning records.
+Execute a bounded work session using the project mind and maintain architecture, changelog, and learning records.
+
+## Everyday Entrypoint
+Use `act.md` as the normal starting point once Neuroplast already has enough project context to proceed. Reach for `conceptualize.md` first only when the work is new, unclear, or needs a meaningful reframing.
 
 ## Obsidian Tagging Policy
 - Top-level instruction files in `/neuroplast/*.md` must include `#instruction` directly under the H1 title.
@@ -47,13 +50,14 @@ Execute work based on concept artifacts and maintain architecture, changelog, an
 - `/neuroplast/project-concept/` artifacts
 - `ARCHITECTURE.md` in repository root
 - Existing notes in `/neuroplast/learning/`
+- Current objective, request, or bounded work target from the human operator
 - `CONCEPT_INSTRUCTIONS.md`
 - `CHANGELOG_INSTRUCTIONS.md`
 - `think.md`
 
 ## Outputs
-- New or updated implementation plan in `/neuroplast/plans/`
-- Updated project files from execution
+- New or updated active plan in `/neuroplast/plans/`
+- Updated project files or artifacts from the bounded work session
 - Updated `ARCHITECTURE.md` (if relevant)
 - Updated concept and changelog artifacts (if relevant)
 - New learning entry in `/neuroplast/learning/` (if relevant)
@@ -63,18 +67,20 @@ Execute work based on concept artifacts and maintain architecture, changelog, an
 2. Read `capabilities.yaml` and adjust execution strategy if environment limits are declared.
 3. Read project context from `/neuroplast/project-concept/`.
 4. Ensure `ARCHITECTURE.md` exists in repository root. If missing, create it.
-5. Create or update a plan file in `/neuroplast/plans/` for the current work.
-6. Ensure all created or updated markdown files include the correct Obsidian tag from the tagging policy.
-7. Execute the plan, using relevant prior learnings from `/neuroplast/learning/`.
-8. If environment capabilities block part of execution, record the limitation and fallback path in the current plan before proceeding or stopping.
-9. Verify implementation quality and completeness.
-10. Execute `CONCEPT_INSTRUCTIONS.md`.
-11. Execute `CHANGELOG_INSTRUCTIONS.md`.
-12. Execute `think.md`.
+5. Identify the current objective and next bounded step from the human request plus repository context.
+6. Create or update a plan file in `/neuroplast/plans/` for the current work.
+7. Ensure all created or updated markdown files include the correct Obsidian tag from the tagging policy.
+8. Use the plan to record scope, assumptions, verification, blockers, and handoff context before and during the work.
+9. Execute the bounded work, using relevant prior learnings from `/neuroplast/learning/`.
+10. If environment capabilities block part of execution, record the limitation and fallback path in the current plan before proceeding or stopping.
+11. Verify work quality and completeness using checks appropriate to the project domain.
+12. Execute `CONCEPT_INSTRUCTIONS.md`.
+13. Execute `CHANGELOG_INSTRUCTIONS.md`.
+14. Execute `think.md`.
 
 ## Validation Checklist
 - [ ] `/neuroplast/plans/` contains a current plan file.
-- [ ] Implementation matches the plan scope.
+- [ ] Completed work matches the plan scope.
 - [ ] `ARCHITECTURE.md` exists and is current.
 - [ ] Markdown files include required Obsidian tags by folder type.
 - [ ] Concept/changelog/learning instructions were executed.

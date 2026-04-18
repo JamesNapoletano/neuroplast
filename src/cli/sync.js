@@ -21,6 +21,8 @@ const {
 
 function runSync(context, { isPostInit }) {
   const state = loadState(context);
+  const checkpoint = context.output.checkpoint();
+  context.phase = "sync";
   seedKnownManagedFiles(context, state);
 
   const syncDecision = getSyncDecision({
@@ -29,13 +31,24 @@ function runSync(context, { isPostInit }) {
     force: context.syncOptions.force
   });
 
+  const result = {
+    postInit: Boolean(isPostInit),
+    dryRun: context.syncOptions.dryRun,
+    decision: syncDecision,
+    managedRefresh: null,
+    migrations: [],
+    stateUpdated: false,
+    summary: null
+  };
+
   context.logInfo(syncDecision.message);
 
   if (!syncDecision.shouldRun) {
     if (!isPostInit) {
       context.logInfo("Neuroplast sync complete.");
     }
-    return;
+    result.summary = context.output.summarizeSince(checkpoint);
+    return result;
   }
 
   if (context.syncOptions.dryRun) {
@@ -43,6 +56,7 @@ function runSync(context, { isPostInit }) {
   }
 
   const managedRefreshResult = refreshManagedStaticFiles(context, state);
+  result.managedRefresh = managedRefreshResult;
 
   if (managedRefreshResult.scanned > 0) {
     const summaryLabel = context.syncOptions.dryRun ? "Managed file preview complete" : "Managed file refresh complete";
@@ -63,19 +77,27 @@ function runSync(context, { isPostInit }) {
 
   for (const migration of pendingMigrations) {
     context.logInfo(`Applying migration ${migration.id}: ${migration.description}`);
-    const result = migration.run(migrationContext);
+    const migrationResult = migration.run(migrationContext);
 
     if (!context.syncOptions.dryRun) {
       state.appliedMigrations.push(migration.id);
     }
 
-    context.logInfo(`Migration ${migration.id} complete (${result.updated} updated, ${result.scanned} scanned).`);
+    context.logInfo(`Migration ${migration.id} complete (${migrationResult.updated} updated, ${migrationResult.scanned} scanned).`);
+    result.migrations.push({
+      id: migration.id,
+      version: migration.version,
+      description: migration.description,
+      updated: migrationResult.updated,
+      scanned: migrationResult.scanned
+    });
   }
 
   if (!context.syncOptions.dryRun) {
     finalizeManagedStaticFiles(context, state, managedRefreshResult.controlledPaths);
     state.lastSyncedVersion = PACKAGE_VERSION;
     saveState(context, state);
+    result.stateUpdated = true;
   } else {
     context.logInfo("Dry run enabled: no files or state were modified.");
   }
@@ -83,6 +105,9 @@ function runSync(context, { isPostInit }) {
   if (!isPostInit) {
     context.logInfo("Neuroplast sync complete.");
   }
+
+  result.summary = context.output.summarizeSince(checkpoint);
+  return result;
 }
 
 function refreshManagedStaticFiles(context, state) {

@@ -21,7 +21,7 @@ neuroplast:
 #instruction
 
 ## Purpose
-Maintain a daily changelog with clear links to related plans and adjacent changelog entries.
+Maintain a daily changelog with clear links to related plans and adjacent changelog entries so project history remains legible across humans, AI sessions, and tools.
 
 ## Inputs
 - Current date
@@ -42,7 +42,7 @@ Maintain a daily changelog with clear links to related plans and adjacent change
 5. Add links from the changelog to relevant plan file(s) in `/neuroplast/plans/`.
 6. Ensure each referenced plan file links back to this changelog entry.
 7. If a previous changelog exists, add previous/next navigation links between entries.
-8. If current-cycle changes affect user-facing behavior (commands, paths, initialization output, or workflow expectations), update project root `README.md` accordingly.
+8. If current-cycle changes affect user-facing or operator-facing behavior (commands, paths, initialization output, workflow expectations, or collaboration patterns), update project root `README.md` accordingly.
 
 ## Validation Checklist
 - [ ] Daily changelog file exists.

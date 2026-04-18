@@ -7,6 +7,8 @@ Convert the neuroplast workflow system into an installable npm package that auto
 ## Problem Statement
 The neuroplast repository contains valuable workflow instructions, a canonical workflow contract, and optional Obsidian-compatible configuration that would benefit from being easily bootstrapped into new projects without manual copying.
 
+The package should not feel coding-only. It should install a reusable project mind that works for software and non-software repositories alike.
+
 ## Solution
 Create an npm package with an explicit CLI initializer that:
 1. Copies the machine-readable manifest (`manifest.yaml`) to `/neuroplast/`
@@ -20,6 +22,9 @@ Create an npm package with an explicit CLI initializer that:
 9. Creates the expected `/neuroplast/` folder structure
 10. Applies one-time versioned migrations to managed files (via `sync`) when future template behavior changes require controlled updates
 11. Validates workflow contract, metadata, and active extension declarations via `validate`
+12. Scaffolds a minimal root `ARCHITECTURE.md` during `init` when the repository does not already provide one
+13. Emits optional machine-readable JSON output for `init`, `sync`, and `validate` so wrapper tooling can consume command results without scraping human logs
+14. Ships published JSON schema artifacts for each machine-readable CLI mode so automation consumers can validate payload shape explicitly
 
 ## Key Requirements
 
@@ -43,6 +48,9 @@ neuroplast/
 - **Safe refreshes**: `sync` recreates missing managed package files, refreshes unchanged ones, and preserves locally edited copies
 - **Version sensitivity**: Sync checks every package upgrade, including patch updates
 - **Downgrade safety**: Downgrades skip sync by default; operator can opt in via `--force`
+- **First-run practicality**: `init` also creates a minimal root `ARCHITECTURE.md` so a fresh repository can complete the initial validation loop without extra manual scaffolding
+- **Automation support**: `init --json`, `sync --json`, and `validate --json` provide machine-readable command results for CI and wrapper tooling
+- **Contract visibility**: schema files under `/schemas/` document the current JSON payload contracts for machine-readable command output
 
 ### Files to Install
 | Source | Destination | Condition |
@@ -72,6 +80,7 @@ neuroplast/
 - Resolve target directory via `INIT_CWD` fallback to `process.cwd()`
 - Handle errors gracefully without destructive behavior
 - Treat `WORKFLOW_CONTRACT.md` plus root `ARCHITECTURE.md` as the canonical portability and architecture anchors
+- Scaffold `ARCHITECTURE.md` only when missing so operator-authored architecture files remain authoritative
 - Treat `manifest.yaml` as the canonical machine-readable workflow map
 - Treat `capabilities.yaml` as the advisory machine-readable capability profile for graceful degradation
 - Treat bundled extension scaffolding and repo-local workflow extensions as optional additive layers declared in the manifest

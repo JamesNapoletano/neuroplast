@@ -21,11 +21,13 @@ Before executing any Neuroplast workflow step in Claude Code:
 4. If `neuroplast/manifest.yaml` declares active workflow extensions, read the matching files under `neuroplast/extensions/` and `neuroplast/local-extensions/`
 5. Then read and execute the relevant instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
 
+Prefer `neuroplast/act.md` for normal bounded work once enough project context exists. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
+
 ## Workflow Entrypoint
-Read `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then execute the current workflow step through the matching instruction file.
+Read `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then execute the current workflow step through the matching instruction file. Treat the repository files as the project mind, not just as a task checklist.
 
 ## Recommended Prompt
-`Execute the Neuroplast workflow from files. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Follow the contract exactly, keep updates non-destructive, and write outputs only to the documented Neuroplast locations.`
+`Execute the Neuroplast project mind from files. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Load the current project state from files, keep updates non-destructive, and write outputs only to the documented Neuroplast locations.`
 
 ## Usage Notes
 - Keep plans current in `neuroplast/plans/`.

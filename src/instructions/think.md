@@ -18,10 +18,10 @@ neuroplast:
 #instruction
 
 ## Purpose
-Capture reusable, non-sensitive execution learnings to improve future work quality.
+Capture reusable, non-sensitive learnings from the current work cycle to improve future project-mind quality and execution quality.
 
 ## Inputs
-- Mistakes or insights from the current execution cycle
+- Mistakes or insights from the current work cycle
 - Existing knowledge in `/neuroplast/learning/`
 
 ## Outputs

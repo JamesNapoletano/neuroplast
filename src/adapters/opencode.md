@@ -22,10 +22,12 @@ Before executing any Neuroplast workflow step in OpenCode:
 5. Then read and execute the relevant instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
 
 ## Workflow Entrypoint
-Start by reading `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then follow the relevant instruction file for the current step.
+Start by reading `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then follow the relevant instruction file for the current step. Treat the files as the active project mind.
+
+Prefer `neuroplast/act.md` for normal bounded work once project context exists. Use `neuroplast/conceptualize.md` when the project mind needs to be created or reframed.
 
 ## Recommended Prompt
-`You are operating inside a Neuroplast workflow. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the relevant instruction file. Follow the file contract exactly, do not overwrite files unless explicitly instructed, and record plans, changelog updates, and learnings in the designated Neuroplast folders.`
+`You are operating inside a Neuroplast project mind. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the relevant instruction file. Load the current project state from files, do bounded work, do not overwrite files unless explicitly instructed, and record plan, changelog, and learning updates in the designated Neuroplast folders.`
 
 ## Usage Notes
 - Use the current instruction file as the immediate task contract.

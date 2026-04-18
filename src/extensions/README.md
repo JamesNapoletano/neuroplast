@@ -1,7 +1,7 @@
 # Neuroplast Workflow Extensions
 
 ## Purpose
-Describe how optional workflow extensions augment Neuroplast without changing the canonical workflow contract.
+Describe how optional workflow extensions augment Neuroplast's project-mind behavior without changing the canonical workflow contract.
 
 ## Canonical References
 - `neuroplast/WORKFLOW_CONTRACT.md`
@@ -20,6 +20,8 @@ Describe how optional workflow extensions augment Neuroplast without changing th
 - Add bundled extension names to `extensions.active_bundled` in `neuroplast/manifest.yaml`.
 - Add repo-local extension names to `extensions.active_local` in `neuroplast/manifest.yaml`.
 - After reading the core contract, manifest, and capabilities profile, automatically load the matching per-step extension files for every active extension before executing the relevant canonical instruction.
+
+Extensions should improve how the project mind behaves in practice: stronger verification, better artifact alignment, cleaner handoffs, or other bounded improvements to collaboration quality.
 
 ## Seamless Step Loading Convention
 - Treat active extensions as phase overlays, not one-off manual reads.

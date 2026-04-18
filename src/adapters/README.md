@@ -1,6 +1,6 @@
 # Neuroplast Environment Guides
 
-These files explain how to apply the same Neuroplast workflow contract in different AI-assisted development environments.
+These files explain how to apply the same Neuroplast project-mind contract in different AI-assisted environments.
 
 ## Rules
 - These guides are documentation-only.
@@ -10,6 +10,8 @@ These files explain how to apply the same Neuroplast workflow contract in differ
 - They should instruct the operator to read any manifest-declared active workflow extensions before executing a matching instruction file.
 - Environment-specific prompts and tips may improve usability, but they must not fork behavior.
 - They must not override the Neuroplast workflow contract.
+
+The guides should help operators load project state, choose the current objective, and preserve durable handoff context rather than treat Neuroplast as a coding-only script runner.
 
 ## Support Status Definitions
 - **Actively verified**: maintainers rerun a documented first-loop workflow in that environment and confirm the canonical contract still works as described.

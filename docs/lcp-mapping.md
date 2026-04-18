@@ -9,7 +9,7 @@ The official normative source for LCP is:
 ## Positioning
 
 - **LCP** defines the domain-agnostic protocol.
-- **Neuroplast** implements LCP as a repository-local cognitive augmentation toolkit for AI systems.
+- **Neuroplast** implements LCP as a repository-local project mind for humans and AI systems.
 - **Neuroplast CLI/runtime behavior** is implementation tooling, not LCP core semantics.
 
 ## Concept Mapping

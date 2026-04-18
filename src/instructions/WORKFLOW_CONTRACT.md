@@ -21,7 +21,7 @@ neuroplast:
 #instruction
 
 ## Purpose
-Define the filesystem-first Neuroplast implementation contract that makes Neuroplast portable across AI-assisted environments while explicitly aligning to LCP.
+Define the filesystem-first Neuroplast project-mind contract so a human and an AI can load project context, choose the current objective, do bounded work, and preserve durable memory across sessions and tools while explicitly aligning to LCP.
 
 Normative protocol source:
 
@@ -37,6 +37,14 @@ Neuroplast exposes a dual-layout interface:
 - root `ARCHITECTURE.md` is the Neuroplast default canonical architecture artifact
 
 The workflow must remain understandable and executable from files alone.
+
+Neuroplast should behave like a project mind, not only like a task checklist. The files should make it easy to answer:
+
+- What is this project?
+- What is true right now?
+- What are we trying to do next?
+- Why are we making these decisions?
+- What changed or was learned?
 
 ## Required Layout
 
@@ -74,22 +82,34 @@ The canonical workflow loop is:
 
 `conceptualize -> plan -> act -> changelog -> think -> repeat`
 
+This loop defines the durable artifact lifecycle, not a requirement that every session start from scratch.
+
+- `act.md` is the normal entrypoint for everyday bounded work once the project mind already exists.
+- `conceptualize.md` is for new initiatives, ambiguous requests, reframing, or major scope changes.
+- `PLANNING_INSTRUCTIONS.md` defines how to refresh project-mind context when the existing structure is missing or insufficient.
+
 ### Phase Roles
-- `conceptualize` — create or refine concept artifacts and planning context
-- `plan` — define structured work in `/neuroplast/plans/`
-- `act` — execute the plan and update implementation artifacts
-- `changelog` — record completed work for the current date
-- `think` — capture reusable, non-sensitive learnings
+- `conceptualize` — create or reframe durable project context when the work is new, unclear, or materially changed
+- `plan` — define the current objective, bounded scope, and verification path in `/neuroplast/plans/`
+- `act` — perform the next bounded work session and keep project artifacts aligned
+- `changelog` — record what changed in the current cycle
+- `think` — capture reusable, non-sensitive learnings from the cycle
+
+## Human + AI Collaboration Model
+- The human provides intent, priorities, constraints, and review.
+- The AI loads the project mind from files, updates the active plan, performs bounded work, and writes durable handoff context back to the repository.
+- Plans, changelogs, and learning notes are the shared memory surface when session memory or tool context is incomplete.
+- The goal is not to force ceremony; the goal is to keep the project legible, resumable, and trustworthy.
 
 ## Artifact Roles
 - `.lcp/manifest.yaml` stores the LCP bridge manifest for explicit protocol alignment
 - `neuroplast/manifest.yaml` stores the Neuroplast machine-readable workflow map
 - `neuroplast/capabilities.yaml` stores the advisory environment capability profile
-- `/neuroplast/project-concept/` stores concept and planning context
-- `/neuroplast/plans/` stores execution plans
-- `/neuroplast/project-concept/changelog/` stores dated changelog entries
-- `/neuroplast/learning/` stores reusable execution learnings
-- `ARCHITECTURE.md` stores the canonical implementation architecture
+- `/neuroplast/project-concept/` stores durable project-mind context, orientation, assumptions, and structured domain understanding
+- `/neuroplast/plans/` stores the active objective, bounded work plans, blockers, and handoff state
+- `/neuroplast/project-concept/changelog/` stores dated history of completed work cycles
+- `/neuroplast/learning/` stores reusable practices and lessons from completed work
+- `ARCHITECTURE.md` stores the canonical architecture, structure, or system map for the project
 
 ## Machine-Readable Metadata
 - `.lcp/manifest.yaml` is the LCP-facing bridge manifest.
@@ -142,7 +162,7 @@ The canonical workflow loop is:
 
 ## Update Rules
 - New work should create or update a current plan file in `/neuroplast/plans/`.
-- Architecture-relevant changes should be reflected in `ARCHITECTURE.md`.
+- Architecture- or structure-relevant changes should be reflected in `ARCHITECTURE.md`.
 - Completed work should be recorded in the current dated changelog entry.
 - Reusable lessons should be captured in `/neuroplast/learning/`.
 

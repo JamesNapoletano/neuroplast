@@ -21,11 +21,13 @@ Before executing any Neuroplast workflow step in VS Code + Copilot:
 4. If `neuroplast/manifest.yaml` declares active workflow extensions, read the matching files under `neuroplast/extensions/` and `neuroplast/local-extensions/`
 5. Then read and execute the relevant instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
 
+Prefer `neuroplast/act.md` for normal bounded work once enough project context exists. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
+
 ## Workflow Entrypoint
-Read the workflow contract, then any manifest-declared active workflow extensions, then the current instruction file before using editor assistance for implementation or planning.
+Read the workflow contract, then any manifest-declared active workflow extensions, then the current instruction file before using editor assistance for work. Treat the files as the active project mind.
 
 ## Recommended Prompt
-`Work within the Neuroplast file contract. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Keep updates non-destructive, preserve required artifact paths, and finish plan, changelog, and learning steps.`
+`Work within the Neuroplast project mind contract. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Load current project state from files, keep updates non-destructive, preserve required artifact paths, and finish plan, changelog, and learning steps.`
 
 ## Usage Notes
 - Use Copilot suggestions as implementation assistance, not as workflow authority.

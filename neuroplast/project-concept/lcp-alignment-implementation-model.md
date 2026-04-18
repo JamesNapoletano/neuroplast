@@ -21,6 +21,9 @@ LCP is the normative external protocol source. Neuroplast is an implementation o
 ## Domain Positioning
 Neuroplast is domain-agnostic. Software remains an important example, but Neuroplast also targets research, science, education, collaborative learning, and other repository-local knowledge contexts.
 
+## Project-Mind Operating Model
+Neuroplast should be understood as a project mind shared by humans and AI, not only as a software execution framework. Its files should preserve orientation, the current objective, durable reasoning context, change history, and reusable lessons across sessions and tools.
+
 ## Related
 - [[plans/lcp-alignment-and-dual-layout-compatibility.md]]
 - [[project-concept/release-and-compatibility-policy.md]]

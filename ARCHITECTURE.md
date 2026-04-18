@@ -1,7 +1,7 @@
 # Neuroplast NPM Package Architecture
 
 ## System Overview
-Neuroplast is an npm package that implements the Local Cognitive Protocol (LCP) for repository-local cognitive augmentation.
+Neuroplast is an npm package that implements the Local Cognitive Protocol (LCP) as a repository-local project mind for human + AI collaboration.
 
 Normative protocol source:
 
@@ -16,7 +16,7 @@ Neuroplast installs a Neuroplast working layout plus an LCP bridge layout into h
 Neuroplast is organized into three layers:
 
 1. **LCP semantic layer** — external protocol semantics defined by the LCP repository.
-2. **Neuroplast compatibility profile** — `/neuroplast/`, `ARCHITECTURE.md`, and managed instruction defaults.
+2. **Neuroplast compatibility profile** — `/neuroplast/`, `ARCHITECTURE.md`, and managed project-mind instruction defaults.
 3. **Neuroplast implementation tooling** — CLI runtime, sync logic, migrations, validation, and state.
 
 ### High-Level Architecture
@@ -55,7 +55,7 @@ Neuroplast is organized into three layers:
 |-----------|----------------|------------|
 | `package.json` | Package metadata, CLI command mapping | NPM standard |
 | `bin/neuroplast.js` | Thin CLI entrypoint that delegates to runtime orchestration | Node.js |
-| `src/cli/runtime.js` | Command parsing, dispatch, and init orchestration | Node.js modules |
+| `src/cli/runtime.js` | Command parsing, option validation, architecture scaffold install, and init orchestration | Node.js modules |
 | `src/cli/sync.js` | Managed refresh, migration loading, and sync flow | Node.js modules |
 | `src/cli/validate.js` | Validation workflow for LCP bridge and Neuroplast profile checks | Node.js modules |
 | `src/cli/state.js` | Sync state loading, saving, and managed-file metadata | Node.js modules |
@@ -63,11 +63,12 @@ Neuroplast is organized into three layers:
 | `src/cli/parsing.js` | Lightweight YAML and frontmatter parsing helpers | Node.js modules |
 | `src/cli/shared.js` | Shared semver, hashing, timestamp, and path helpers | Node.js modules |
 | `src/cli/constants.js` | Managed file maps and package-level runtime constants | Node.js modules |
-| `src/cli/logging.js` | Stable CLI log formatting helpers | Node.js modules |
+| `src/cli/logging.js` | Stable human-readable CLI log formatting helpers | Node.js modules |
+| `src/cli/output.js` | Shared human/JSON command reporting for init and sync | Node.js modules |
 | `src/migrations/` | Versioned managed-file upgrade logic | Node.js modules |
 | `src/lcp/` | LCP bridge/profile definitions and validation helpers | Node.js modules |
 | `src/lcp-files/` | Packaged `.lcp/` bridge documents | YAML |
-| `src/instructions/` | Source workflow, metadata, capabilities, and instruction files | Markdown + YAML |
+| `src/instructions/` | Source workflow, metadata, capabilities, and project-mind instruction files | Markdown + YAML |
 | `src/extensions/` | Optional bundled workflow extensions and authoring scaffold | Markdown |
 | `src/adapters/` | Optional environment guidance documents | Markdown |
 | `src/obsidian/` | Optional Obsidian config | JSON files |
@@ -78,14 +79,16 @@ Neuroplast is organized into three layers:
 
 1. **User runs CLI** → `npx neuroplast init` or `npx neuroplast sync`
 2. **`bin/neuroplast.js` executes** → delegates to `src/cli/runtime.js`
-3. **Init phase (init command only)** → creates folders + copies missing files
+3. **Init phase (init command only)** → creates folders, copies missing managed files, and scaffolds root `ARCHITECTURE.md` when absent
 4. **Validate phase (validate command only)** → checks manifest, capabilities, required paths, frontmatter, and environment-guide boundaries
 5. **State loader** → reads `neuroplast/.neuroplast-state.json`
 6. **Version gate** → compares `lastSyncedVersion` to current package version (major/minor/patch aware)
 7. **Managed refresh phase** → safely refreshes package-managed static files when their installed copy still matches the last synced baseline
 8. **Migration runner** → applies pending migrations by semver/version + migration ID
 9. **State writer** → records applied migrations, managed files, and per-file baseline metadata
-10. **Completion logging** → prints create/skip/update/preserve actions
+10. **Completion logging** → prints create/skip/update/preserve actions or emits structured JSON summaries when requested
+
+The installed file set is meant to act as a durable project mind: orientation context in `project-concept/`, active objective and handoff state in `plans/`, dated history in `project-concept/changelog/`, and reusable lessons in `learning/`.
 
 ### Low-Level Architecture
 
@@ -148,6 +151,11 @@ src/obsidian/.obsidian/graph.json        → neuroplast/.obsidian/graph.json
 ./neuroplast/plans/
 ```
 
+**Root Scaffold (created during `init` if missing):**
+```
+src/templates/ARCHITECTURE.md → ./ARCHITECTURE.md
+```
+
 #### Managed Update State
 
 Neuroplast stores managed update state in:
@@ -187,6 +195,7 @@ State tracks:
 #### Validation System
 
 - `validate` checks required directories, required workflow files, support files, root `ARCHITECTURE.md`, parseable manifest/capabilities YAML, instruction frontmatter structure, and environment-guide boundaries.
+- `init` now leaves fresh repositories validate-ready by scaffolding a minimal root `ARCHITECTURE.md` unless the repository already provides one.
 - `validate` also checks any active bundled or repo-local workflow extensions declared in the manifest and enforces a minimal active-extension file convention.
 - `validate --json` now includes a `schemaVersion` field and is documented as a stable machine-readable contract for the active major version via `schemas/validate-json.schema.json`.
 - Validation uses a built-in lightweight YAML/frontmatter parser to avoid external runtime dependencies.
@@ -213,6 +222,8 @@ State tracks:
 - CI now runs that release verification entrypoint on supported Node versions so local maintainer checks and hosted verification stay aligned.
 - Runtime maintainability is now organized into focused CLI modules so future behavior changes can be made without expanding the command surface.
 - Validation supports both human-readable output with remediation guidance and optional machine-readable JSON output for automation.
+- `init` and `sync` now also support optional machine-readable JSON output built from the same action stream used for human-readable logging.
+- Published schema files under `schemas/` now document the machine-readable payload contracts for `init`, `sync`, and `validate` JSON modes.
 - Validation now includes sync-state integrity checks plus active-extension shape validation to improve operator trust without expanding CLI scope.
 - Portability proof currently treats the terminal-only guide as the actively verified first-loop environment; other bundled guides remain documentation-only until separately exercised.
 
