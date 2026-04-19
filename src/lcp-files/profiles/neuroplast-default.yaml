@@ -10,5 +10,5 @@ scope:
   root: .
 updated_at: "2026-04-02T00:00:00Z"
 profile:
-  version_statement: Neuroplast v1.2.2 implements LCP v1
+  version_statement: Neuroplast v1.2.3 implements LCP v1
   working_layout_root: neuroplast/

@@ -65,6 +65,8 @@ Neuroplast should behave like a project mind, not only like a task checklist. Th
 - `neuroplast/capabilities.yaml`
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/conceptualize.md`
+- `neuroplast/reverse-engineering.md`
+- `neuroplast/reconcile-conflicts.md`
 - `neuroplast/PLANNING_INSTRUCTIONS.md`
 - `neuroplast/act.md`
 - `neuroplast/CONCEPT_INSTRUCTIONS.md`
@@ -85,6 +87,7 @@ The canonical workflow loop is:
 This loop defines the durable artifact lifecycle, not a requirement that every session start from scratch.
 
 - `act.md` is the normal entrypoint for everyday bounded work once the project mind already exists.
+- `reconcile-conflicts.md` is the specialized on-demand entrypoint for preservation-first conflict resolution when parallel edits or merge conflicts already exist.
 - `conceptualize.md` is for new initiatives, ambiguous requests, reframing, or major scope changes.
 - `PLANNING_INSTRUCTIONS.md` defines how to refresh project-mind context when the existing structure is missing or insufficient.
 

@@ -1,6 +1,6 @@
 function getNeuroplastProfile() {
   return {
-    versionStatement: "Neuroplast v1.2.2 implements LCP v1",
+    versionStatement: "Neuroplast v1.2.3 implements LCP v1",
     rootArchitecturePath: "ARCHITECTURE.md",
     requiredDirectories: [
       "neuroplast/project-concept",
@@ -12,6 +12,7 @@ function getNeuroplastProfile() {
       "neuroplast/WORKFLOW_CONTRACT.md",
       "neuroplast/conceptualize.md",
       "neuroplast/reverse-engineering.md",
+      "neuroplast/reconcile-conflicts.md",
       "neuroplast/PLANNING_INSTRUCTIONS.md",
       "neuroplast/act.md",
       "neuroplast/CONCEPT_INSTRUCTIONS.md",

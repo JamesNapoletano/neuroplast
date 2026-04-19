@@ -14,7 +14,7 @@ Neuroplast preserves its existing `/neuroplast/` working layout while also insta
 
 Current version statement:
 
-- `Neuroplast v1.2.2 implements LCP v1`
+- `Neuroplast v1.2.3 implements LCP v1`
 
 ## Quick Start
 
@@ -96,12 +96,13 @@ After `npx neuroplast init`, read these files in order before doing any real wor
 3. `neuroplast/manifest.yaml`
 4. `neuroplast/capabilities.yaml`
 5. Any active workflow extensions declared in `neuroplast/manifest.yaml`
-6. The current instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
+6. The current instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/reconcile-conflicts.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
 
 Use the instruction files with this operating model:
 
 - Start with `neuroplast/act.md` for normal bounded work once the project already has enough context.
 - Start with `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization.
+- Start with `neuroplast/reconcile-conflicts.md` when parallel edits or merge conflicts need a preservation-first reconciliation pass.
 - Start with `neuroplast/conceptualize.md` when the project is new, the request is ambiguous, or the project mind needs reframing.
 - Treat `/neuroplast/project-concept/`, `/neuroplast/plans/`, `/neuroplast/project-concept/changelog/`, and `/neuroplast/learning/` as the durable memory surface shared by the human and the AI.
 
@@ -278,6 +279,7 @@ Source-of-truth package files in this repository:
   - `WORKFLOW_CONTRACT.md`
   - `conceptualize.md`
   - `reverse-engineering.md`
+  - `reconcile-conflicts.md`
   - `PLANNING_INSTRUCTIONS.md`
   - `act.md`
   - `CONCEPT_INSTRUCTIONS.md`
@@ -297,6 +299,7 @@ Installed output in target projects (created by `npx neuroplast init`):
 - `ARCHITECTURE.md` — minimal root architecture scaffold created during `init` when missing
 - `neuroplast/conceptualize.md`
 - `neuroplast/reverse-engineering.md`
+- `neuroplast/reconcile-conflicts.md`
 - `neuroplast/PLANNING_INSTRUCTIONS.md`
 - `neuroplast/act.md`
 - `neuroplast/CONCEPT_INSTRUCTIONS.md`
@@ -324,6 +327,7 @@ Start from `neuroplast/WORKFLOW_CONTRACT.md`, then choose the current instructio
 
 - `neuroplast/act.md` for normal bounded work
 - `neuroplast/reverse-engineering.md` for code-grounded reconstruction of project context from an existing repository
+- `neuroplast/reconcile-conflicts.md` for explicit conflict-resolution and competing-edit reconciliation sessions
 - `neuroplast/conceptualize.md` when the work is new, ambiguous, or needs reframing
 
 `neuroplast/conceptualize.md` points to the structured context rules in `neuroplast/PLANNING_INSTRUCTIONS.md`.
@@ -366,7 +370,7 @@ Follow `neuroplast/reverse-engineering.md` when the repository already exists bu
 
 ### 4) Changelog Discipline
 
-`neuroplast/CHANGELOG_INSTRUCTIONS.md` expects date-based changelog files (`YYYY-MM-DD.md`) under `/neuroplast/project-concept/changelog/` with links to associated plans.
+`neuroplast/CHANGELOG_INSTRUCTIONS.md` expects date-based changelog files (`YYYY-MM-DD.md`) under `/neuroplast/project-concept/changelog/` with links to associated plans. When collisions or competing same-day edits exist, use `neuroplast/reconcile-conflicts.md` first so the final changelog preserves valid facts from both sides.
 
 ### 5) Learning Capture
 
@@ -400,4 +404,5 @@ Follow `neuroplast/reverse-engineering.md` when the repository already exists bu
 1. Create the `/neuroplast/...` folders referenced above.
 2. Add an initial project concept in `/neuroplast/project-concept/`.
 3. Start daily changelog files in `/neuroplast/project-concept/changelog/`.
+4. If multiple contributors create conflicting edits to the same artifact, run `neuroplast/reconcile-conflicts.md` before finalizing the canonical file.
 4. Add a root architecture file matching your preferred naming convention.

@@ -21,6 +21,7 @@ const workflowFiles = [
   "WORKFLOW_CONTRACT.md",
   "conceptualize.md",
   "reverse-engineering.md",
+  "reconcile-conflicts.md",
   "act.md",
   "think.md",
   "CONCEPT_INSTRUCTIONS.md",

@@ -35,7 +35,7 @@ neuroplast:
 Execute a bounded work session using the project mind and maintain architecture, changelog, and learning records.
 
 ## Everyday Entrypoint
-Use `act.md` as the normal starting point once Neuroplast already has enough project context to proceed. Reach for `conceptualize.md` first only when the work is new, unclear, or needs a meaningful reframing.
+Use `act.md` as the normal starting point once Neuroplast already has enough project context to proceed. Reach for `reconcile-conflicts.md` first when the immediate task is resolving merge conflicts or competing edits. Reach for `conceptualize.md` first only when the work is new, unclear, or needs a meaningful reframing.
 
 ## Obsidian Tagging Policy
 - Top-level instruction files in `/neuroplast/*.md` must include `#instruction` directly under the H1 title.

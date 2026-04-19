@@ -19,7 +19,7 @@ Before executing any Neuroplast workflow step in Claude Code:
 2. Read `neuroplast/manifest.yaml`
 3. Read `neuroplast/capabilities.yaml`
 4. If `neuroplast/manifest.yaml` declares active workflow extensions, read the matching files under `neuroplast/extensions/` and `neuroplast/local-extensions/`
-5. Then read and execute the relevant instruction file such as `neuroplast/conceptualize.md` or `neuroplast/act.md`
+5. Then read and execute the relevant instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/reconcile-conflicts.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
 
 ## Workflow Entrypoint
 Read `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then execute the current workflow step through the matching instruction file.

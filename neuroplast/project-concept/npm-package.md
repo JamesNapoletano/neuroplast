@@ -14,7 +14,7 @@ Create an npm package with an explicit CLI initializer that:
 1. Copies the machine-readable manifest (`manifest.yaml`) to `/neuroplast/`
 2. Copies the advisory capability profile (`capabilities.yaml`) to `/neuroplast/`
 3. Copies the workflow contract (`WORKFLOW_CONTRACT.md`) to `/neuroplast/`
-4. Copies instruction files (`act.md`, `conceptualize.md`, etc.) to `/neuroplast/`
+4. Copies instruction files (`act.md`, `conceptualize.md`, `reverse-engineering.md`, `reconcile-conflicts.md`, etc.) to `/neuroplast/`
 5. Optionally installs `.obsidian/` configuration under `/neuroplast/.obsidian/`
 6. Ships optional environment guidance docs under `/neuroplast/adapters/`
 7. Ships optional bundled workflow extension scaffolding under `/neuroplast/extensions/`

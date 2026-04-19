@@ -101,6 +101,7 @@ src/instructions/capabilities.yaml       → ./neuroplast/capabilities.yaml
 src/instructions/WORKFLOW_CONTRACT.md   → ./neuroplast/WORKFLOW_CONTRACT.md
 src/instructions/conceptualize.md     → ./neuroplast/conceptualize.md
 src/instructions/reverse-engineering.md → ./neuroplast/reverse-engineering.md
+src/instructions/reconcile-conflicts.md → ./neuroplast/reconcile-conflicts.md
 src/instructions/act.md              → ./neuroplast/act.md
 src/instructions/think.md            → ./neuroplast/think.md
 src/instructions/CONCEPT_INSTRUCTIONS.md → ./neuroplast/CONCEPT_INSTRUCTIONS.md
@@ -262,6 +263,7 @@ Neuroplast's portability model is centered on the `/neuroplast/` filesystem cont
 - Support boundaries should distinguish actively verified environments from documentation-only guides instead of implying equal evidence across every adapter.
 - Optional bundled workflow extensions live under `neuroplast/extensions/`; repo-local custom extensions may live under `neuroplast/local-extensions/`.
 - Bundled extensions currently ship as three separate opt-in paths: `verification-first`, `artifact-sync`, and `context-continuity`.
+- Specialized shipped instruction entrypoints currently include `reverse-engineering.md` for code-grounded project-mind reconstruction and `reconcile-conflicts.md` for preservation-first conflict resolution.
 - Obsidian-compatible conventions can remain supported, but they should enhance the workflow rather than define its portability model.
 - Workflow extensions should remain opt-in and additive so maintainer- or repo-specific policy does not leak into the base instruction set.
 - This repository keeps `package-maintainer` as a repo-local extension rather than shipping it as a bundled extension.
