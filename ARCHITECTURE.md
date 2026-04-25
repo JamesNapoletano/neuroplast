@@ -65,12 +65,14 @@ Neuroplast is organized into three layers:
 | `src/cli/constants.js` | Managed file maps and package-level runtime constants | Node.js modules |
 | `src/cli/logging.js` | Stable human-readable CLI log formatting helpers | Node.js modules |
 | `src/cli/output.js` | Shared human/JSON command reporting for init and sync | Node.js modules |
+| `src/cli/interaction-routing.js` | Canonical phrase-resolution inspection and routing validation helpers | Node.js modules |
 | `src/migrations/` | Versioned managed-file upgrade logic | Node.js modules |
 | `src/lcp/` | LCP bridge/profile definitions and validation helpers | Node.js modules |
 | `src/lcp-files/` | Packaged `.lcp/` bridge documents | YAML |
 | `src/instructions/` | Source workflow, metadata, capabilities, and project-mind instruction files | Markdown + YAML |
 | `src/extensions/` | Optional bundled workflow extensions and authoring scaffold | Markdown |
 | `src/adapters/` | Optional environment guidance documents | Markdown |
+| `src/adapter-assets/` | Copy/paste-ready tool-facing bootstrap assets | Markdown |
 | `src/obsidian/` | Optional Obsidian config | JSON files |
 | `test/` | Black-box CLI reliability tests using temp repositories | Node.js `node:test` |
 | `.github/workflows/` | Automated multi-version verification and smoke packaging checks | GitHub Actions |
@@ -99,6 +101,7 @@ The installed file set is meant to act as a durable project mind: orientation co
 src/instructions/manifest.yaml            → ./neuroplast/manifest.yaml
 src/instructions/capabilities.yaml       → ./neuroplast/capabilities.yaml
 src/instructions/WORKFLOW_CONTRACT.md   → ./neuroplast/WORKFLOW_CONTRACT.md
+src/instructions/interaction-routing.yaml → ./neuroplast/interaction-routing.yaml
 src/instructions/conceptualize.md     → ./neuroplast/conceptualize.md
 src/instructions/reverse-engineering.md → ./neuroplast/reverse-engineering.md
 src/instructions/reconcile-conflicts.md → ./neuroplast/reconcile-conflicts.md
@@ -115,9 +118,24 @@ src/adapters/README.md                  → ./neuroplast/adapters/README.md
 src/adapters/opencode.md               → ./neuroplast/adapters/opencode.md
 src/adapters/claude-code.md            → ./neuroplast/adapters/claude-code.md
 src/adapters/cursor.md                 → ./neuroplast/adapters/cursor.md
+src/adapters/codex.md                  → ./neuroplast/adapters/codex.md
 src/adapters/windsurf.md               → ./neuroplast/adapters/windsurf.md
 src/adapters/vscode-copilot.md         → ./neuroplast/adapters/vscode-copilot.md
 src/adapters/terminal.md               → ./neuroplast/adapters/terminal.md
+```
+
+**Adapter Bootstrap Assets (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally):**
+```
+src/adapter-assets/README.md → ./neuroplast/adapter-assets/README.md
+src/adapter-assets/shared/neuroplast-bootstrap.md → ./neuroplast/adapter-assets/shared/neuroplast-bootstrap.md
+src/adapter-assets/codex/AGENTS.md → ./neuroplast/adapter-assets/codex/AGENTS.md
+src/adapter-assets/claude-code/CLAUDE.md → ./neuroplast/adapter-assets/claude-code/CLAUDE.md
+src/adapter-assets/opencode/skills/README.md → ./neuroplast/adapter-assets/opencode/skills/README.md
+src/adapter-assets/opencode/skills/neuroplast-bootstrap/SKILL.md → ./neuroplast/adapter-assets/opencode/skills/neuroplast-bootstrap/SKILL.md
+src/adapter-assets/opencode/skills/neuroplast-route-short-prompts/SKILL.md → ./neuroplast/adapter-assets/opencode/skills/neuroplast-route-short-prompts/SKILL.md
+src/adapter-assets/opencode/skills/neuroplast-execute-act/SKILL.md → ./neuroplast/adapter-assets/opencode/skills/neuroplast-execute-act/SKILL.md
+src/adapter-assets/opencode/agents/neuroplast-orchestrator.md → ./neuroplast/adapter-assets/opencode/agents/neuroplast-orchestrator.md
+src/adapter-assets/opencode/agents/neuroplast-planner.md → ./neuroplast/adapter-assets/opencode/agents/neuroplast-planner.md
 ```
 
 **Bundled Workflow Extensions (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally; remain inactive unless declared in manifest):**
@@ -196,7 +214,7 @@ State tracks:
 
 #### Validation System
 
-- `validate` checks required directories, required workflow files, support files, root `ARCHITECTURE.md`, parseable manifest/capabilities YAML, instruction frontmatter structure, and environment-guide boundaries.
+- `validate` checks required directories, required workflow files, support files, root `ARCHITECTURE.md`, parseable manifest/capabilities YAML, instruction frontmatter structure, environment-guide boundaries, and canonical interaction-routing integrity.
 - `init` now leaves fresh repositories validate-ready by scaffolding a minimal root `ARCHITECTURE.md` unless the repository already provides one.
 - `validate` also checks any active bundled or repo-local workflow extensions declared in the manifest and enforces a minimal active-extension file convention.
 - `validate --json` now includes a `schemaVersion` field and is documented as a stable machine-readable contract for the active major version via `schemas/validate-json.schema.json`.
@@ -225,7 +243,8 @@ State tracks:
 - Runtime maintainability is now organized into focused CLI modules so future behavior changes can be made without expanding the command surface.
 - Validation supports both human-readable output with remediation guidance and optional machine-readable JSON output for automation.
 - `init` and `sync` now also support optional machine-readable JSON output built from the same action stream used for human-readable logging.
-- Published schema files under `schemas/` now document the machine-readable payload contracts for `init`, `sync`, and `validate` JSON modes.
+- `route` now provides a narrow CLI inspection seam for canonical phrase-resolution without expanding into adapter orchestration.
+- Published schema files under `schemas/` now document the machine-readable payload contracts for `init`, `sync`, `validate`, and `route` JSON modes.
 - Validation now includes sync-state integrity checks plus active-extension shape validation to improve operator trust without expanding CLI scope.
 - Portability proof currently treats the terminal-only guide as the actively verified first-loop environment; other bundled guides remain documentation-only until separately exercised.
 
@@ -260,6 +279,7 @@ Neuroplast's portability model is centered on the `/neuroplast/` filesystem cont
 - Planned portability layers should build on an explicit workflow contract, machine-readable manifest metadata, instruction frontmatter, a capability profile, and validation rules.
 - Environment-specific guidance should remain optional and must not override the core workflow contract.
 - Optional bundled environment guides live under `neuroplast/adapters/` and mirror source docs under `src/adapters/`.
+- Copy/paste-ready bundled adapter bootstrap assets live under `neuroplast/adapter-assets/` and mirror source assets under `src/adapter-assets/`.
 - Support boundaries should distinguish actively verified environments from documentation-only guides instead of implying equal evidence across every adapter.
 - Optional bundled workflow extensions live under `neuroplast/extensions/`; repo-local custom extensions may live under `neuroplast/local-extensions/`.
 - Bundled extensions currently ship as three separate opt-in paths: `verification-first`, `artifact-sync`, and `context-continuity`.

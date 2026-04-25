@@ -26,8 +26,17 @@ Start by reading `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared a
 
 Prefer `neuroplast/act.md` for normal bounded work once project context exists. Use `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization. Use `neuroplast/reconcile-conflicts.md` when merge conflicts or competing edits need a preservation-first reconciliation pass. Use `neuroplast/conceptualize.md` when the project mind needs to be created or reframed.
 
+## Interaction Routing
+- Prefer explicit instruction-file requests or explicit step names when possible.
+- If the repository defines shared interaction-routing rules, use them before interpreting short prompts.
+- Shared examples:
+  - `go ahead` / `continue` -> continue with `neuroplast/act.md` only when a bounded active objective already exists; otherwise ask for clarification.
+  - `plan this` / `reframe this` -> use `neuroplast/conceptualize.md` when the work is new, ambiguous, or materially reframed.
+  - `what's next?` -> inspect the current plan and summarize the next bounded step instead of executing automatically.
+- When short-prompt meaning is still unclear after checking repository context, clarify instead of guessing.
+
 ## Recommended Prompt
-`You are operating inside a Neuroplast project mind. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the relevant instruction file. Load the current project state from files, do bounded work, do not overwrite files unless explicitly instructed, and record plan, changelog, and learning updates in the designated Neuroplast folders.`
+`You are operating inside a Neuroplast project mind. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the relevant instruction file. If the repository defines shared interaction-routing rules, use them before interpreting short prompts. Load the current project state from files, do bounded work, do not overwrite files unless explicitly instructed, and record plan, changelog, and learning updates in the designated Neuroplast folders.`
 
 ## Usage Notes
 - Use the current instruction file as the immediate task contract.

@@ -6,6 +6,7 @@ const { parseFrontmatter, parseSimpleYaml } = require("./parsing");
 const { normalizeRelative } = require("./shared");
 const { validateLcpBridge } = require("../lcp/validate");
 const { getNeuroplastProfile } = require("../lcp/profile");
+const { validateInteractionRouting } = require("./interaction-routing");
 
 const VALIDATE_JSON_SCHEMA_VERSION = 1;
 
@@ -43,7 +44,9 @@ function runValidate(context) {
     validateDocumentRoles(context, manifest, findings, profile);
     validateInstructionFrontmatter(context, manifest, findings);
     validateEnvironmentGuides(context, manifest, findings);
+    validateAdapterAssets(context, findings);
     validateWorkflowExtensions(context, manifest, findings);
+    validateInteractionRouting(context, manifest, findings, createFinding);
   }
 
   validateSyncStateIntegrity(context, findings);
@@ -372,6 +375,87 @@ function validateEnvironmentGuides(context, manifest, findings) {
         message: `Environment guide is aligned to the workflow contract: ${relativePath}`
       }));
     }
+  }
+}
+
+function validateAdapterAssets(context, findings) {
+  const adapterAssetsDir = path.join(context.targetRoot, "neuroplast", "adapter-assets");
+
+  if (!fs.existsSync(adapterAssetsDir)) {
+    findings.push(createFinding({
+      level: "warning",
+      code: "adapter_assets_dir_missing",
+      message: "Adapter bootstrap assets directory not found: neuroplast/adapter-assets",
+      remediation: "Run neuroplast init or neuroplast sync to install the copy/paste-ready adapter assets if you want tool-native startup wrappers."
+    }));
+    return;
+  }
+
+  const requiredAssets = [
+    "shared/neuroplast-bootstrap.md",
+    "codex/AGENTS.md",
+    "claude-code/CLAUDE.md",
+    "opencode/skills/README.md",
+    "opencode/skills/neuroplast-bootstrap/SKILL.md",
+    "opencode/skills/neuroplast-route-short-prompts/SKILL.md",
+    "opencode/skills/neuroplast-execute-act/SKILL.md",
+    "opencode/agents/neuroplast-orchestrator.md",
+    "opencode/agents/neuroplast-planner.md"
+  ];
+
+  let allPresent = true;
+  for (const relativeAsset of requiredAssets) {
+    const absolutePath = path.join(adapterAssetsDir, ...relativeAsset.split("/"));
+    if (!fs.existsSync(absolutePath)) {
+      findings.push(createFinding({
+        level: "error",
+        code: "adapter_asset_missing",
+        message: `Missing adapter bootstrap asset: neuroplast/adapter-assets/${relativeAsset}`,
+        remediation: `Restore neuroplast/adapter-assets/${relativeAsset} from the packaged source tree.`
+      }));
+      allPresent = false;
+    }
+  }
+
+  const sharedBootstrapPath = path.join(adapterAssetsDir, "shared", "neuroplast-bootstrap.md");
+  if (fs.existsSync(sharedBootstrapPath)) {
+    const sharedContent = fs.readFileSync(sharedBootstrapPath, "utf8");
+    const requiredReferences = [
+      "neuroplast/WORKFLOW_CONTRACT.md",
+      "neuroplast/manifest.yaml",
+      "neuroplast/capabilities.yaml",
+      "neuroplast/interaction-routing.yaml",
+      "neuroplast/act.md"
+    ];
+
+    let sharedValid = true;
+    for (const reference of requiredReferences) {
+      if (!sharedContent.includes(reference)) {
+        findings.push(createFinding({
+          level: "error",
+          code: "adapter_asset_reference_missing",
+          message: `Shared adapter bootstrap asset is missing canonical reference '${reference}': neuroplast/adapter-assets/shared/neuroplast-bootstrap.md`,
+          remediation: `Add '${reference}' to neuroplast/adapter-assets/shared/neuroplast-bootstrap.md.`
+        }));
+        sharedValid = false;
+      }
+    }
+
+    if (sharedValid) {
+      findings.push(createFinding({
+        level: "ok",
+        code: "adapter_assets_shared_bootstrap_valid",
+        message: "Shared adapter bootstrap asset is aligned with the canonical workflow files: neuroplast/adapter-assets/shared/neuroplast-bootstrap.md"
+      }));
+    }
+  }
+
+  if (allPresent) {
+    findings.push(createFinding({
+      level: "ok",
+      code: "adapter_assets_present",
+      message: "Copy/paste-ready adapter bootstrap assets are present: neuroplast/adapter-assets"
+    }));
   }
 }
 

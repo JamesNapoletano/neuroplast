@@ -14,7 +14,7 @@ Neuroplast preserves its existing `/neuroplast/` working layout while also insta
 
 Current version statement:
 
-- `Neuroplast v1.2.3 implements LCP v1`
+- `Neuroplast v1.3.0 implements LCP v1`
 
 ## Quick Start
 
@@ -95,8 +95,9 @@ After `npx neuroplast init`, read these files in order before doing any real wor
 2. `neuroplast/WORKFLOW_CONTRACT.md`
 3. `neuroplast/manifest.yaml`
 4. `neuroplast/capabilities.yaml`
-5. Any active workflow extensions declared in `neuroplast/manifest.yaml`
-6. The current instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/reconcile-conflicts.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
+5. `neuroplast/interaction-routing.yaml`
+6. Any active workflow extensions declared in `neuroplast/manifest.yaml`
+7. The current instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/reconcile-conflicts.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
 
 Use the instruction files with this operating model:
 
@@ -105,6 +106,12 @@ Use the instruction files with this operating model:
 - Start with `neuroplast/reconcile-conflicts.md` when parallel edits or merge conflicts need a preservation-first reconciliation pass.
 - Start with `neuroplast/conceptualize.md` when the project is new, the request is ambiguous, or the project mind needs reframing.
 - Treat `/neuroplast/project-concept/`, `/neuroplast/plans/`, `/neuroplast/project-concept/changelog/`, and `/neuroplast/learning/` as the durable memory surface shared by the human and the AI.
+
+Use short prompts carefully:
+
+- Prefer explicit instruction-file requests or explicit step names when possible.
+- If a repository defines shared interaction-routing rules, use them before interpreting prompts like `go ahead`, `continue`, `plan this`, or `what's next?`.
+- Safe defaults are: `go ahead` / `continue` only imply `act` when a bounded active objective already exists; `plan this` / `reframe this` should use `conceptualize` when the work is new or ambiguous; `what's next?` should inspect the current plan rather than execute work automatically.
 
 ### Terminal-first portability proof walkthrough
 
@@ -152,6 +159,7 @@ Neuroplast now supports one-time versioned migrations plus safe refreshes for li
 ### Managed refresh behavior
 
 - Missing managed workflow, adapter, and bundled extension files are recreated during `sync`.
+- Missing managed adapter bootstrap assets under `neuroplast/adapter-assets/` are recreated during `sync`.
 - Unchanged managed files are refreshed to the latest packaged version.
 - Locally modified managed files are preserved and reported instead of being overwritten.
 - Older installs without baseline metadata only adopt a file into safe refresh management when the current file already matches the packaged content exactly.
@@ -173,15 +181,17 @@ Neuroplast now supports one-time versioned migrations plus safe refreshes for li
 - Human-readable validation output now includes a clear next corrective action for warnings and errors.
 - `init --json` and `sync --json` now emit machine-readable action summaries for wrapper tooling while preserving the human-readable default output.
 - `npx neuroplast validate --json` emits machine-readable findings and summary counts for CI or wrapper tooling.
-- Published JSON schemas now document the stable payload contracts for `init --json`, `sync --json`, and `validate --json` within the current major version.
+- `npx neuroplast route --json` emits machine-readable phrase-resolution output for canonical interaction-routing inspection.
+- Published JSON schemas now document the stable payload contracts for `init --json`, `sync --json`, `validate --json`, and `route --json` within the current major version.
 - `validate --json` now includes `schemaVersion`, and the stable payload contract for the current major version is documented in `schemas/validate-json.schema.json`.
-- Validation now also checks sync-state parseability and warns when active extension files will not be step-loaded automatically.
+- Validation now also checks sync-state parseability, the canonical interaction-routing artifact, and protected-phrase overlay safety.
+- Validation now also checks the presence and canonical references of the shared adapter bootstrap asset family under `neuroplast/adapter-assets/`.
 
 ## Compatibility and Upgrade Policy
 
 ### Stable within a major version
 
-- CLI command names: `init`, `sync`, `validate`
+- CLI command names: `init`, `sync`, `validate`, `route`
 - The `/neuroplast/` root layout and required folder paths
 - Root `ARCHITECTURE.md` as the canonical architecture artifact
 - Core manifest document-role paths and required workflow files
@@ -195,6 +205,7 @@ Neuroplast now supports one-time versioned migrations plus safe refreshes for li
 - Additive validation findings and documentation improvements
 - Additional optional bundled extensions or additive metadata fields
 - Documentation-only adapter guidance
+- Copy/paste-ready adapter bootstrap assets that still preserve canonical routing semantics
 
 ### Deprecation and upgrade expectations
 
@@ -221,6 +232,25 @@ Current CI consumer expectations:
 - `summary.errors`, `summary.warnings`, and `findings` can be consumed by wrapper tooling
 
 If your automation depends on the JSON shape, pin the Neuroplast major version and review `schemas/validate-json.schema.json` when adopting a newer major release.
+
+## Using `route --json` in wrapper tooling
+
+Use `route --json` when a wrapper, adapter shim, or local automation layer wants deterministic inspection of how Neuroplast resolves a short prompt.
+
+Examples:
+
+```bash
+npx neuroplast route "go ahead" --json
+npx neuroplast route "what's next?" --json
+```
+
+Current wrapper expectations:
+
+- `schemaVersion` identifies the machine-readable payload contract
+- `phrase` echoes the inspected prompt
+- `routingFile` identifies the canonical routing artifact used for resolution
+- `resolution.intent` identifies the canonical routed intent
+- `resolution.type` distinguishes routed phrases from clarify fallback
 
 ## Maintainer Release Operations
 
@@ -254,6 +284,7 @@ If your automation depends on the JSON shape, pin the Neuroplast major version a
 | OpenCode | Documentation-only | File reads and writes; terminal access may vary by runtime | Guide stays aligned with the contract but is not yet maintained as a separately verified proof path. |
 | Claude Code | Documentation-only | File reads and writes; tool permissions may vary; terminal usually available | Use the same file contract and recordkeeping path as the terminal proof. |
 | Cursor | Documentation-only | File reads and writes; editor automation may vary | Treat editor assistance as convenience, not workflow authority. |
+| Codex CLI | Documentation-only | File reads and writes; terminal access usually available | Thin wrapper over the same routing contract, but not yet a separately rerun proof path. |
 | Windsurf | Documentation-only | File reads and writes; runtime capabilities may vary by mode | Fall back to the file contract when tool support is partial. |
 | VS Code + Copilot | Documentation-only | File reads and writes; terminal availability depends on local setup | Keep the workflow grounded in files rather than editor chat state. |
 
@@ -308,6 +339,7 @@ Installed output in target projects (created by `npx neuroplast init`):
 - `neuroplast/extensions/` — optional bundled workflow extensions and shared scaffolding
 - `neuroplast/local-extensions/` — optional repo-local custom workflow extensions
 - `neuroplast/adapters/` — documentation-only environment guides
+- `neuroplast/adapter-assets/` — copy/paste-ready tool-facing bootstrap assets
 - `neuroplast/.obsidian/` (optional via `--with-obsidian`)
 
 ## Intended Folder Structure (Created During Workflow)
@@ -339,6 +371,8 @@ Start from `neuroplast/WORKFLOW_CONTRACT.md`, then choose the current instructio
 `neuroplast/capabilities.yaml` provides the advisory machine-readable profile for environment limits and graceful degradation.
 
 Optional environment guides live under `neuroplast/adapters/` and explain how to apply the same contract in specific tools without changing workflow behavior.
+
+Copy/paste-ready tool-facing bootstrap assets live under `neuroplast/adapter-assets/` and are intended to be copied into destination-like tool formats such as `AGENTS.md`, `CLAUDE.md`, OpenCode kebab-case skills, or thin OpenCode agent files without changing canonical routing semantics.
 
 Optional workflow extensions live under `neuroplast/extensions/` (bundled shared extensions) or `neuroplast/local-extensions/` (repo-local) and can add custom guidance without changing the canonical workflow behavior.
 

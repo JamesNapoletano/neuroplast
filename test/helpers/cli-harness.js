@@ -7,6 +7,7 @@ const path = require("node:path");
 
 const packageJson = require("../../package.json");
 const { INIT_SYNC_JSON_SCHEMA_VERSION } = require("../../src/cli/output");
+const { ROUTING_JSON_SCHEMA_VERSION } = require("../../src/cli/interaction-routing");
 const { VALIDATE_JSON_SCHEMA_VERSION } = require("../../src/cli/validate");
 
 const projectRoot = path.resolve(__dirname, "..", "..");
@@ -117,6 +118,7 @@ module.exports = {
   PACKAGE_VERSION,
   INIT_SYNC_JSON_SCHEMA_VERSION,
   STATE_PATH,
+  ROUTING_JSON_SCHEMA_VERSION,
   VALIDATE_JSON_SCHEMA_VERSION,
   assertSuccess,
   createInitializedRepo,

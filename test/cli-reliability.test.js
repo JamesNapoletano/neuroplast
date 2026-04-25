@@ -6,6 +6,7 @@ const assert = require("node:assert/strict");
 const {
   PACKAGE_VERSION,
   INIT_SYNC_JSON_SCHEMA_VERSION,
+  ROUTING_JSON_SCHEMA_VERSION,
   STATE_PATH,
   VALIDATE_JSON_SCHEMA_VERSION,
   assertSuccess,
@@ -34,6 +35,12 @@ test("init creates the default scaffold without obsidian config", (t) => {
   assert.match(initResult.stdout, /Skipping neuroplast\/\.obsidian config/);
   assert.equal(exists(repoRoot, "neuroplast/manifest.yaml"), true);
   assert.equal(exists(repoRoot, "neuroplast/adapters/README.md"), true);
+  assert.equal(exists(repoRoot, "neuroplast/adapter-assets/README.md"), true);
+  assert.equal(exists(repoRoot, "neuroplast/adapter-assets/codex/AGENTS.md"), true);
+  assert.equal(exists(repoRoot, "neuroplast/adapter-assets/claude-code/CLAUDE.md"), true);
+  assert.equal(exists(repoRoot, "neuroplast/adapter-assets/opencode/skills/neuroplast-bootstrap/SKILL.md"), true);
+  assert.equal(exists(repoRoot, "neuroplast/adapter-assets/opencode/agents/neuroplast-orchestrator.md"), true);
+  assert.equal(exists(repoRoot, "neuroplast/adapter-assets/opencode/agents/neuroplast-planner.md"), true);
   assert.equal(exists(repoRoot, MANAGED_FILE), true);
   assert.equal(exists(repoRoot, MANAGED_BUNDLED_EXTENSION_FILE), true);
   assert.equal(exists(repoRoot, LCP_MANIFEST), true);
@@ -214,6 +221,71 @@ test("validate --json keeps schema-shaped findings when environment guides direc
   assert.equal(typeof finding.remediation, "string");
 });
 
+test("route --json resolves canonical act phrases when an active plan exists", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "route-json-act" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\nBounded work.\n");
+
+  const result = runCli(["route", "go ahead", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.ok, true);
+  assert.equal(payload.schemaVersion, ROUTING_JSON_SCHEMA_VERSION);
+  assert.equal(payload.phrase, "go ahead");
+  assert.equal(payload.routingFile, "neuroplast/interaction-routing.yaml");
+  assert.equal(payload.resolution.type, "routed_phrase");
+  assert.equal(payload.resolution.intent, "act");
+  assert.equal(payload.resolution.instruction, "neuroplast/act.md");
+});
+
+test("route --json falls back to clarify for act phrases without an active plan", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "route-json-clarify" });
+
+  const result = runCli(["route", "continue", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.schemaVersion, ROUTING_JSON_SCHEMA_VERSION);
+  assert.equal(payload.resolution.type, "clarify");
+  assert.equal(payload.resolution.intent, "clarify");
+  assert.equal(payload.resolution.instruction, null);
+});
+
+test("route --json resolves conceptualize phrases", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "route-json-conceptualize" });
+
+  const result = runCli(["route", "plan this", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.schemaVersion, ROUTING_JSON_SCHEMA_VERSION);
+  assert.equal(payload.resolution.intent, "conceptualize");
+  assert.equal(payload.resolution.instruction, "neuroplast/conceptualize.md");
+});
+
+test("validate fails when interaction routing artifact is missing", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "validate-missing-routing-artifact" });
+  remove(repoRoot, "neuroplast/interaction-routing.yaml");
+
+  const result = runCli(["validate"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /Missing interaction routing artifact: neuroplast\/interaction-routing\.yaml/);
+});
+
+test("validate fails when an extension overlay overrides a protected routing phrase", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "validate-routing-overlay-protected" });
+  writeFile(repoRoot, "neuroplast/local-extensions/routing-overlay/README.md", "# Routing Overlay\n\nThis extension is additive guidance and must not override the Neuroplast workflow contract.\n");
+  writeFile(repoRoot, "neuroplast/local-extensions/routing-overlay/act.md", "# Overlay Act\n#instruction\n");
+  writeFile(repoRoot, "neuroplast/local-extensions/routing-overlay/interaction-routing.yaml", "intents:\n  custom:\n    phrases:\n      - go ahead\n");
+  writeFile(repoRoot, "neuroplast/manifest.yaml", `${readFile(repoRoot, "neuroplast/manifest.yaml").replace("active_local: []", "active_local:\n    - routing-overlay")}`);
+
+  const result = runCli(["validate"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /Interaction routing overlay attempts to override protected phrase 'go ahead'/);
+});
+
 test("init --json exposes the documented top-level contract", (t) => {
   const repoRoot = createTempRepo(t, "init-json-shape");
 
@@ -312,7 +384,7 @@ test("sync --dry-run reports changes without writing files or state", (t) => {
   assertSuccess(result);
   assert.match(result.output, /Dry run enabled: previewing sync changes without modifying files or state\./);
   assert.match(result.output, /\[neuroplast\]\[create\]\[dry-run\] neuroplast\/extensions\/README\.md/);
-  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 37 baselines adopted, 0 unchanged\)\./);
+  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 49 baselines adopted, 0 unchanged\)\./);
   assert.match(result.output, /Dry run enabled: no files or state were modified\./);
   assert.equal(exists(repoRoot, MANAGED_FILE), false);
   assert.equal(readFile(repoRoot, STATE_PATH), stateBefore);
@@ -353,7 +425,7 @@ test("sync summary distinguishes unchanged files from preserved edits", (t) => {
   const result = runCli(["sync"], { targetRoot: repoRoot });
 
   assertSuccess(result);
-  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 38 unchanged\)\./);
+  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 50 unchanged\)\./);
 });
 
 test("sync skips on package downgrade by default", (t) => {

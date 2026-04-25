@@ -1,0 +1,50 @@
+schema_version: 1
+resolution:
+  order:
+    - explicit_file
+    - explicit_step
+    - routed_phrase
+    - clarify
+protected_phrases:
+  - go ahead
+  - continue
+  - do it
+  - proceed
+  - carry on
+  - plan this
+  - conceptualize this
+  - reframe this
+  - plan this from scratch
+  - new initiative
+  - start fresh
+  - what's next?
+  - where were we?
+  - what is the plan?
+  - show me the next step
+intents:
+  act:
+    instruction: neuroplast/act.md
+    requires_active_plan: true
+    phrases:
+      - go ahead
+      - continue
+      - do it
+      - proceed
+      - carry on
+  conceptualize:
+    instruction: neuroplast/conceptualize.md
+    phrases:
+      - plan this
+      - conceptualize this
+      - reframe this
+      - plan this from scratch
+      - new initiative
+      - start fresh
+  inspect-current-plan:
+    phrases:
+      - what's next?
+      - where were we?
+      - what is the plan?
+      - show me the next step
+  clarify:
+    fallback: true

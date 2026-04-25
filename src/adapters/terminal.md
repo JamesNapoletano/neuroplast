@@ -26,6 +26,15 @@ For normal day-to-day use, prefer `neuroplast/act.md` as the entrypoint once eno
 ## Workflow Entrypoint
 Read the workflow contract, then any manifest-declared active workflow extensions, then the current instruction file directly from the filesystem, then work step by step through the required artifacts.
 
+## Interaction Routing
+- Prefer explicit instruction-file requests or explicit step names when possible.
+- If the repository defines shared interaction-routing rules, use them before interpreting short prompts.
+- Shared examples:
+  - `go ahead` / `continue` -> continue with `neuroplast/act.md` only when a bounded active objective already exists; otherwise ask for clarification.
+  - `plan this` / `reframe this` -> use `neuroplast/conceptualize.md` when the work is new, ambiguous, or materially reframed.
+  - `what's next?` -> inspect the current plan and summarize the next bounded step instead of executing automatically.
+- When short-prompt meaning is still unclear after checking repository context, clarify instead of guessing.
+
 ## Verified First Loop
 Use this sequence to prove the filesystem contract in a realistic consumer repository:
 
@@ -40,7 +49,7 @@ Use this sequence to prove the filesystem contract in a realistic consumer repos
 This path proves that the workflow stays usable from files and commands alone.
 
 ## Recommended Prompt
-`Operate the Neuroplast project mind from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Use the filesystem contract as the source of truth, load current project state from files, keep changes non-destructive, and record plan, changelog, and learning updates in the required locations.`
+`Operate the Neuroplast project mind from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. If the repository defines shared interaction-routing rules, use them before interpreting short prompts. Use the filesystem contract as the source of truth, load current project state from files, keep changes non-destructive, and record plan, changelog, and learning updates in the required locations.`
 
 ## Usage Notes
 - Prefer smaller, explicit steps and persist progress often.

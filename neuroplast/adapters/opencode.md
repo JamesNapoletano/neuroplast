@@ -22,10 +22,21 @@ Before executing any Neuroplast workflow step in OpenCode:
 5. Then read and execute the relevant instruction file such as `neuroplast/reverse-engineering.md`, `neuroplast/reconcile-conflicts.md`, `neuroplast/conceptualize.md`, or `neuroplast/act.md`
 
 ## Workflow Entrypoint
-Start by reading `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then follow the relevant instruction file for the current step.
+Start by reading `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then follow the relevant instruction file for the current step. Treat the files as the active project mind.
+
+Prefer `neuroplast/act.md` for normal bounded work once project context exists. Use `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization. Use `neuroplast/reconcile-conflicts.md` when merge conflicts or competing edits need a preservation-first reconciliation pass. Use `neuroplast/conceptualize.md` when the project mind needs to be created or reframed.
+
+## Interaction Routing
+- Prefer explicit instruction-file requests or explicit step names when possible.
+- If the repository defines shared interaction-routing rules, use them before interpreting short prompts.
+- Shared examples:
+  - `go ahead` / `continue` -> continue with `neuroplast/act.md` only when a bounded active objective already exists; otherwise ask for clarification.
+  - `plan this` / `reframe this` -> use `neuroplast/conceptualize.md` when the work is new, ambiguous, or materially reframed.
+  - `what's next?` -> inspect the current plan and summarize the next bounded step instead of executing automatically.
+- When short-prompt meaning is still unclear after checking repository context, clarify instead of guessing.
 
 ## Recommended Prompt
-`You are operating inside a Neuroplast workflow. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the relevant instruction file. Follow the file contract exactly, do not overwrite files unless explicitly instructed, and record plans, changelog updates, and learnings in the designated Neuroplast folders.`
+`You are operating inside a Neuroplast workflow. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the relevant instruction file. If the repository defines shared interaction-routing rules, use them before interpreting short prompts. Follow the file contract exactly, do not overwrite files unless explicitly instructed, and record plans, changelog updates, and learnings in the designated Neuroplast folders.`
 
 ## Usage Notes
 - Use the current instruction file as the immediate task contract.

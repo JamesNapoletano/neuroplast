@@ -3,7 +3,7 @@ contract_version: 1
 metadata_schema_version: 1
 lcp:
   normative_protocol_source: https://github.com/JamesNapoletano/lcp
-  compatibility_statement: Neuroplast v1.2.3 implements LCP v1
+  compatibility_statement: Neuroplast v1.3.0 implements LCP v1
   bridge_manifest: .lcp/manifest.yaml
 required_directories:
   - neuroplast/project-concept
@@ -22,22 +22,27 @@ required_instruction_files:
   - neuroplast/think.md
 required_support_files:
   - neuroplast/capabilities.yaml
+  - neuroplast/interaction-routing.yaml
 document_roles:
   manifest: neuroplast/manifest.yaml
   capabilities: neuroplast/capabilities.yaml
   contract: neuroplast/WORKFLOW_CONTRACT.md
+  interaction_routing: neuroplast/interaction-routing.yaml
   architecture: ARCHITECTURE.md
   concept_dir: neuroplast/project-concept
   changelog_dir: neuroplast/project-concept/changelog
   plans_dir: neuroplast/plans
   learning_dir: neuroplast/learning
   environment_guides_dir: neuroplast/adapters
+  adapter_assets_dir: neuroplast/adapter-assets
   extensions_dir: neuroplast/extensions
 optional_features:
   - obsidian-config
   - obsidian-wiki-links
   - environment-guides
+  - adapter-bootstrap-assets
   - workflow-extensions
+  - interaction-routing
 extensions:
   bundled_dir: neuroplast/extensions
   local_dir: neuroplast/local-extensions
@@ -77,3 +82,5 @@ validation_targets:
   - workflow_paths_match_manifest_roles
   - environment_guides_do_not_override_contract
   - active_workflow_extensions_are_valid
+  - interaction_routing_artifact_is_parseable
+  - interaction_routing_overlays_do_not_override_protected_phrases

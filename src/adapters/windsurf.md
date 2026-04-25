@@ -26,8 +26,17 @@ Prefer `neuroplast/act.md` for normal bounded work once enough project context e
 ## Workflow Entrypoint
 Open the workflow contract first, then any manifest-declared active workflow extensions, then follow the current Neuroplast instruction file for the active phase. Treat the files as the active project mind.
 
+## Interaction Routing
+- Prefer explicit instruction-file requests or explicit step names when possible.
+- If the repository defines shared interaction-routing rules, use them before interpreting short prompts.
+- Shared examples:
+  - `go ahead` / `continue` -> continue with `neuroplast/act.md` only when a bounded active objective already exists; otherwise ask for clarification.
+  - `plan this` / `reframe this` -> use `neuroplast/conceptualize.md` when the work is new, ambiguous, or materially reframed.
+  - `what's next?` -> inspect the current plan and summarize the next bounded step instead of executing automatically.
+- When short-prompt meaning is still unclear after checking repository context, clarify instead of guessing.
+
 ## Recommended Prompt
-`Use the Neuroplast project mind contract as the source of truth. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Load current project state from files, keep all changes within the documented file contract, avoid destructive overwrites, and complete plan, changelog, and learning updates.`
+`Use the Neuroplast project mind contract as the source of truth. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. If the repository defines shared interaction-routing rules, use them before interpreting short prompts. Load current project state from files, keep all changes within the documented file contract, avoid destructive overwrites, and complete plan, changelog, and learning updates.`
 
 ## Usage Notes
 - Treat environment automation as helpful but secondary to the file contract.

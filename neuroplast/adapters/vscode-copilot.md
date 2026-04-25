@@ -24,8 +24,17 @@ Before executing any Neuroplast workflow step in VS Code + Copilot:
 ## Workflow Entrypoint
 Read the workflow contract, then any manifest-declared active workflow extensions, then the current instruction file before using editor assistance for implementation or planning.
 
+## Interaction Routing
+- Prefer explicit instruction-file requests or explicit step names when possible.
+- If the repository defines shared interaction-routing rules, use them before interpreting short prompts.
+- Shared examples:
+  - `go ahead` / `continue` -> continue with `neuroplast/act.md` only when a bounded active objective already exists; otherwise ask for clarification.
+  - `plan this` / `reframe this` -> use `neuroplast/conceptualize.md` when the work is new, ambiguous, or materially reframed.
+  - `what's next?` -> inspect the current plan and summarize the next bounded step instead of executing automatically.
+- When short-prompt meaning is still unclear after checking repository context, clarify instead of guessing.
+
 ## Recommended Prompt
-`Work within the Neuroplast file contract. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Keep updates non-destructive, preserve required artifact paths, and finish plan, changelog, and learning steps.`
+`Work within the Neuroplast file contract. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. If the repository defines shared interaction-routing rules, use them before interpreting short prompts. Keep updates non-destructive, preserve required artifact paths, and finish plan, changelog, and learning steps.`
 
 ## Usage Notes
 - Use Copilot suggestions as implementation assistance, not as workflow authority.

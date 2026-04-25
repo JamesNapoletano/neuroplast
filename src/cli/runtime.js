@@ -7,6 +7,7 @@ const {
   workflowFiles,
   obsidianFiles,
   adapterFiles,
+  adapterAssetFiles,
   extensionFiles,
   lcpBridgeFiles
 } = require("./constants");
@@ -15,6 +16,7 @@ const { ensureDirectory, copyIfMissing } = require("./filesystem");
 const { loadState, saveState, trackManagedFile } = require("./state");
 const { runSync } = require("./sync");
 const { runValidate } = require("./validate");
+const { runRoute } = require("./interaction-routing");
 
 function main({ argv = process.argv, env = process.env, cwd = process.cwd() } = {}) {
   const args = argv.slice(2);
@@ -25,7 +27,7 @@ function main({ argv = process.argv, env = process.env, cwd = process.cwd() } = 
     process.exit(0);
   }
 
-  if (context.command !== "init" && context.command !== "sync" && context.command !== "validate") {
+  if (context.command !== "init" && context.command !== "sync" && context.command !== "validate" && context.command !== "route") {
     context.logError(`Unknown command: ${context.command}`);
     printHelp();
     process.exit(1);
@@ -57,6 +59,11 @@ function main({ argv = process.argv, env = process.env, cwd = process.cwd() } = 
     return;
   }
 
+  if (context.command === "route") {
+    runRoute(context);
+    return;
+  }
+
   runValidate(context);
 }
 
@@ -83,6 +90,9 @@ function createContext(args, env, cwd) {
       json: flagSet.has("--json")
     },
     validationOptions: {
+      json: flagSet.has("--json")
+    },
+    routeOptions: {
       json: flagSet.has("--json")
     },
     PACKAGE_VERSION,
@@ -143,6 +153,21 @@ function runInit(context) {
       context,
       path.join(context.packageRoot, "src", "adapters", fileName),
       path.join(adaptersTargetDir, fileName),
+      {
+        ...context.syncOptions,
+        trackManagedFile: (relativePath) => trackManagedFile(state, relativePath)
+      }
+    );
+  }
+
+  const adapterAssetsTargetDir = path.join(context.targetRoot, "neuroplast", "adapter-assets");
+  ensureDirectory(context, adapterAssetsTargetDir, context.syncOptions);
+
+  for (const fileName of adapterAssetFiles) {
+    copyIfMissing(
+      context,
+      path.join(context.packageRoot, "src", "adapter-assets", fileName),
+      path.join(adapterAssetsTargetDir, fileName),
       {
         ...context.syncOptions,
         trackManagedFile: (relativePath) => trackManagedFile(state, relativePath)
@@ -221,13 +246,20 @@ function getArgumentValidationError(command, rawArgs) {
   const allowedFlagsByCommand = {
     init: new Set(["--with-obsidian", "--dry-run", "--json"]),
     sync: new Set(["--dry-run", "--backup", "--force", "--json"]),
-    validate: new Set(["--json"])
+    validate: new Set(["--json"]),
+    route: new Set(["--json"])
   };
 
   const allowedFlags = allowedFlagsByCommand[command] || new Set();
+  let hasRoutePhrase = false;
 
   for (const arg of rawArgs) {
     if (!arg.startsWith("-")) {
+      if (command === "route") {
+        hasRoutePhrase = true;
+        continue;
+      }
+
       return `Unexpected positional argument for ${command}: ${arg}`;
     }
 
@@ -236,16 +268,20 @@ function getArgumentValidationError(command, rawArgs) {
     }
   }
 
+  if (command === "route" && !hasRoutePhrase) {
+    return "Route command requires a phrase argument.";
+  }
+
   return null;
 }
 
 function printHelp() {
-  console.log(`\nNeuroplast CLI\n\nUsage:\n  neuroplast init [--with-obsidian] [--dry-run] [--json]\n  neuroplast sync [--dry-run] [--backup] [--force] [--json]\n  neuroplast validate [--json]\n\nCommands:\n  init                 Copy Neuroplast workflow files, scaffold ARCHITECTURE.md if missing, and create managed folders\n  sync                 Apply versioned migrations and safe refreshes to managed Neuroplast and LCP bridge files\n  validate             Validate the LCP bridge, Neuroplast profile, metadata, and environment-guide boundaries\n\nOptions:\n  --with-obsidian      Include neuroplast/.obsidian config files (init only)\n  --dry-run            Preview actions without writing files\n  --backup             Create backups before sync file updates\n  --force              Run sync even when version is unchanged or downgraded\n  --json               Emit machine-readable output (init, sync, or validate)\n  -h, --help           Show this help\n`);
+  console.log(`\nNeuroplast CLI\n\nUsage:\n  neuroplast init [--with-obsidian] [--dry-run] [--json]\n  neuroplast sync [--dry-run] [--backup] [--force] [--json]\n  neuroplast validate [--json]\n  neuroplast route <phrase> [--json]\n\nCommands:\n  init                 Copy Neuroplast workflow files, scaffold ARCHITECTURE.md if missing, and create managed folders\n  sync                 Apply versioned migrations and safe refreshes to managed Neuroplast and LCP bridge files\n  validate             Validate the LCP bridge, Neuroplast profile, metadata, and environment-guide boundaries\n  route                Inspect canonical interaction-routing resolution for a phrase\n\nOptions:\n  --with-obsidian      Include neuroplast/.obsidian config files (init only)\n  --dry-run            Preview actions without writing files\n  --backup             Create backups before sync file updates\n  --force              Run sync even when version is unchanged or downgraded\n  --json               Emit machine-readable output (init, sync, validate, or route)\n  -h, --help           Show this help\n`);
 }
 
 function getCommandOptions(context) {
   const options = {
-    json: context.outputJson
+    json: context.outputJson || (context.command === "route" && context.routeOptions.json)
   };
 
   if (context.command === "init") {
@@ -257,6 +293,10 @@ function getCommandOptions(context) {
     options.dryRun = context.syncOptions.dryRun;
     options.backup = context.syncOptions.backup;
     options.force = context.syncOptions.force;
+  }
+
+  if (context.command === "route") {
+    options.json = context.routeOptions.json;
   }
 
   return options;

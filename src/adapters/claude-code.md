@@ -26,8 +26,17 @@ Prefer `neuroplast/act.md` for normal bounded work once enough project context e
 ## Workflow Entrypoint
 Read `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then execute the current workflow step through the matching instruction file. Treat the repository files as the project mind, not just as a task checklist.
 
+## Interaction Routing
+- Prefer explicit instruction-file requests or explicit step names when possible.
+- If the repository defines shared interaction-routing rules, use them before interpreting short prompts.
+- Shared examples:
+  - `go ahead` / `continue` -> continue with `neuroplast/act.md` only when a bounded active objective already exists; otherwise ask for clarification.
+  - `plan this` / `reframe this` -> use `neuroplast/conceptualize.md` when the work is new, ambiguous, or materially reframed.
+  - `what's next?` -> inspect the current plan and summarize the next bounded step instead of executing automatically.
+- When short-prompt meaning is still unclear after checking repository context, clarify instead of guessing.
+
 ## Recommended Prompt
-`Execute the Neuroplast project mind from files. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Load the current project state from files, keep updates non-destructive, and write outputs only to the documented Neuroplast locations.`
+`Execute the Neuroplast project mind from files. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. If the repository defines shared interaction-routing rules, use them before interpreting short prompts. Load the current project state from files, keep updates non-destructive, and write outputs only to the documented Neuroplast locations.`
 
 ## Usage Notes
 - Keep plans current in `neuroplast/plans/`.

@@ -24,8 +24,17 @@ Before executing any Neuroplast workflow step in Cursor:
 ## Workflow Entrypoint
 Begin from the workflow contract, then any manifest-declared active workflow extensions, then open the current instruction file for the active step.
 
+## Interaction Routing
+- Prefer explicit instruction-file requests or explicit step names when possible.
+- If the repository defines shared interaction-routing rules, use them before interpreting short prompts.
+- Shared examples:
+  - `go ahead` / `continue` -> continue with `neuroplast/act.md` only when a bounded active objective already exists; otherwise ask for clarification.
+  - `plan this` / `reframe this` -> use `neuroplast/conceptualize.md` when the work is new, ambiguous, or materially reframed.
+  - `what's next?` -> inspect the current plan and summarize the next bounded step instead of executing automatically.
+- When short-prompt meaning is still unclear after checking repository context, clarify instead of guessing.
+
 ## Recommended Prompt
-`Follow the Neuroplast workflow from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. Keep behavior aligned with the documented folder contract, write only to approved locations, and preserve changelog and learning updates.`
+`Follow the Neuroplast workflow from files only. Read neuroplast/WORKFLOW_CONTRACT.md, neuroplast/manifest.yaml, neuroplast/capabilities.yaml, any active workflow extensions declared in the manifest, and the current instruction file. If the repository defines shared interaction-routing rules, use them before interpreting short prompts. Keep behavior aligned with the documented folder contract, write only to approved locations, and preserve changelog and learning updates.`
 
 ## Usage Notes
 - Treat agent/chat behavior as a convenience layer over the file contract.

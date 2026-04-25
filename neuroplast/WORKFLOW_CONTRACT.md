@@ -64,6 +64,7 @@ Neuroplast should behave like a project mind, not only like a task checklist. Th
 - `neuroplast/manifest.yaml`
 - `neuroplast/capabilities.yaml`
 - `neuroplast/WORKFLOW_CONTRACT.md`
+- `neuroplast/interaction-routing.yaml`
 - `neuroplast/conceptualize.md`
 - `neuroplast/reverse-engineering.md`
 - `neuroplast/reconcile-conflicts.md`
@@ -108,6 +109,7 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - `.lcp/manifest.yaml` stores the LCP bridge manifest for explicit protocol alignment
 - `neuroplast/manifest.yaml` stores the Neuroplast machine-readable workflow map
 - `neuroplast/capabilities.yaml` stores the advisory environment capability profile
+- `neuroplast/interaction-routing.yaml` stores the canonical machine-readable phrase-routing contract when interaction routing is active
 - `/neuroplast/project-concept/` stores durable project-mind context, orientation, assumptions, and structured domain understanding
 - `/neuroplast/plans/` stores the active objective, bounded work plans, blockers, and handoff state
 - `/neuroplast/project-concept/changelog/` stores dated history of completed work cycles
@@ -118,6 +120,7 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - `.lcp/manifest.yaml` is the LCP-facing bridge manifest.
 - `neuroplast/manifest.yaml` is the Neuroplast machine-readable map of workflow structure, document roles, and portability profile.
 - `neuroplast/capabilities.yaml` is the advisory machine-readable profile for environment limits and graceful degradation behavior.
+- `neuroplast/interaction-routing.yaml` is the additive machine-readable artifact for canonical phrase-routing semantics.
 - Top-level instruction files may include Neuroplast YAML frontmatter that describes step role, dependencies, write targets, outputs, and review expectations.
 - Frontmatter must stay workflow-oriented and must not include provider-specific tuning fields.
 
@@ -151,11 +154,13 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - Required directories under `/neuroplast/` must exist.
 - Required instruction files must exist and match the manifest.
 - Required support files (`manifest.yaml` and `capabilities.yaml`) must exist and be parseable.
+- The canonical interaction-routing artifact must exist and remain parseable when declared by the manifest.
 - Root `ARCHITECTURE.md` must exist and remain the canonical architecture artifact.
 - Instruction frontmatter must include the required workflow metadata fields.
 - Workflow paths and document roles must remain aligned with `neuroplast/manifest.yaml`.
 - Environment guides or adapter docs must not redefine workflow phases, file structure, or artifact roles.
 - Active workflow extensions declared in the manifest must resolve to existing extension directories and remain additive to the core contract.
+- Interaction-routing overlays must not override protected canonical phrases.
 
 ## Safe Write Rules
 - Do not overwrite existing files unless explicitly instructed.

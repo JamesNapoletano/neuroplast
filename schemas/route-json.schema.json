@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JamesNapoletano/neuroplast/schemas/route-json.schema.json",
+  "title": "Neuroplast Route JSON Output",
+  "description": "Stable machine-readable output contract for 'neuroplast route --json' within a major version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ok",
+    "schemaVersion",
+    "phrase",
+    "routingFile",
+    "resolution"
+  ],
+  "properties": {
+    "ok": {
+      "type": "boolean"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "phrase": {
+      "type": "string",
+      "minLength": 1
+    },
+    "routingFile": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "intent",
+        "instruction",
+        "reason"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "routed_phrase",
+            "clarify"
+          ]
+        },
+        "intent": {
+          "type": "string",
+          "minLength": 1
+        },
+        "instruction": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}

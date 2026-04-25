@@ -8,6 +8,8 @@ If an adapter only says what the environment is for, users may mistake it for an
 - Put a `Mandatory Start` section near the top of every adapter guide.
 - Explicitly tell users and agents to read the workflow contract, manifest, and capability profile before executing any instruction file.
 - Name the execution target directly so adapters are not mistaken for the executable artifact.
+- Keep short-prompt examples aligned with the shared routing contract instead of inventing adapter-local meanings.
+- Document clarification behavior for ambiguous prompts rather than letting adapters guess silently.
 - Keep the adapter boundary reminder so the guide remains documentation-only.
 
 ## Related
