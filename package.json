@@ -1,6 +1,6 @@
 {
     "name": "neuroplast",
-    "version": "1.3.0",
+    "version": "1.3.1",
     "description": "Repository-local cognitive augmentation toolkit implementing the Local Cognitive Protocol for local repositories.",
     "author": "James Napoletano",
     "license": "MIT",

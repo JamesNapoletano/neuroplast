@@ -15,7 +15,7 @@ neuroplast:
     - neuroplast/project-concept/codebase-reverse-engineering-evidence.md
     - neuroplast/project-concept/*.md
     - ARCHITECTURE.md
-  optional: false
+  optional: true
   human_review: recommended
   tags:
     - instruction

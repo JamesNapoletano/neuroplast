@@ -32,7 +32,7 @@ neuroplast:
 #instruction
 
 ## Purpose
-Resolve file conflicts or competing parallel edits without blindly choosing one side. Preserve informational integrity, keep unique facts that remain valid, meld overlapping truth into one coherent result, and update the normal Neuroplast artifacts when the reconciled state changes project understanding.
+Resolve file conflicts or competing parallel edits without blindly choosing one side. Preserve informational integrity, keep valid unique behavior and facts from each side, meld overlapping truth into one coherent result across both ordinary project files and Neuroplast artifacts, and update the normal Neuroplast artifacts when the reconciled state changes project understanding.
 
 `reconcile-conflicts.md` is a specialized on-demand entrypoint. It does not replace `act.md` for normal bounded work.
 
@@ -56,7 +56,7 @@ Resolve file conflicts or competing parallel edits without blindly choosing one 
 - `CONCEPT_INSTRUCTIONS.md` and `CHANGELOG_INSTRUCTIONS.md` when the reconciled truth affects concept or changelog state
 
 ## Outputs
-- Reconciled file(s) that preserve the strongest valid information from all conflict inputs
+- Reconciled file(s) that preserve the strongest valid information or behavior from all conflict inputs
 - Updated active plan in `/neuroplast/plans/` recording what was reconciled, what was preserved, and any unresolved ambiguity
 - Updated concept artifacts, changelog entries, learning notes, or `ARCHITECTURE.md` when the reconciled truth changes them materially
 
@@ -80,26 +80,30 @@ Resolve file conflicts or competing parallel edits without blindly choosing one 
 2. Identify the conflicted file set and collect all available sides: conflict markers, alternate file versions, related diffs, and any operator notes about intent.
 3. Create or update an active plan in `/neuroplast/plans/` that records scope, files being reconciled, verification approach, and unresolved questions.
 4. For each conflicted file, classify the conflict type and identify what information is unique to each side versus duplicated across both sides.
-5. Use repository evidence, adjacent artifacts, and explicit validation results to determine which claims are confirmed, which can be melded, and which must remain marked as uncertain.
+5. Use repository evidence, adjacent artifacts, and explicit validation results to determine which claims or behaviors are confirmed, which can be melded, and which must remain marked as uncertain.
 6. Produce a reconciled version that:
+   - keeps valid project-file logic, configuration intent, tests, or user-facing behavior from each side when they are compatible,
    - keeps valid unique facts from each side,
    - merges compatible summaries into one coherent structure,
    - preserves important rationale, blockers, migration decisions, and links,
    - removes only clearly superseded, contradictory, or duplicated content.
-7. If a conflict affects shared project understanding, execute `CONCEPT_INSTRUCTIONS.md` so architecture and concept artifacts match the reconciled truth.
-8. If a conflict affects completed-work history, execute `CHANGELOG_INSTRUCTIONS.md` and ensure the resulting changelog records the reconciled outcome rather than a one-sided version.
-9. If the conflict reveals a reusable practice, update `/neuroplast/learning/` with a non-sensitive note.
-10. Record any unresolved ambiguity, manual follow-up, or required human judgment in the active plan before stopping.
+7. If the conflicted surface includes ordinary project files, ensure the reconciled file reflects the strongest repository-supported result rather than only reconciling the surrounding Neuroplast notes about it.
+8. If a conflict affects shared project understanding, execute `CONCEPT_INSTRUCTIONS.md` so architecture and concept artifacts match the reconciled truth.
+9. If a conflict affects completed-work history, execute `CHANGELOG_INSTRUCTIONS.md` and ensure the resulting changelog records the reconciled outcome rather than a one-sided version.
+10. If the conflict reveals a reusable practice, update `/neuroplast/learning/` with a non-sensitive note.
+11. Record any unresolved ambiguity, manual follow-up, or required human judgment in the active plan before stopping.
 
 ## File-Type Guidance
 - For changelogs, preserve unique completed-work facts, related-plan links, validation outcomes, and README-impact notes from both sides when they remain true.
 - For plans, preserve scope decisions, blockers, assumptions, sync-impact decisions, and handoff notes unless clearly invalidated.
 - For concept or architecture files, prefer the version that best matches repository reality, but carry forward any still-valid rationale from the alternate side.
 - For managed instruction or documentation files, preserve user-facing guidance that remains accurate and update inventories when a reconciled result changes shipped behavior.
+- For ordinary project files (source, tests, configuration, scripts, assets, or product docs), preserve valid behavior and intent from each side when compatible, prefer repository-backed correctness over prose preference, and explicitly flag cases where contradictory implementations require human judgment.
 
 ## Validation Checklist
 - [ ] The active plan records which files were reconciled and why.
 - [ ] Reconciled files preserve valid unique information from each conflict side.
+- [ ] Reconciled project files preserve valid unique behavior, logic, configuration intent, or coverage from each conflict side when relevant.
 - [ ] Duplicated content was normalized without dropping meaningful facts or links.
 - [ ] Any remaining uncertainty is explicit instead of guessed.
 - [ ] `ARCHITECTURE.md`, concept files, changelog files, and learning notes were updated when the reconciled truth required it.
@@ -110,4 +114,4 @@ Resolve file conflicts or competing parallel edits without blindly choosing one 
 - If environment limits prevent reading all needed files, reconcile the smallest bounded subset possible and record the blocker in the active plan.
 
 ## Stop Condition
-Stop after the conflicted files have a reconciled version, affected Neuroplast artifacts are aligned to that reconciled truth, and any remaining ambiguity or manual follow-up is captured in the active plan.
+Stop after the conflicted files have a reconciled version, affected project files and Neuroplast artifacts are aligned to that reconciled truth, and any remaining ambiguity or manual follow-up is captured in the active plan.

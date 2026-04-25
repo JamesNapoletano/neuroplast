@@ -60,7 +60,7 @@ Use `act.md` as the normal starting point once Neuroplast already has enough pro
 - Updated project files or artifacts from the bounded work session
 - Updated `ARCHITECTURE.md` (if relevant)
 - Updated concept and changelog artifacts (if relevant)
-- New learning entry in `/neuroplast/learning/` (if relevant)
+- One or more new or updated learning entries in `/neuroplast/learning/` (if relevant)
 
 ## Steps
 1. Read `WORKFLOW_CONTRACT.md`.
@@ -76,7 +76,7 @@ Use `act.md` as the normal starting point once Neuroplast already has enough pro
 11. Verify work quality and completeness using checks appropriate to the project domain.
 12. Execute `CONCEPT_INSTRUCTIONS.md`.
 13. Execute `CHANGELOG_INSTRUCTIONS.md`.
-14. Execute `think.md`.
+14. Execute `think.md`, including an explicit check for whether the cycle produced multiple distinct reusable learnings.
 
 ## Validation Checklist
 - [ ] `/neuroplast/plans/` contains a current plan file.

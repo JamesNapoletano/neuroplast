@@ -67,6 +67,7 @@ Neuroplast should behave like a project mind, not only like a task checklist. Th
 - `neuroplast/interaction-routing.yaml`
 - `neuroplast/conceptualize.md`
 - `neuroplast/reverse-engineering.md`
+- `neuroplast/reconcile-conflicts.md`
 - `neuroplast/PLANNING_INSTRUCTIONS.md`
 - `neuroplast/act.md`
 - `neuroplast/CONCEPT_INSTRUCTIONS.md`
@@ -87,13 +88,12 @@ The canonical workflow loop is:
 This loop defines the durable artifact lifecycle, not a requirement that every session start from scratch.
 
 - `act.md` is the normal entrypoint for everyday bounded work once the project mind already exists.
-- `reverse-engineering.md` is the specialized entrypoint for reconstructing project-mind context from an existing codebase before handing off to `conceptualize.md`.
+- `reconcile-conflicts.md` is the specialized on-demand entrypoint for preservation-first conflict resolution when parallel edits or merge conflicts already exist.
 - `conceptualize.md` is for new initiatives, ambiguous requests, reframing, or major scope changes.
 - `PLANNING_INSTRUCTIONS.md` defines how to refresh project-mind context when the existing structure is missing or insufficient.
 
 ### Phase Roles
 - `conceptualize` — create or reframe durable project context when the work is new, unclear, or materially changed
-- `reverse-engineer` — reconstruct code-grounded project context when an existing repository lacks trustworthy project-mind artifacts
 - `plan` — define the current objective, bounded scope, and verification path in `/neuroplast/plans/`
 - `act` — perform the next bounded work session and keep project artifacts aligned
 - `changelog` — record what changed in the current cycle
@@ -110,7 +110,6 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - `neuroplast/manifest.yaml` stores the Neuroplast machine-readable workflow map
 - `neuroplast/capabilities.yaml` stores the advisory environment capability profile
 - `neuroplast/interaction-routing.yaml` stores the canonical machine-readable phrase-routing contract when interaction routing is active
-- `neuroplast/adapter-assets/` stores copy/paste-ready tool-facing bootstrap assets that mirror likely destination formats without becoming the canonical workflow contract
 - `/neuroplast/project-concept/` stores durable project-mind context, orientation, assumptions, and structured domain understanding
 - `/neuroplast/plans/` stores the active objective, bounded work plans, blockers, and handoff state
 - `/neuroplast/project-concept/changelog/` stores dated history of completed work cycles
@@ -122,7 +121,6 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - `neuroplast/manifest.yaml` is the Neuroplast machine-readable map of workflow structure, document roles, and portability profile.
 - `neuroplast/capabilities.yaml` is the advisory machine-readable profile for environment limits and graceful degradation behavior.
 - `neuroplast/interaction-routing.yaml` is the additive machine-readable artifact for canonical phrase-routing semantics.
-- `neuroplast/adapter-assets/` is the additive managed asset family for copy/paste-ready tool-facing bootstrap wrappers.
 - Top-level instruction files may include Neuroplast YAML frontmatter that describes step role, dependencies, write targets, outputs, and review expectations.
 - Frontmatter must stay workflow-oriented and must not include provider-specific tuning fields.
 
@@ -195,7 +193,6 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - Environment-specific guides may explain how to use the contract in a given tool.
 - Environment-specific guides must not redefine file structure, artifact roles, or workflow phase order.
 - Environment-specific guides should live under `neuroplast/adapters/` when bundled with the workflow package.
-- Copy/paste-ready tool-facing bootstrap assets may live under `neuroplast/adapter-assets/` when bundled with the workflow package.
 - Workflow extensions may add bounded guidance for specific repos or roles, but they must remain opt-in and non-overriding.
 - CLI scope should remain focused on workflow bootstrap, sync, and future validation support.
 
