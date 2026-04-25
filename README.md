@@ -372,7 +372,7 @@ Start from `neuroplast/WORKFLOW_CONTRACT.md`, then choose the current instructio
 
 Optional environment guides live under `neuroplast/adapters/` and explain how to apply the same contract in specific tools without changing workflow behavior.
 
-Copy/paste-ready tool-facing bootstrap assets live under `neuroplast/adapter-assets/` and are intended to be copied into destination-like tool formats such as `AGENTS.md`, `CLAUDE.md`, OpenCode kebab-case skills, or thin OpenCode agent files without changing canonical routing semantics.
+Copy/paste-ready tool-facing bootstrap assets live under `neuroplast/adapter-assets/` and are intended to be copied into destination-like tool formats such as `AGENTS.md`, `CLAUDE.md`, OpenCode kebab-case skills, or thin OpenCode agent files without changing canonical routing semantics. In the bundled OpenCode pair, `neuroplast-planner` is a strict read-only planning agent and `neuroplast-orchestrator` is the execution agent.
 
 Optional workflow extensions live under `neuroplast/extensions/` (bundled shared extensions) or `neuroplast/local-extensions/` (repo-local) and can add custom guidance without changing the canonical workflow behavior.
 

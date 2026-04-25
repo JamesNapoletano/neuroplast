@@ -45,5 +45,5 @@ Before doing any substantive work:
 - Do not invent adapter-local workflow phases or routing semantics.
 
 ## Handoff Rules
-- When the work is new, ambiguous, or materially reframed, hand planning-first work to `neuroplast-planner`.
+- When the work is new, ambiguous, or materially reframed, hand planning-first work to the plan-only `neuroplast-planner`.
 - When the request is clear and bounded, continue execution yourself under the proper Neuroplast instruction file.

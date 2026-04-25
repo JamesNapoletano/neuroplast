@@ -50,7 +50,7 @@ Create or reframe project-mind context when the project direction is new, ambigu
 4. Use `PLANNING_INSTRUCTIONS.md` to build or refresh the durable project-mind context needed for future sessions.
 5. Capture the current objective, key constraints, important work surfaces, and open questions in `/neuroplast/project-concept/`.
 6. Create or update root `ARCHITECTURE.md` when the project-mind outputs define or change the canonical structure.
-7. When done, instruct the developer to continue with `act.md` in the same agent session for bounded execution work.
+7. When done, instruct the developer to continue with `act.md` for bounded execution work. If the current environment uses a planning-only wrapper or agent, end with an explicit handoff recommendation instead of continuing execution in the same planning session.
 
 ## Validation Checklist
 - [ ] All required folders exist.

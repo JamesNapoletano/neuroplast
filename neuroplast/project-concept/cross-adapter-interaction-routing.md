@@ -41,6 +41,7 @@ Treat interaction routing as an additive intent-resolution layer that sits above
 - Bundled adapter guides, including Codex CLI, are aligned to the same routing contract but remain documentation-only until separately rerun.
 - Copy/paste-ready adapter bootstrap assets now ship under `neuroplast/adapter-assets/` so teams can seed destination-like tool instructions without making those assets the canonical routing source.
 - OpenCode now also has thin agent wrappers under `neuroplast/adapter-assets/opencode/agents/` so the existing Neuroplast skills have a reliable invocation surface.
+- The OpenCode wrapper split is now explicit: `neuroplast-planner` is a strict read-only planner that ends with a handoff-ready plan in chat, while `neuroplast-orchestrator` owns bounded execution and repository writes.
 
 ## Non-Goals
 - Redefine the canonical workflow phase order.

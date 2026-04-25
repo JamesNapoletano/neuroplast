@@ -54,6 +54,7 @@ These assets are operational wrappers for easy adoption, not independently verif
 - Prefer explicit step or file requests when integrating Neuroplast into another tool.
 - Use the copy/paste-ready assets under `neuroplast/adapter-assets/` when you want destination-like bootstrap material for Codex, Claude Code, or OpenCode.
 - For OpenCode specifically, prefer the thin agent wrappers so the bootstrap and routing skills are invoked reliably.
+- In the bundled OpenCode pair, treat `neuroplast-planner` as a strict read-only planner and switch to `neuroplast-orchestrator` for bounded execution and any repository updates.
 - Use `npx neuroplast route "<phrase>" --json` if your wrapper needs deterministic phrase inspection.
 - Avoid extension overlays unless you truly need repo-local phrases.
 - Never redefine protected canonical phrases in extension overlays.
