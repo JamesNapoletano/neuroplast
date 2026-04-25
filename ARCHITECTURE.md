@@ -98,6 +98,7 @@ The installed file set is meant to act as a durable project mind: orientation co
 
 **Instruction Files (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally):**
 ```
+src/instructions/README.md              → ./neuroplast/README.md
 src/instructions/manifest.yaml            → ./neuroplast/manifest.yaml
 src/instructions/capabilities.yaml       → ./neuroplast/capabilities.yaml
 src/instructions/WORKFLOW_CONTRACT.md   → ./neuroplast/WORKFLOW_CONTRACT.md

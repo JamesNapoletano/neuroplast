@@ -85,11 +85,13 @@ The initializer is non-destructive: existing files are skipped and never overwri
 
 By default, Neuroplast writes working files under `/neuroplast/` and installs a companion `.lcp/` bridge layout.
 
+The installed `/neuroplast/README.md` is the practical orientation file for people opening the deposited Neuroplast files inside a consumer repository.
+
 `init` also runs `sync` after file bootstrap so new package migrations are applied once per version.
 
 ## First Successful Loop
 
-After `npx neuroplast init`, read these files in order before doing any real work:
+After `npx neuroplast init`, you can open `neuroplast/README.md` for a practical overview, then read these canonical files in order before doing any real work:
 
 1. `.lcp/manifest.yaml`
 2. `neuroplast/WORKFLOW_CONTRACT.md`
@@ -305,6 +307,7 @@ It is set up as a workflow package template rather than a traditional code appli
 Source-of-truth package files in this repository:
 
 - `src/instructions/` — canonical instruction templates copied by `neuroplast init`
+  - `README.md`
   - `manifest.yaml`
   - `capabilities.yaml`
   - `WORKFLOW_CONTRACT.md`
@@ -324,6 +327,7 @@ Source-of-truth package files in this repository:
 
 Installed output in target projects (created by `npx neuroplast init`):
 
+- `neuroplast/README.md` — practical orientation guide for using the installed Neuroplast files
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/manifest.yaml`
 - `neuroplast/capabilities.yaml`

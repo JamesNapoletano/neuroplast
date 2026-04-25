@@ -16,6 +16,7 @@ const requiredDirs = [
 ];
 
 const workflowFiles = [
+  "README.md",
   "manifest.yaml",
   "capabilities.yaml",
   "WORKFLOW_CONTRACT.md",

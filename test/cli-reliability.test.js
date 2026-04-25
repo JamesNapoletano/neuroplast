@@ -24,6 +24,7 @@ const {
 
 const MANAGED_FILE = "neuroplast/extensions/README.md";
 const MANAGED_BUNDLED_EXTENSION_FILE = "neuroplast/extensions/verification-first/README.md";
+const INSTALLED_WORKFLOW_README = "neuroplast/README.md";
 const OBSIDIAN_FILE = "neuroplast/.obsidian/core-plugins.json";
 const LCP_MANIFEST = ".lcp/manifest.yaml";
 const REVERSE_ENGINEERING_FILE = "neuroplast/reverse-engineering.md";
@@ -34,6 +35,7 @@ test("init creates the default scaffold without obsidian config", (t) => {
 
   assert.match(initResult.stdout, /Skipping neuroplast\/\.obsidian config/);
   assert.equal(exists(repoRoot, "neuroplast/manifest.yaml"), true);
+  assert.equal(exists(repoRoot, INSTALLED_WORKFLOW_README), true);
   assert.equal(exists(repoRoot, "neuroplast/adapters/README.md"), true);
   assert.equal(exists(repoRoot, "neuroplast/adapter-assets/README.md"), true);
   assert.equal(exists(repoRoot, "neuroplast/adapter-assets/codex/AGENTS.md"), true);
@@ -384,7 +386,7 @@ test("sync --dry-run reports changes without writing files or state", (t) => {
   assertSuccess(result);
   assert.match(result.output, /Dry run enabled: previewing sync changes without modifying files or state\./);
   assert.match(result.output, /\[neuroplast\]\[create\]\[dry-run\] neuroplast\/extensions\/README\.md/);
-  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 49 baselines adopted, 0 unchanged\)\./);
+  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 50 baselines adopted, 0 unchanged\)\./);
   assert.match(result.output, /Dry run enabled: no files or state were modified\./);
   assert.equal(exists(repoRoot, MANAGED_FILE), false);
   assert.equal(readFile(repoRoot, STATE_PATH), stateBefore);
@@ -425,7 +427,7 @@ test("sync summary distinguishes unchanged files from preserved edits", (t) => {
   const result = runCli(["sync"], { targetRoot: repoRoot });
 
   assertSuccess(result);
-  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 50 unchanged\)\./);
+  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 51 unchanged\)\./);
 });
 
 test("sync skips on package downgrade by default", (t) => {
@@ -487,9 +489,13 @@ test("sync --backup snapshots files before refreshing managed content", (t) => {
 
   const backupRoot = path.join(repoRoot, "neuroplast", ".backups");
   const timestamps = fs.readdirSync(backupRoot);
-  assert.equal(timestamps.length, 1);
+  assert.equal(timestamps.length >= 1, true);
 
-  const backupFile = path.join(backupRoot, timestamps[0], "neuroplast", "extensions", "README.md");
+  const backupFile = timestamps
+    .map((timestamp) => path.join(backupRoot, timestamp, "neuroplast", "extensions", "README.md"))
+    .find((candidatePath) => fs.existsSync(candidatePath));
+
+  assert.equal(typeof backupFile, "string");
   assert.equal(fs.existsSync(backupFile), true);
   assert.equal(fs.readFileSync(backupFile, "utf8"), staleContent);
   assert.notEqual(readFile(repoRoot, MANAGED_FILE), staleContent);

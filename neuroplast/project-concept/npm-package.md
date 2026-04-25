@@ -12,20 +12,21 @@ The package should not feel coding-only. It should install a reusable project mi
 ## Solution
 Create an npm package with an explicit CLI initializer that:
 1. Copies the machine-readable manifest (`manifest.yaml`) to `/neuroplast/`
-2. Copies the advisory capability profile (`capabilities.yaml`) to `/neuroplast/`
-3. Copies the workflow contract (`WORKFLOW_CONTRACT.md`) to `/neuroplast/`
-4. Copies instruction files (`act.md`, `conceptualize.md`, `reverse-engineering.md`, `reconcile-conflicts.md`, etc.) to `/neuroplast/`
-5. Optionally installs `.obsidian/` configuration under `/neuroplast/.obsidian/`
-6. Ships optional environment guidance docs under `/neuroplast/adapters/`
-7. Ships copy/paste-ready tool-facing bootstrap assets under `/neuroplast/adapter-assets/`
-8. Ships optional bundled workflow extension scaffolding under `/neuroplast/extensions/`
-9. Supports repo-local custom workflow extensions declared in the manifest
-10. Creates the expected `/neuroplast/` folder structure
-11. Applies one-time versioned migrations to managed files (via `sync`) when future template behavior changes require controlled updates
-12. Validates workflow contract, metadata, and active extension declarations via `validate`
-13. Scaffolds a minimal root `ARCHITECTURE.md` during `init` when the repository does not already provide one
-14. Emits optional machine-readable JSON output for `init`, `sync`, and `validate` so wrapper tooling can consume command results without scraping human logs
-15. Ships published JSON schema artifacts for each machine-readable CLI mode so automation consumers can validate payload shape explicitly
+2. Copies a practical installed usage guide (`README.md`) to `/neuroplast/`
+3. Copies the advisory capability profile (`capabilities.yaml`) to `/neuroplast/`
+4. Copies the workflow contract (`WORKFLOW_CONTRACT.md`) to `/neuroplast/`
+5. Copies instruction files (`act.md`, `conceptualize.md`, `reverse-engineering.md`, `reconcile-conflicts.md`, etc.) to `/neuroplast/`
+6. Optionally installs `.obsidian/` configuration under `/neuroplast/.obsidian/`
+7. Ships optional environment guidance docs under `/neuroplast/adapters/`
+8. Ships copy/paste-ready tool-facing bootstrap assets under `/neuroplast/adapter-assets/`
+9. Ships optional bundled workflow extension scaffolding under `/neuroplast/extensions/`
+10. Supports repo-local custom workflow extensions declared in the manifest
+11. Creates the expected `/neuroplast/` folder structure
+12. Applies one-time versioned migrations to managed files (via `sync`) when future template behavior changes require controlled updates
+13. Validates workflow contract, metadata, and active extension declarations via `validate`
+14. Scaffolds a minimal root `ARCHITECTURE.md` during `init` when the repository does not already provide one
+15. Emits optional machine-readable JSON output for `init`, `sync`, and `validate` so wrapper tooling can consume command results without scraping human logs
+16. Ships published JSON schema artifacts for each machine-readable CLI mode so automation consumers can validate payload shape explicitly
 
 ## Key Requirements
 
@@ -57,6 +58,7 @@ neuroplast/
 | Source | Destination | Condition |
 |--------|------------|-----------|
 | `manifest.yaml` | `<project>/neuroplast/` | if not exists |
+| `README.md` | `<project>/neuroplast/` | if not exists |
 | `capabilities.yaml` | `<project>/neuroplast/` | if not exists |
 | `WORKFLOW_CONTRACT.md` | `<project>/neuroplast/` | if not exists |
 | `conceptualize.md` | `<project>/neuroplast/` | if not exists |
