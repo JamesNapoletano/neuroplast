@@ -3,7 +3,7 @@ contract_version: 1
 metadata_schema_version: 1
 lcp:
   normative_protocol_source: https://github.com/JamesNapoletano/lcp
-  compatibility_statement: Neuroplast v1.3.1 implements LCP v1
+  compatibility_statement: Neuroplast v1.3.2 implements LCP v1
   bridge_manifest: .lcp/manifest.yaml
 required_directories:
   - neuroplast/project-concept
@@ -25,6 +25,7 @@ required_support_files:
   - neuroplast/interaction-routing.yaml
 document_roles:
   manifest: neuroplast/manifest.yaml
+  current_context: neuroplast/current-context.md
   capabilities: neuroplast/capabilities.yaml
   contract: neuroplast/WORKFLOW_CONTRACT.md
   interaction_routing: neuroplast/interaction-routing.yaml
@@ -37,6 +38,7 @@ document_roles:
   adapter_assets_dir: neuroplast/adapter-assets
   extensions_dir: neuroplast/extensions
 optional_features:
+  - current-context-briefing
   - obsidian-config
   - obsidian-wiki-links
   - environment-guides
@@ -70,6 +72,8 @@ metadata_boundaries:
     - instruction frontmatter fields: human_review
     - instruction frontmatter fields: tags
 validation_targets:
+  - current_context_briefing_stays_compact
+  - current_context_briefing_is_not_stale
   - lcp_bridge_manifest_is_parseable
   - lcp_bridge_documents_resolve
   - required_directories_exist

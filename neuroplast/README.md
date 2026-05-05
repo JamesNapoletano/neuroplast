@@ -1,56 +1,90 @@
 # Neuroplast Working Files
 
-This folder is the installed day-to-day Neuroplast working surface inside a repository.
+This folder is the day-to-day working area for Neuroplast inside a repository.
 
-If you open `/neuroplast/` and want to know what to do next, start here.
+If you are a person opening `/neuroplast/` and wondering how to use it, start here.
 
-The package root `README.md` explains Neuroplast as a product. This README explains how to use the installed `/neuroplast/` files in practice.
+Neuroplast helps you and an AI keep the project's context, plans, decisions, and progress in the repo instead of only in chat or memory.
 
-## Fast Start
-- Human: read this file, then open `WORKFLOW_CONTRACT.md` and the step file you need.
-- AI system: load `WORKFLOW_CONTRACT.md`, `manifest.yaml`, `capabilities.yaml`, `interaction-routing.yaml`, and any active extensions before acting.
-- Everyone: treat `project-concept/`, `plans/`, `project-concept/changelog/`, and `learning/` as the shared memory surface.
+## Start Here as a Human
+1. Read `current-context.md` if it exists.
+2. Check `plans/` to see what is active.
+3. Open `ARCHITECTURE.md` if you need the bigger picture.
+4. Choose the step file that matches what you are doing next.
 
-## Open These First
-- `WORKFLOW_CONTRACT.md` — canonical workflow contract
-- `manifest.yaml` — machine-readable map of the workflow layout
-- `capabilities.yaml` — environment capability profile and graceful degradation guidance
-- `interaction-routing.yaml` — canonical short-prompt routing rules
-- Any active extensions declared in `manifest.yaml`
-- The current step file you actually need to use
+If you only remember one idea, remember this: `project-concept/`, `plans/`, `project-concept/changelog/`, and `learning/` are the shared memory of the project.
 
-If you are an AI system, treat the files above as the startup contract before acting. If you are a human scanning the folder, use them to confirm how this repository wants work to be performed and recorded.
+## Which File Should I Use?
+- `act.md` — use this when the work is already understood and you are ready to do the next bounded step.
+- `conceptualize.md` — use this when the work is new, unclear, or needs reframing before execution.
+- `reverse-engineering.md` — use this when the repo already exists but the project mind needs to be rebuilt from what is actually in the repository.
+- `reconcile-conflicts.md` — use this when there are merge conflicts or competing edits that need to be resolved before normal work continues.
 
-## Choose the Right Starting File
-- `act.md` — normal bounded execution once the project mind already has enough context
-- `conceptualize.md` — new work, ambiguous work, or major reframing
-- `reverse-engineering.md` — reconstruct project context from an existing repository before normal execution
-- `reconcile-conflicts.md` — resolve merge conflicts or competing edits before continuing normal work
+## How People Usually Use Neuroplast
+
+### When starting work
+- Read `current-context.md` if present.
+- Check the active plan in `plans/`.
+- Read `ARCHITECTURE.md` or the most relevant concept note if you need orientation.
+
+### When planning something new
+- Start with `conceptualize.md`.
+- Capture the idea clearly in `project-concept/`.
+- Turn it into a bounded active plan in `plans/`.
+
+### When continuing existing work
+- Start with the current plan.
+- Use `act.md` to execute the next bounded step.
+- Keep the plan updated as you go.
+
+### When finishing a task
+- Record what changed in `project-concept/changelog/`.
+- Capture reusable lessons in `learning/`.
+- Run `npx neuroplast validate`.
 
 ## First Practical Loop
-1. Run `npx neuroplast init` in the repository if the files are not already present.
-2. Read the contract, manifest, capability profile, routing file, and any active extensions.
+1. Run `npx neuroplast init` if these files are not installed yet.
+2. Read this README, then `current-context.md` if present.
 3. Review the root `ARCHITECTURE.md`.
-4. Add or update one concept artifact under `project-concept/`.
-5. Create or update one active plan under `plans/`.
-6. Execute one bounded step through `act.md`.
-7. Record the result in `project-concept/changelog/` and reusable lessons in `learning/`.
-8. Run `npx neuroplast validate`.
+4. Decide whether you need to conceptualize, act, reverse-engineer, or reconcile conflicts.
+5. Add or update project understanding in `project-concept/`.
+6. Create or update the active plan in `plans/`.
+7. Execute one bounded step.
+8. Record the result in the changelog and capture any reusable learning.
+9. Run `npx neuroplast validate`.
+
+## What the Main Folders Are For
+- `current-context.md` — a quick snapshot of the current objective, if the repo uses it
+- `project-concept/` — durable understanding of what the project is and why it works the way it does
+- `plans/` — the active objective, scope, blockers, and handoff state
+- `project-concept/changelog/` — dated history of completed work
+- `learning/` — reusable, non-sensitive lessons from previous work
+
+These folders are not just storage. They are how people and AI systems pick work back up without guessing.
 
 ## Common Prompt Meanings
 - `go ahead` / `continue` — continue through `act.md` only if a bounded active plan already exists
 - `plan this` / `reframe this` — use `conceptualize.md`
 - `what's next?` — inspect the current plan and summarize the next bounded step
 
-When possible, prefer explicit file requests like `use neuroplast/act.md` over short prompts.
+When possible, prefer explicit requests like `use neuroplast/act.md` over short prompts.
 
-## Durable Memory Surface
-- `project-concept/` — durable project understanding and orientation
-- `plans/` — active objective, scope, blockers, and handoff state
-- `project-concept/changelog/` — dated history of completed work cycles
-- `learning/` — reusable, non-sensitive lessons
+## AI Startup Contract
+If you are an AI system, load these before acting:
+- `WORKFLOW_CONTRACT.md`
+- `manifest.yaml`
+- `capabilities.yaml`
+- `interaction-routing.yaml`
+- `current-context.md` if present
+- any active extensions declared in `manifest.yaml`
+- the step file you actually need to use
 
-These folders are not just storage. They are the durable shared memory that lets humans and AI systems resume work safely across sessions.
+## Advisory Context Depths
+- **lean** — mandatory startup contract + `current-context.md` + active plan + current step file
+- **standard** — `lean` + `ARCHITECTURE.md` + the most relevant concept note or recent changelog entry
+- **deep** — `standard` + broader concept, learning, and adjacent plan context for reframing or higher-risk work
+
+Use the smallest depth that still lets the human or AI act safely.
 
 ## Extra Installed Folders
 - `adapters/` — documentation-only environment guides

@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const { STATE_FILE } = require("./constants");
+const { ACTIVE_PLAN_POINTER, readActivePlanPointer } = require("./active-plan");
 const { parseFrontmatter, parseSimpleYaml } = require("./parsing");
 const { normalizeRelative } = require("./shared");
 const { validateLcpBridge } = require("../lcp/validate");
@@ -50,6 +51,8 @@ function runValidate(context) {
   }
 
   validateSyncStateIntegrity(context, findings);
+  validateActivePlanPointer(context, findings);
+  validateCurrentContextBriefing(context, findings);
 
   const errorCount = findings.filter((finding) => finding.level === "error").length;
   const warningCount = findings.filter((finding) => finding.level === "warning").length;
@@ -616,6 +619,132 @@ function validateSyncStateIntegrity(context, findings) {
       }));
     }
   }
+}
+
+function validateCurrentContextBriefing(context, findings) {
+  const relativePath = path.join("neuroplast", "current-context.md");
+  const absolutePath = path.join(context.targetRoot, relativePath);
+
+  if (!fs.existsSync(absolutePath)) {
+    return;
+  }
+
+  const content = fs.readFileSync(absolutePath, "utf8");
+  const lineCount = content.split(/\r?\n/).length;
+  const maxRecommendedLines = 120;
+
+  if (lineCount > maxRecommendedLines) {
+    findings.push(createFinding({
+      level: "warning",
+      code: "current_context_briefing_too_long",
+      message: `Current context briefing exceeds the advisory size budget (${lineCount} lines): ${normalizeRelative(context.targetRoot, absolutePath)}`,
+      remediation: `Condense ${normalizeRelative(context.targetRoot, absolutePath)} to the active objective, next step, blockers, verification, and relevant files so startup context stays compact.`
+    }));
+    return;
+  }
+
+  findings.push(createFinding({
+    level: "ok",
+    code: "current_context_briefing_within_budget",
+    message: `Current context briefing stays within the advisory size budget: ${normalizeRelative(context.targetRoot, absolutePath)}`
+  }));
+
+  validateCurrentContextFreshness(context, findings, absolutePath);
+}
+
+function validateActivePlanPointer(context, findings) {
+  const pointerPath = path.join(context.targetRoot, ACTIVE_PLAN_POINTER);
+  if (!fs.existsSync(pointerPath)) {
+    return;
+  }
+
+  const rawPointer = fs.readFileSync(pointerPath, "utf8").trim();
+  if (!rawPointer) {
+    findings.push(createFinding({
+      level: "ok",
+      code: "active_plan_pointer_empty",
+      message: `Active plan pointer is empty, so newest-plan fallback will be used: ${ACTIVE_PLAN_POINTER}`,
+      remediation: null
+    }));
+    return;
+  }
+
+  const resolved = readActivePlanPointer(context);
+  if (!resolved) {
+    findings.push(createFinding({
+      level: "error",
+      code: "active_plan_pointer_invalid",
+      message: `Active plan pointer is invalid: ${ACTIVE_PLAN_POINTER}`,
+      remediation: `Update ${ACTIVE_PLAN_POINTER} so it contains a relative path to a markdown file under neuroplast/plans/.`
+    }));
+    return;
+  }
+
+  const absolutePlanPath = path.join(context.targetRoot, resolved.relativePath);
+  if (!fs.existsSync(absolutePlanPath)) {
+    findings.push(createFinding({
+      level: "error",
+      code: "active_plan_pointer_target_missing",
+      message: `Active plan pointer target is missing: ${resolved.relativePath}`,
+      remediation: `Create or restore ${resolved.relativePath}, or update ${ACTIVE_PLAN_POINTER} to point at an existing active plan.`
+    }));
+    return;
+  }
+
+  findings.push(createFinding({
+    level: "ok",
+    code: "active_plan_pointer_valid",
+    message: `Active plan pointer resolves to: ${resolved.relativePath}`
+  }));
+}
+
+function validateCurrentContextFreshness(context, findings, currentContextPath) {
+  const currentContextStat = fs.statSync(currentContextPath);
+  const freshnessInputs = [
+    findLatestMarkdownArtifact(context, path.join("neuroplast", "plans")),
+    findLatestMarkdownArtifact(context, path.join("neuroplast", "project-concept", "changelog"))
+  ].filter(Boolean);
+
+  const newerInputs = freshnessInputs.filter((artifact) => artifact.mtimeMs > currentContextStat.mtimeMs);
+
+  if (newerInputs.length > 0) {
+    const artifactList = newerInputs.map((artifact) => artifact.relativePath).join(", ");
+    findings.push(createFinding({
+      level: "warning",
+      code: "current_context_briefing_stale",
+      message: `Current context briefing may be stale because newer context artifacts exist: ${artifactList}`,
+      remediation: `Rerun neuroplast sync or refresh ${normalizeRelative(context.targetRoot, currentContextPath)} so it reflects the latest plan and changelog context.`
+    }));
+    return;
+  }
+
+  findings.push(createFinding({
+    level: "ok",
+    code: "current_context_briefing_fresh",
+    message: `Current context briefing is not older than the latest plan/changelog inputs: ${normalizeRelative(context.targetRoot, currentContextPath)}`
+  }));
+}
+
+function findLatestMarkdownArtifact(context, relativeDirectoryPath) {
+  const absoluteDirectoryPath = path.join(context.targetRoot, relativeDirectoryPath);
+
+  if (!fs.existsSync(absoluteDirectoryPath)) {
+    return null;
+  }
+
+  const markdownFiles = fs.readdirSync(absoluteDirectoryPath)
+    .filter((fileName) => fileName.endsWith(".md"))
+    .map((fileName) => {
+      const absolutePath = path.join(absoluteDirectoryPath, fileName);
+      return {
+        absolutePath,
+        relativePath: normalizeRelative(context.targetRoot, absolutePath),
+        mtimeMs: fs.statSync(absolutePath).mtimeMs
+      };
+    })
+    .sort((a, b) => b.mtimeMs - a.mtimeMs);
+
+  return markdownFiles[0] || null;
 }
 
 function validateExtensionShape(context, extensionPath, findings) {

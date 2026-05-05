@@ -26,13 +26,13 @@ Start by reading `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared a
 
 Prefer `neuroplast/act.md` for normal bounded work once project context exists. Use `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization. Use `neuroplast/reconcile-conflicts.md` when merge conflicts or competing edits need a preservation-first reconciliation pass. Use `neuroplast/conceptualize.md` when the project mind needs to be created or reframed.
 
-When using the bundled OpenCode agents, treat `neuroplast-planner` as strict read-only plan mode: it should return a bounded plan in chat, not implementation or repository writes. After planning, explicitly switch to `neuroplast-orchestrator` for execution and any plan persistence.
+When using the bundled OpenCode agents, treat `neuroplast-planner` as strict read-only plan mode: it should return a bounded plan in chat, not implementation or repository writes. After planning, explicitly switch to `neuroplast-orchestrator` for execution and any plan persistence. The orchestrator should accept that same-session bounded planner handoff as valid execution input and persist it into `neuroplast/plans/` before broader implementation work.
 
 ## Interaction Routing
 - Prefer explicit instruction-file requests or explicit step names when possible.
 - If the repository defines shared interaction-routing rules, use them before interpreting short prompts.
 - Shared examples:
-  - `go ahead` / `continue` -> continue with `neuroplast/act.md` only when a bounded active objective already exists; otherwise ask for clarification.
+  - `go ahead` / `continue` -> continue with `neuroplast/act.md` when a bounded active objective already exists in files or a same-session bounded planner handoff is available; otherwise ask for clarification.
   - `plan this` / `reframe this` -> use `neuroplast/conceptualize.md` when the work is new, ambiguous, or materially reframed.
   - `what's next?` -> inspect the current plan and summarize the next bounded step instead of executing automatically.
 - When short-prompt meaning is still unclear after checking repository context, clarify instead of guessing.
@@ -44,7 +44,7 @@ When using the bundled OpenCode agents, treat `neuroplast-planner` as strict rea
 - Use the current instruction file as the immediate task contract.
 - Use `neuroplast/capabilities.yaml` to adjust behavior if environment limits apply.
 - Keep updates inside the canonical Neuroplast folders and root `ARCHITECTURE.md`.
-- Prefer `neuroplast-orchestrator` as the default OpenCode agent for execution and file updates; use `neuroplast-planner` only to produce read-only handoff-ready plans.
+- Prefer `neuroplast-orchestrator` as the default OpenCode agent for execution and file updates; use `neuroplast-planner` only to produce read-only handoff-ready plans that the orchestrator persists before execution.
 
 ## Known Limitations
 - Tool availability may differ by runtime, so always confirm file-writing and terminal capabilities before assuming them.

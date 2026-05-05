@@ -13,20 +13,21 @@ The package should not feel coding-only. It should install a reusable project mi
 Create an npm package with an explicit CLI initializer that:
 1. Copies the machine-readable manifest (`manifest.yaml`) to `/neuroplast/`
 2. Copies a practical installed usage guide (`README.md`) to `/neuroplast/`
-3. Copies the advisory capability profile (`capabilities.yaml`) to `/neuroplast/`
-4. Copies the workflow contract (`WORKFLOW_CONTRACT.md`) to `/neuroplast/`
-5. Copies instruction files (`act.md`, `conceptualize.md`, `reverse-engineering.md`, `reconcile-conflicts.md`, etc.) to `/neuroplast/`
-6. Optionally installs `.obsidian/` configuration under `/neuroplast/.obsidian/`
-7. Ships optional environment guidance docs under `/neuroplast/adapters/`
-8. Ships copy/paste-ready tool-facing bootstrap assets under `/neuroplast/adapter-assets/`
-9. Ships optional bundled workflow extension scaffolding under `/neuroplast/extensions/`
-10. Supports repo-local custom workflow extensions declared in the manifest
-11. Creates the expected `/neuroplast/` folder structure
-12. Applies one-time versioned migrations to managed files (via `sync`) when future template behavior changes require controlled updates
-13. Validates workflow contract, metadata, and active extension declarations via `validate`
-14. Scaffolds a minimal root `ARCHITECTURE.md` during `init` when the repository does not already provide one
-15. Emits optional machine-readable JSON output for `init`, `sync`, and `validate` so wrapper tooling can consume command results without scraping human logs
-16. Ships published JSON schema artifacts for each machine-readable CLI mode so automation consumers can validate payload shape explicitly
+3. Copies an optional compact current-state briefing template (`current-context.md`) to `/neuroplast/`
+4. Copies the advisory capability profile (`capabilities.yaml`) to `/neuroplast/`
+5. Copies the workflow contract (`WORKFLOW_CONTRACT.md`) to `/neuroplast/`
+6. Copies instruction files (`act.md`, `conceptualize.md`, `reverse-engineering.md`, `reconcile-conflicts.md`, etc.) to `/neuroplast/`
+7. Optionally installs `.obsidian/` configuration under `/neuroplast/.obsidian/`
+8. Ships optional environment guidance docs under `/neuroplast/adapters/`
+9. Ships copy/paste-ready tool-facing bootstrap assets under `/neuroplast/adapter-assets/`
+10. Ships optional bundled workflow extension scaffolding under `/neuroplast/extensions/`
+11. Supports repo-local custom workflow extensions declared in the manifest
+12. Creates the expected `/neuroplast/` folder structure
+13. Applies one-time versioned migrations to managed files (via `sync`) when future template behavior changes require controlled updates
+14. Validates workflow contract, metadata, and active extension declarations via `validate`
+15. Scaffolds a minimal root `ARCHITECTURE.md` during `init` when the repository does not already provide one
+16. Emits optional machine-readable JSON output for `init`, `sync`, and `validate` so wrapper tooling can consume command results without scraping human logs
+17. Ships published JSON schema artifacts for each machine-readable CLI mode so automation consumers can validate payload shape explicitly
 
 ## Key Requirements
 
@@ -59,6 +60,7 @@ neuroplast/
 |--------|------------|-----------|
 | `manifest.yaml` | `<project>/neuroplast/` | if not exists |
 | `README.md` | `<project>/neuroplast/` | if not exists |
+| `current-context.md` | `<project>/neuroplast/` | if not exists |
 | `capabilities.yaml` | `<project>/neuroplast/` | if not exists |
 | `WORKFLOW_CONTRACT.md` | `<project>/neuroplast/` | if not exists |
 | `conceptualize.md` | `<project>/neuroplast/` | if not exists |
@@ -89,10 +91,17 @@ neuroplast/
 - Treat `capabilities.yaml` as the advisory machine-readable capability profile for graceful degradation
 - Treat bundled extension scaffolding and repo-local workflow extensions as optional additive layers declared in the manifest
 - Treat `adapters/` docs as optional usage guidance only
+- Treat `current-context.md` as an advisory briefing capsule that compresses current-state startup context without replacing canonical artifacts
+- Allow `sync` to auto-refresh `current-context.md` from the latest plan and nearby durable artifacts when the file still matches the stored managed baseline
+- Allow `validate` to warn when `current-context.md` is stale relative to newer plan or changelog inputs
+- Allow `route` to recommend context depth and briefing emphasis for the resolved intent
+- Allow an explicit `plans/.active-plan` pointer to select the intended active plan instead of relying only on newest-file heuristics
 - Treat `adapter-assets/` as copy/paste-ready operational wrappers that mirror likely tool destination formats without becoming the canonical workflow contract
+- Let adapter bootstrap assets include additive response-shape guidance when it improves operator trust without changing workflow authority
 - Persist migration state in `neuroplast/.neuroplast-state.json`
 - Persist per-file baseline metadata for package-managed static files so sync can distinguish unchanged installs from local edits
 - Keep validation focused on contract, metadata, and active extension integrity rather than environment orchestration
+- Allow validation to apply lightweight advisory hygiene checks to optional context-compression artifacts such as `current-context.md`
 - Use semver-ordered migration modules (`src/migrations/*`) with idempotent update logic
 - Keep full-file safe refreshes separate from content-transforming migrations
 - For folder-policy migrations (for example Obsidian tag enforcement), evaluate all governed markdown files under `/neuroplast/` (excluding `.obsidian` and `.backups`), not only state-tracked bootstrap files

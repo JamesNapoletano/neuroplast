@@ -2,6 +2,7 @@ const path = require("path");
 
 const {
   PACKAGE_VERSION,
+  ACTIVE_PLAN_POINTER_RELATIVE_PATH,
   packageRoot,
   requiredDirs,
   workflowFiles,
@@ -159,6 +160,16 @@ function runInit(context) {
       }
     );
   }
+
+  copyIfMissing(
+    context,
+    path.join(context.packageRoot, "src", "instructions", "plans", ".active-plan"),
+    path.join(context.targetRoot, ACTIVE_PLAN_POINTER_RELATIVE_PATH),
+    {
+      ...context.syncOptions,
+      trackManagedFile: (relativePath) => trackManagedFile(state, relativePath)
+    }
+  );
 
   const adapterAssetsTargetDir = path.join(context.targetRoot, "neuroplast", "adapter-assets");
   ensureDirectory(context, adapterAssetsTargetDir, context.syncOptions);

@@ -1,10 +1,11 @@
 const fs = require("fs");
 const path = require("path");
 
+const { resolveActivePlan } = require("./active-plan");
 const { parseSimpleYaml } = require("./parsing");
 const { normalizeRelative, normalizeRelativePath } = require("./shared");
 
-const ROUTING_JSON_SCHEMA_VERSION = 1;
+const ROUTING_JSON_SCHEMA_VERSION = 2;
 const ROUTING_FILE = "neuroplast/interaction-routing.yaml";
 
 function runRoute(context) {
@@ -18,6 +19,7 @@ function runRoute(context) {
 
   const routing = loadRoutingConfig(context);
   const resolution = resolvePhrase(context, routing, phrase);
+  const recommendation = getContextRecommendation(resolution.intent);
 
   if (context.routeOptions.json) {
     process.stdout.write(JSON.stringify({
@@ -25,7 +27,8 @@ function runRoute(context) {
       schemaVersion: ROUTING_JSON_SCHEMA_VERSION,
       phrase,
       routingFile: ROUTING_FILE,
-      resolution
+      resolution,
+      recommendation
     }, null, 2) + "\n");
     return;
   }
@@ -40,6 +43,8 @@ function runRoute(context) {
   if (resolution.reason) {
     context.logInfo(`Reason: ${resolution.reason}`);
   }
+  context.logInfo(`Recommended context depth: ${recommendation.contextDepth}`);
+  context.logInfo(`Briefing emphasis: ${recommendation.briefingEmphasis.join(", ")}`);
 }
 
 function validateInteractionRouting(context, manifest, findings, createFinding) {
@@ -243,7 +248,7 @@ function resolvePhrase(context, routing, phrase) {
     const phrases = Array.isArray(intentConfig.phrases) ? intentConfig.phrases : [];
     if (phrases.some((entry) => normalizePhrase(entry) === normalizedPhrase)) {
       if (intentName === "act" && intentConfig.requires_active_plan) {
-        const activePlan = findLatestPlan(context);
+        const activePlan = resolveActivePlan(context);
         if (!activePlan) {
           return {
             type: "clarify",
@@ -257,7 +262,7 @@ function resolvePhrase(context, routing, phrase) {
           type: "routed_phrase",
           intent: intentName,
           instruction: intentConfig.instruction || null,
-          reason: `Matched canonical act phrase and found active plan ${activePlan}.`
+          reason: `Matched canonical act phrase and found active plan ${activePlan.relativePath} (${activePlan.source}).`
         };
       }
 
@@ -294,24 +299,6 @@ function loadRoutingConfig(context) {
   }
 }
 
-function findLatestPlan(context) {
-  const plansDir = path.join(context.targetRoot, "neuroplast", "plans");
-  if (!fs.existsSync(plansDir)) {
-    return null;
-  }
-
-  const planFiles = fs.readdirSync(plansDir)
-    .filter((fileName) => fileName.endsWith(".md"))
-    .map((fileName) => path.join(plansDir, fileName))
-    .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
-
-  if (!planFiles.length) {
-    return null;
-  }
-
-  return normalizeRelative(context.targetRoot, planFiles[0]);
-}
-
 function getRoutePhrase(args) {
   const parts = args.filter((arg) => !arg.startsWith("--"));
   if (!parts.length) {
@@ -327,6 +314,30 @@ function normalizePhrase(value) {
 
 function printRouteHelp() {
   console.log("Usage: neuroplast route <phrase> [--json]");
+}
+
+function getContextRecommendation(intent) {
+  const normalizedIntent = String(intent || "clarify");
+  const recommendations = {
+    act: {
+      contextDepth: "lean",
+      briefingEmphasis: ["objective", "next_step", "verification", "blockers"]
+    },
+    conceptualize: {
+      contextDepth: "deep",
+      briefingEmphasis: ["objective", "scope", "assumptions", "related_files"]
+    },
+    "inspect-current-plan": {
+      contextDepth: "standard",
+      briefingEmphasis: ["objective", "next_step", "blockers", "related_files"]
+    },
+    clarify: {
+      contextDepth: "standard",
+      briefingEmphasis: ["objective", "next_step", "related_files"]
+    }
+  };
+
+  return recommendations[normalizedIntent] || recommendations.clarify;
 }
 
 module.exports = {

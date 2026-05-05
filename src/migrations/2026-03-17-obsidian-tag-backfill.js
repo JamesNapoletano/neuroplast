@@ -35,6 +35,10 @@ function getRequiredTag(relativePath) {
     return null;
   }
 
+  if (normalizedPath === "neuroplast/current-context.md") {
+    return null;
+  }
+
   if (normalizedPath.startsWith("neuroplast/learning/")) {
     return "#learning";
   }

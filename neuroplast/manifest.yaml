@@ -21,6 +21,7 @@ required_support_files:
   - neuroplast/interaction-routing.yaml
 document_roles:
   manifest: neuroplast/manifest.yaml
+  current_context: neuroplast/current-context.md
   capabilities: neuroplast/capabilities.yaml
   contract: neuroplast/WORKFLOW_CONTRACT.md
   interaction_routing: neuroplast/interaction-routing.yaml
@@ -33,6 +34,7 @@ document_roles:
   adapter_assets_dir: neuroplast/adapter-assets
   extensions_dir: neuroplast/extensions
 optional_features:
+  - current-context-briefing
   - obsidian-config
   - obsidian-wiki-links
   - environment-guides
@@ -67,6 +69,8 @@ metadata_boundaries:
     - instruction frontmatter fields: human_review
     - instruction frontmatter fields: tags
 validation_targets:
+  - current_context_briefing_stays_compact
+  - current_context_briefing_is_not_stale
   - required_directories_exist
   - required_instruction_files_exist
   - required_support_files_exist

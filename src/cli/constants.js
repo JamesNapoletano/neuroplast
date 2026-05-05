@@ -5,6 +5,9 @@ const { getLcpBridgeDirectories, getLcpBridgeFiles } = require("../lcp/bridge");
 
 const PACKAGE_VERSION = packageJson.version;
 const STATE_FILE = "neuroplast/.neuroplast-state.json";
+const CURRENT_CONTEXT_FILE = "current-context.md";
+const CURRENT_CONTEXT_RELATIVE_PATH = path.join("neuroplast", CURRENT_CONTEXT_FILE);
+const ACTIVE_PLAN_POINTER_RELATIVE_PATH = path.join("neuroplast", "plans", ".active-plan");
 const packageRoot = path.resolve(__dirname, "..", "..");
 
 const requiredDirs = [
@@ -17,6 +20,7 @@ const requiredDirs = [
 
 const workflowFiles = [
   "README.md",
+  CURRENT_CONTEXT_FILE,
   "manifest.yaml",
   "capabilities.yaml",
   "WORKFLOW_CONTRACT.md",
@@ -56,6 +60,7 @@ const lcpBridgeFiles = getLcpBridgeFiles();
 
 const knownManagedFiles = [
   ...workflowFiles.map((fileName) => path.join("neuroplast", fileName)),
+  ACTIVE_PLAN_POINTER_RELATIVE_PATH,
   ...adapterFiles.map((fileName) => path.join("neuroplast", "adapters", fileName)),
   ...adapterAssetFiles.map((fileName) => path.join("neuroplast", "adapter-assets", fileName)),
   ...extensionFiles.map((fileName) => path.join("neuroplast", "extensions", fileName)),
@@ -64,10 +69,14 @@ const knownManagedFiles = [
 ];
 
 const refreshManagedFiles = [
-  ...workflowFiles.map((fileName) => ({
+  ...workflowFiles.filter((fileName) => fileName !== CURRENT_CONTEXT_FILE).map((fileName) => ({
     source: path.join("src", "instructions", fileName),
     destination: path.join("neuroplast", fileName)
   })),
+  {
+    source: path.join("src", "instructions", "plans", ".active-plan"),
+    destination: ACTIVE_PLAN_POINTER_RELATIVE_PATH
+  },
   ...adapterFiles.map((fileName) => ({
     source: path.join("src", "adapters", fileName),
     destination: path.join("neuroplast", "adapters", fileName)
@@ -87,12 +96,18 @@ const refreshManagedFiles = [
 ];
 
 function getRefreshManagedFilePaths() {
-  return refreshManagedFiles.map((file) => String(file.destination).replace(/\\/g, "/"));
+  return [
+    ...refreshManagedFiles.map((file) => String(file.destination).replace(/\\/g, "/")),
+    String(CURRENT_CONTEXT_RELATIVE_PATH).replace(/\\/g, "/")
+  ];
 }
 
 module.exports = {
   PACKAGE_VERSION,
   STATE_FILE,
+  CURRENT_CONTEXT_FILE,
+  CURRENT_CONTEXT_RELATIVE_PATH,
+  ACTIVE_PLAN_POINTER_RELATIVE_PATH,
   packageRoot,
   requiredDirs,
   workflowFiles,

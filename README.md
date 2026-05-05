@@ -14,7 +14,7 @@ Neuroplast preserves its existing `/neuroplast/` working layout while also insta
 
 Current version statement:
 
-- `Neuroplast v1.3.1 implements LCP v1`
+- `Neuroplast v1.3.2 implements LCP v1`
 
 ## Quick Start
 
@@ -87,6 +87,10 @@ By default, Neuroplast writes working files under `/neuroplast/` and installs a 
 
 The installed `/neuroplast/README.md` is the practical orientation file for people opening the deposited Neuroplast files inside a consumer repository.
 
+Neuroplast now also ships an optional installed `neuroplast/current-context.md` briefing capsule so repositories can keep a compact current-state summary without replacing the canonical memory artifacts. When the file still matches its managed baseline, `npx neuroplast sync` can auto-refresh it from the latest plan and nearby durable artifacts.
+
+Neuroplast now also supports an explicit active-plan pointer at `neuroplast/plans/.active-plan` so routing and briefing generation do not have to rely only on newest-file heuristics.
+
 `init` also runs `sync` after file bootstrap so new package migrations are applied once per version.
 
 ## First Successful Loop
@@ -108,6 +112,12 @@ Use the instruction files with this operating model:
 - Start with `neuroplast/reconcile-conflicts.md` when parallel edits or merge conflicts need a preservation-first reconciliation pass.
 - Start with `neuroplast/conceptualize.md` when the project is new, the request is ambiguous, or the project mind needs reframing.
 - Treat `/neuroplast/project-concept/`, `/neuroplast/plans/`, `/neuroplast/project-concept/changelog/`, and `/neuroplast/learning/` as the durable memory surface shared by the human and the AI.
+
+After the mandatory startup files are loaded, advisory context depths can keep common execution cheaper:
+
+- **lean** — add `neuroplast/current-context.md`, the active plan, and the current instruction file
+- **standard** — add `ARCHITECTURE.md` plus the most relevant concept note or recent changelog entry
+- **deep** — add broader concept, learning, and adjacent plan context for reframing or higher-risk work
 
 Use short prompts carefully:
 
@@ -184,10 +194,16 @@ Neuroplast now supports one-time versioned migrations plus safe refreshes for li
 - `init --json` and `sync --json` now emit machine-readable action summaries for wrapper tooling while preserving the human-readable default output.
 - `npx neuroplast validate --json` emits machine-readable findings and summary counts for CI or wrapper tooling.
 - `npx neuroplast route --json` emits machine-readable phrase-resolution output for canonical interaction-routing inspection.
+- `npx neuroplast route --json` now also includes a recommended context depth and briefing emphasis so wrappers can load less context for the resolved intent.
 - Published JSON schemas now document the stable payload contracts for `init --json`, `sync --json`, `validate --json`, and `route --json` within the current major version.
 - `validate --json` now includes `schemaVersion`, and the stable payload contract for the current major version is documented in `schemas/validate-json.schema.json`.
 - Validation now also checks sync-state parseability, the canonical interaction-routing artifact, and protected-phrase overlay safety.
 - Validation now also checks the presence and canonical references of the shared adapter bootstrap asset family under `neuroplast/adapter-assets/`.
+- Validation now also applies an advisory size-budget check to `neuroplast/current-context.md` when that briefing capsule is present.
+- `sync` can now auto-refresh `neuroplast/current-context.md` from the latest active plan while still preserving local edits.
+- Validation now also warns when `neuroplast/current-context.md` is older than the latest plan or changelog context that feeds it.
+- The generated `current-context.md` briefing now includes route-aware reading hints for `act`, `inspect-current-plan`, and `conceptualize` flows.
+- Validation now checks that `neuroplast/plans/.active-plan` resolves correctly when present, and routing/briefing generation prefer it over newest-plan fallback.
 
 ## Compatibility and Upgrade Policy
 
@@ -308,6 +324,7 @@ Source-of-truth package files in this repository:
 
 - `src/instructions/` — canonical instruction templates copied by `neuroplast init`
   - `README.md`
+  - `current-context.md`
   - `manifest.yaml`
   - `capabilities.yaml`
   - `WORKFLOW_CONTRACT.md`
@@ -328,6 +345,7 @@ Source-of-truth package files in this repository:
 Installed output in target projects (created by `npx neuroplast init`):
 
 - `neuroplast/README.md` — practical orientation guide for using the installed Neuroplast files
+- `neuroplast/current-context.md` — optional compact briefing capsule for the active objective
 - `neuroplast/WORKFLOW_CONTRACT.md`
 - `neuroplast/manifest.yaml`
 - `neuroplast/capabilities.yaml`
@@ -377,6 +395,8 @@ Start from `neuroplast/WORKFLOW_CONTRACT.md`, then choose the current instructio
 Optional environment guides live under `neuroplast/adapters/` and explain how to apply the same contract in specific tools without changing workflow behavior.
 
 Copy/paste-ready tool-facing bootstrap assets live under `neuroplast/adapter-assets/` and are intended to be copied into destination-like tool formats such as `AGENTS.md`, `CLAUDE.md`, OpenCode kebab-case skills, or thin OpenCode agent files without changing canonical routing semantics. In the bundled OpenCode pair, `neuroplast-planner` is a strict read-only planning agent and `neuroplast-orchestrator` is the execution agent.
+
+Those OpenCode assets now also recommend a success-oriented response shape so planner and orchestrator outputs stay more uniform about scope, verification, blockers, handoff, and next-step clarity.
 
 Optional workflow extensions live under `neuroplast/extensions/` (bundled shared extensions) or `neuroplast/local-extensions/` (repo-local) and can add custom guidance without changing the canonical workflow behavior.
 

@@ -34,6 +34,15 @@ Prioritize foundational hardening first, then improve maintainability and trust 
 - README and adapter docs now publish an explicit support matrix that distinguishes actively verified environments from documentation-only guides.
 - Onboarding now points new users to a short first successful loop that demonstrates `init`, contract-first reading, `validate`, and later `sync` usage.
 
+## Emerging Direction
+- Neuroplast now has an explicit follow-on initiative for context efficiency and success reliability.
+- The direction focuses on adaptive bootstrap depth, compact current-state briefing artifacts, routing-aware context loading, and lightweight context-hygiene checks.
+- The goal is to lower common-case startup token use and improve output consistency without changing the canonical filesystem-first contract.
+
+## Emerging Direction Links
+- [[project-concept/context-efficiency-and-success-reliability.md]]
+- [[plans/context-efficiency-and-success-reliability.md]]
+
 ## Related
 - [[project-concept/neuroplast-portability-plan-v2.md]]
 - [[plans/product-maturity-roadmap-phases.md]]

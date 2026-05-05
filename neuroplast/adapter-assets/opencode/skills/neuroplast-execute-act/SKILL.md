@@ -11,4 +11,6 @@ Use this kebab-case OpenCode skill when the current request resolves to `neuropl
 ## Rules
 - Confirm the Neuroplast bootstrap has already loaded the contract, manifest, capabilities, interaction-routing artifact, and active extensions.
 - Use `neuroplast/act.md` as the execution contract for bounded work.
+- If execution begins from a bounded planner handoff that only exists in active conversation context, write or update the corresponding plan file in `neuroplast/plans/` before broader implementation.
 - Keep the current plan, changelog, concept consistency, and learning updates in sync with the execution.
+- Prefer a concise execution response shape that covers outcome, scope, verification, blockers, next step, and updated artifacts.

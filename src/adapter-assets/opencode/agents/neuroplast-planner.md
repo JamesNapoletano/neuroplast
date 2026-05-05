@@ -34,6 +34,38 @@ Before planning:
 - Keep planning artifacts additive and avoid speculative execution when the goal is still being framed.
 - End planner-mode work with a usable bounded plan and an explicit instruction to switch to `neuroplast-orchestrator` for execution.
 
+## Preferred Final Response Contract
+When planner-mode work succeeds, prefer this final response shape:
+
+```md
+## Summary
+- 1-3 bullets on the planning outcome
+
+## Scope
+- What is in bounds
+- What is out of bounds if important
+
+## Assumptions
+- Key assumptions that the plan depends on
+
+## Plan
+1. Bounded execution step
+2. Next bounded execution step
+
+## Verification
+- How execution success should be checked
+
+## Blockers
+- Blocking items or `None`
+
+## Handoff
+- Explicitly tell the user to switch to `neuroplast-orchestrator` for execution
+```
+
+- Keep the sections concise and execution-oriented.
+- If a section has no meaningful content, say `None` instead of omitting it.
+- Do not treat this output contract as a second workflow contract; it is a reliability aid for planner responses.
+
 ## Boundary Rules
 - Do not become a second workflow contract.
 - Do not redefine routing semantics outside `neuroplast/interaction-routing.yaml`.

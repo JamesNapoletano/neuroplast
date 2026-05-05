@@ -92,6 +92,12 @@ Neuroplast is organized into three layers:
 
 The installed file set is meant to act as a durable project mind: orientation context in `project-concept/`, active objective and handoff state in `plans/`, dated history in `project-concept/changelog/`, and reusable lessons in `learning/`.
 
+An optional `neuroplast/current-context.md` briefing capsule can compress the current objective, next step, blockers, verification, and relevant files for faster startup without replacing the canonical memory artifacts. When the file is still managed, `sync` can refresh it from the latest plan and nearby durable artifacts while preserving local edits.
+
+An explicit `neuroplast/plans/.active-plan` pointer can identify the intended active plan so routing and briefing generation do not depend only on modification-time heuristics.
+
+For bundled OpenCode wrappers, a same-session bounded planner handoff may act as temporary execution input for `neuroplast-orchestrator`, but the orchestrator must persist that handoff into `neuroplast/plans/` before broader implementation so durable continuity remains file-backed.
+
 ### Low-Level Architecture
 
 #### File Installation Specifications
@@ -99,6 +105,7 @@ The installed file set is meant to act as a durable project mind: orientation co
 **Instruction Files (installed if missing during `init`, then safe-refreshed during `sync` when unchanged locally):**
 ```
 src/instructions/README.md              → ./neuroplast/README.md
+src/instructions/current-context.md    → ./neuroplast/current-context.md
 src/instructions/manifest.yaml            → ./neuroplast/manifest.yaml
 src/instructions/capabilities.yaml       → ./neuroplast/capabilities.yaml
 src/instructions/WORKFLOW_CONTRACT.md   → ./neuroplast/WORKFLOW_CONTRACT.md
@@ -216,6 +223,11 @@ State tracks:
 #### Validation System
 
 - `validate` checks required directories, required workflow files, support files, root `ARCHITECTURE.md`, parseable manifest/capabilities YAML, instruction frontmatter structure, environment-guide boundaries, and canonical interaction-routing integrity.
+- `validate` now also applies an advisory size-budget check to `neuroplast/current-context.md` when that briefing artifact is present.
+- `validate` now also warns when `neuroplast/current-context.md` is older than the latest plan/changelog inputs.
+- `sync` now also refreshes `neuroplast/current-context.md` from repository state when the file still matches the stored managed baseline.
+- `route` now returns additive context-depth and briefing-emphasis recommendations so wrappers can match their context load to the routed intent.
+- `route` and `sync` now prefer `neuroplast/plans/.active-plan` when selecting the active plan, with newest-plan fallback only when the pointer is absent.
 - `init` now leaves fresh repositories validate-ready by scaffolding a minimal root `ARCHITECTURE.md` unless the repository already provides one.
 - `validate` also checks any active bundled or repo-local workflow extensions declared in the manifest and enforces a minimal active-extension file convention.
 - `validate --json` now includes a `schemaVersion` field and is documented as a stable machine-readable contract for the active major version via `schemas/validate-json.schema.json`.
@@ -247,6 +259,7 @@ State tracks:
 - `route` now provides a narrow CLI inspection seam for canonical phrase-resolution without expanding into adapter orchestration.
 - Published schema files under `schemas/` now document the machine-readable payload contracts for `init`, `sync`, `validate`, and `route` JSON modes.
 - Validation now includes sync-state integrity checks plus active-extension shape validation to improve operator trust without expanding CLI scope.
+- Startup guidance now includes advisory `lean`, `standard`, and `deep` context depths layered on top of the mandatory bootstrap contract.
 - Portability proof currently treats the terminal-only guide as the actively verified first-loop environment; other bundled guides remain documentation-only until separately exercised.
 
 #### Release and Compatibility Policy
@@ -281,6 +294,7 @@ Neuroplast's portability model is centered on the `/neuroplast/` filesystem cont
 - Environment-specific guidance should remain optional and must not override the core workflow contract.
 - Optional bundled environment guides live under `neuroplast/adapters/` and mirror source docs under `src/adapters/`.
 - Copy/paste-ready bundled adapter bootstrap assets live under `neuroplast/adapter-assets/` and mirror source assets under `src/adapter-assets/`.
+- Those adapter bootstrap assets now also carry additive success-oriented response-shape guidance for planner and execution agents.
 - Support boundaries should distinguish actively verified environments from documentation-only guides instead of implying equal evidence across every adapter.
 - Optional bundled workflow extensions live under `neuroplast/extensions/`; repo-local custom extensions may live under `neuroplast/local-extensions/`.
 - Bundled extensions currently ship as three separate opt-in paths: `verification-first`, `artifact-sync`, and `context-continuity`.

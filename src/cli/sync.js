@@ -1,7 +1,13 @@
 const fs = require("fs");
 const path = require("path");
 
-const { PACKAGE_VERSION, packageRoot, refreshManagedFiles } = require("./constants");
+const {
+  PACKAGE_VERSION,
+  CURRENT_CONTEXT_RELATIVE_PATH,
+  packageRoot,
+  refreshManagedFiles
+} = require("./constants");
+const { resolveActivePlan } = require("./active-plan");
 const { ensureDirectory, maybeBackupFile } = require("./filesystem");
 const {
   loadState,
@@ -193,8 +199,312 @@ function refreshManagedStaticFiles(context, state) {
     result.updated += 1;
   }
 
+  refreshGeneratedCurrentContext({
+    context,
+    state,
+    result,
+    controlledPathSet,
+    backupRoot
+  });
+
   result.controlledPaths = Array.from(controlledPathSet).sort();
   return result;
+}
+
+function refreshGeneratedCurrentContext({ context, state, result, controlledPathSet, backupRoot }) {
+  result.scanned += 1;
+
+  const relativeDestinationPath = normalizeRelativePath(CURRENT_CONTEXT_RELATIVE_PATH);
+  const destinationPath = path.join(context.targetRoot, relativeDestinationPath);
+  const templatePath = path.join(packageRoot, "src", "instructions", "current-context.md");
+
+  if (!fs.existsSync(templatePath)) {
+    context.logError(`Missing source file in package: ${templatePath}`);
+    return;
+  }
+
+  trackManagedFile(state, relativeDestinationPath);
+
+  const templateContent = fs.readFileSync(templatePath, "utf8");
+  const templateHash = hashFileContents(templateContent);
+  const generatedContent = buildCurrentContextContent(context, templateContent);
+  const generatedHash = hashFileContents(generatedContent);
+  const baseline = getManagedFileBaseline(state, relativeDestinationPath);
+
+  if (!fs.existsSync(destinationPath)) {
+    ensureDirectory(context, path.dirname(destinationPath), context.syncOptions);
+
+    if (!context.syncOptions.dryRun) {
+      fs.writeFileSync(destinationPath, generatedContent, "utf8");
+    }
+
+    context.logCreated(relativeDestinationPath, context.syncOptions.dryRun);
+    result.created += 1;
+    controlledPathSet.add(relativeDestinationPath);
+    return;
+  }
+
+  const currentContent = fs.readFileSync(destinationPath, "utf8");
+  const currentHash = hashFileContents(currentContent);
+
+  if (!baseline) {
+    if (currentHash === templateHash || currentHash === generatedHash) {
+      context.logInfo(`Adopted managed baseline for ${relativeDestinationPath}.`);
+      result.adopted += 1;
+      controlledPathSet.add(relativeDestinationPath);
+
+      if (currentHash === generatedHash) {
+        result.unchanged += 1;
+        return;
+      }
+
+      if (!context.syncOptions.dryRun) {
+        maybeBackupFile(context, destinationPath, backupRoot);
+        fs.writeFileSync(destinationPath, generatedContent, "utf8");
+      }
+
+      context.logUpdated(relativeDestinationPath, context.syncOptions.dryRun);
+      result.updated += 1;
+      return;
+    }
+
+    context.logPreserved(relativeDestinationPath, context.syncOptions.dryRun, "local edits detected (no stored baseline)");
+    result.preserved += 1;
+    return;
+  }
+
+  if (currentHash !== baseline.contentHash) {
+    context.logPreserved(relativeDestinationPath, context.syncOptions.dryRun, "local edits detected");
+    result.preserved += 1;
+    return;
+  }
+
+  controlledPathSet.add(relativeDestinationPath);
+
+  if (currentHash === generatedHash) {
+    result.unchanged += 1;
+    return;
+  }
+
+  if (!context.syncOptions.dryRun) {
+    maybeBackupFile(context, destinationPath, backupRoot);
+    fs.writeFileSync(destinationPath, generatedContent, "utf8");
+  }
+
+  context.logUpdated(relativeDestinationPath, context.syncOptions.dryRun);
+  result.updated += 1;
+}
+
+function buildCurrentContextContent(context, templateContent) {
+  const activePlan = resolveActivePlan(context);
+  const latestPlan = activePlan ? activePlan.relativePath : null;
+  if (!latestPlan) {
+    return templateContent;
+  }
+
+  const latestChangelog = findLatestMarkdownFile(path.join(context.targetRoot, "neuroplast", "project-concept", "changelog"), context.targetRoot);
+  const relatedConcept = latestPlan ? extractFirstWikiLink(readFileIfExists(path.join(context.targetRoot, latestPlan)), "project-concept/") : null;
+  const planContent = latestPlan ? readFileIfExists(path.join(context.targetRoot, latestPlan)) : "";
+  const objective = latestPlan
+    ? extractCurrentObjective(planContent)
+    : "No active plan detected. Create or update a bounded plan under `neuroplast/plans/`.";
+  const nextStep = latestPlan
+    ? extractNextBoundedStep(planContent)
+    : "Create a current plan, then continue through the routed instruction file for the next bounded step.";
+  const blockers = latestPlan ? extractSectionSummary(planContent, ["Blockers"]) : "None recorded.";
+  const verification = latestPlan ? extractSectionSummary(planContent, ["Verification", "Verification For This Cycle", "Done When"]) : "Run `npx neuroplast validate` after the first bounded loop.";
+
+  const relevantFiles = [latestPlan, relatedConcept, latestChangelog, "ARCHITECTURE.md"].filter(Boolean);
+  const routeAwareEmphasis = [
+    {
+      intent: "act",
+      contextDepth: "lean",
+      focus: "objective, next bounded step, blockers, verification"
+    },
+    {
+      intent: "inspect-current-plan",
+      contextDepth: "standard",
+      focus: "objective, next bounded step, blockers, related files"
+    },
+    {
+      intent: "conceptualize",
+      contextDepth: "deep",
+      focus: "objective, scope assumptions, related files, recent context"
+    }
+  ];
+
+  return [
+    "# Current Context",
+    "",
+    "This file is an optional compact briefing capsule for the repository's current state.",
+    "",
+    "It is auto-refreshed by `neuroplast sync` when it still matches the managed baseline. Local edits are preserved.",
+    "",
+    "## Boundary",
+    "- This file is advisory, not canonical.",
+    "- `plans/`, `project-concept/`, `project-concept/changelog/`, `learning/`, and `ARCHITECTURE.md` remain the durable source of truth.",
+    "- If you want to keep custom notes here, edit the file directly; future sync runs will preserve your version instead of overwriting it.",
+    "",
+    "## Advisory Bootstrap Modes",
+    "- **lean** — load the mandatory startup contract, then `current-context.md`, the active plan, and the current step file.",
+    "- **standard** — use `lean`, then add `ARCHITECTURE.md` plus the most relevant concept note or recent changelog entry.",
+    "- **deep** — use `standard`, then add broader concept, learning, and adjacent plan context for reframing or higher-risk work.",
+    "",
+    "## Current Snapshot",
+    `- **Active plan:** ${formatInlinePath(latestPlan)}`,
+    `- **Active plan source:** ${activePlan.source}`,
+    `- **Objective:** ${objective}`,
+    `- **Next bounded step:** ${nextStep}`,
+    `- **Blockers:** ${blockers}`,
+    `- **Verification:** ${verification}`,
+    "",
+    "## Route-Aware Reading Hints",
+    ...routeAwareEmphasis.map((entry) => `- **${entry.intent}** -> use \`${entry.contextDepth}\` context depth and emphasize ${entry.focus}.`),
+    "",
+    "## Relevant Files",
+    ...relevantFiles.map((filePath) => `- ${formatInlinePath(filePath)}`),
+    "",
+    "## Refresh Sources",
+    "- The active plan pointer in `neuroplast/plans/.active-plan` is used when present; otherwise the newest plan in `neuroplast/plans/` is used.",
+    "- Related concept context is taken from the active plan when it links to a `project-concept/` note.",
+    "- The newest changelog entry under `neuroplast/project-concept/changelog/` provides recent completed-context continuity.",
+    "- `ARCHITECTURE.md` remains the canonical architecture anchor for any deeper context load.",
+    ""
+  ].join("\n");
+}
+
+function findLatestMarkdownFile(directoryPath, targetRoot) {
+  if (!fs.existsSync(directoryPath)) {
+    return null;
+  }
+
+  const markdownFiles = fs.readdirSync(directoryPath)
+    .filter((fileName) => fileName.endsWith(".md"))
+    .map((fileName) => path.join(directoryPath, fileName))
+    .sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs);
+
+  if (!markdownFiles.length) {
+    return null;
+  }
+
+  return normalizeRelativePath(path.relative(targetRoot, markdownFiles[0]));
+}
+
+function readFileIfExists(absolutePath) {
+  if (!absolutePath || !fs.existsSync(absolutePath)) {
+    return "";
+  }
+
+  return fs.readFileSync(absolutePath, "utf8");
+}
+
+function extractCurrentObjective(content) {
+  const section = extractNamedSection(content, ["Current Objective", "Objective"]);
+  if (!section) {
+    return "No explicit current objective recorded in the active plan.";
+  }
+
+  const summary = summarizeSectionLines(section, 1);
+  return summary || "No explicit current objective recorded in the active plan.";
+}
+
+function extractNextBoundedStep(content) {
+  const uncheckedTask = content.match(/^\s*(?:\d+\.\s*)?(?:[-*]\s*)?\[ \]\s+(.+)$/m);
+  if (uncheckedTask && uncheckedTask[1]) {
+    return sanitizeInlineText(uncheckedTask[1]);
+  }
+
+  const handoff = extractNamedSection(content, ["Handoff", "Next Step", "Execution Steps"]);
+  const summary = summarizeSectionLines(handoff, 1);
+  return summary || "No explicit next bounded step recorded.";
+}
+
+function extractSectionSummary(content, sectionNames) {
+  const section = extractNamedSection(content, sectionNames);
+  const summary = summarizeSectionLines(section, 2);
+  return summary || "None recorded.";
+}
+
+function extractNamedSection(content, sectionNames) {
+  if (!content) {
+    return "";
+  }
+
+  const normalizedTargets = new Set(sectionNames.map((name) => String(name).trim().toLowerCase()));
+  const lines = content.split(/\r?\n/);
+  let capture = false;
+  const collected = [];
+
+  for (const line of lines) {
+    const headingMatch = line.match(/^##\s+(.+)$/);
+    if (headingMatch) {
+      const headingName = headingMatch[1].trim().toLowerCase();
+      if (capture) {
+        break;
+      }
+
+      capture = normalizedTargets.has(headingName);
+      continue;
+    }
+
+    if (capture) {
+      collected.push(line);
+    }
+  }
+
+  return collected.join("\n").trim();
+}
+
+function summarizeSectionLines(sectionContent, maxItems) {
+  if (!sectionContent) {
+    return "";
+  }
+
+  const lines = sectionContent.split(/\r?\n/)
+    .map((line) => sanitizeInlineText(line))
+    .filter(Boolean)
+    .filter((line) => line !== "#plan");
+
+  if (!lines.length) {
+    return "";
+  }
+
+  return lines.slice(0, maxItems).join(" | ");
+}
+
+function extractFirstWikiLink(content, requiredPrefix) {
+  if (!content) {
+    return null;
+  }
+
+  const matches = content.match(/\[\[([^\]]+)\]\]/g) || [];
+  for (const match of matches) {
+    const value = match.slice(2, -2).trim();
+    if (!requiredPrefix || value.startsWith(requiredPrefix)) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+function sanitizeInlineText(value) {
+  return String(value || "")
+    .replace(/^[-*]\s+/, "")
+    .replace(/^\d+\.\s+/, "")
+    .replace(/^\[.\]\s+/, "")
+    .replace(/`([^`]+)`/g, "$1")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\[\[([^\]]+)\]\]/g, "$1")
+    .trim();
+}
+
+function formatInlinePath(filePath) {
+  if (!filePath) {
+    return "`None`";
+  }
+
+  return `\`${normalizeRelativePath(filePath)}\``;
 }
 
 function finalizeManagedStaticFiles(context, state, controlledPaths) {

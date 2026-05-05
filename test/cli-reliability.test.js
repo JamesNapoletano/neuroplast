@@ -25,6 +25,7 @@ const {
 const MANAGED_FILE = "neuroplast/extensions/README.md";
 const MANAGED_BUNDLED_EXTENSION_FILE = "neuroplast/extensions/verification-first/README.md";
 const INSTALLED_WORKFLOW_README = "neuroplast/README.md";
+const CURRENT_CONTEXT_FILE = "neuroplast/current-context.md";
 const OBSIDIAN_FILE = "neuroplast/.obsidian/core-plugins.json";
 const LCP_MANIFEST = ".lcp/manifest.yaml";
 const REVERSE_ENGINEERING_FILE = "neuroplast/reverse-engineering.md";
@@ -36,6 +37,7 @@ test("init creates the default scaffold without obsidian config", (t) => {
   assert.match(initResult.stdout, /Skipping neuroplast\/\.obsidian config/);
   assert.equal(exists(repoRoot, "neuroplast/manifest.yaml"), true);
   assert.equal(exists(repoRoot, INSTALLED_WORKFLOW_README), true);
+  assert.equal(exists(repoRoot, CURRENT_CONTEXT_FILE), true);
   assert.equal(exists(repoRoot, "neuroplast/adapters/README.md"), true);
   assert.equal(exists(repoRoot, "neuroplast/adapter-assets/README.md"), true);
   assert.equal(exists(repoRoot, "neuroplast/adapter-assets/codex/AGENTS.md"), true);
@@ -51,6 +53,8 @@ test("init creates the default scaffold without obsidian config", (t) => {
   assert.equal(exists(repoRoot, OBSIDIAN_FILE), false);
   assert.equal(exists(repoRoot, "ARCHITECTURE.md"), true);
   assert.match(readFile(repoRoot, "ARCHITECTURE.md"), /minimal `ARCHITECTURE\.md` scaffold/);
+  assert.match(readFile(repoRoot, CURRENT_CONTEXT_FILE), /`neuroplast sync` may auto-refresh this file/);
+  assert.match(readFile(repoRoot, CURRENT_CONTEXT_FILE), /## Current Snapshot/);
 
   const state = readState(repoRoot);
   assert.equal(state.installedVersion, PACKAGE_VERSION);
@@ -70,6 +74,8 @@ test("init --with-obsidian installs shared obsidian config", (t) => {
 
 test("validate succeeds for a complete initialized repository", (t) => {
   const { repoRoot } = createInitializedRepo(t, { label: "validate-success" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Test active plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
 
   const result = runCli(["validate"], { targetRoot: repoRoot });
 
@@ -180,6 +186,8 @@ test("validate fails when the manifest is not parseable", (t) => {
 
 test("validate --json emits machine-readable output", (t) => {
   const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-json" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Test active plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
 
   const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
 
@@ -194,6 +202,8 @@ test("validate --json emits machine-readable output", (t) => {
 
 test("validate --json follows the documented schema contract", (t) => {
   const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-json-schema" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Test active plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
 
   const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
 
@@ -223,9 +233,96 @@ test("validate --json keeps schema-shaped findings when environment guides direc
   assert.equal(typeof finding.remediation, "string");
 });
 
+test("validate --json warns when current-context briefing exceeds the advisory size budget", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-current-context-too-long" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Test active plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
+  writeFile(repoRoot, "neuroplast/current-context.md", Array.from({ length: 130 }, (_, index) => `line ${index + 1}`).join("\n"));
+
+  const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  const finding = payload.findings.find((entry) => entry.code === "current_context_briefing_too_long");
+  assert.ok(finding);
+  assert.equal(finding.level, "warning");
+  assert.match(finding.message, /Current context briefing exceeds the advisory size budget/);
+});
+
+test("validate --json warns when current-context briefing is older than the latest plan", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-current-context-stale" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Newer plan state.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
+
+  const currentContextPath = path.join(repoRoot, "neuroplast", "current-context.md");
+  const planPath = path.join(repoRoot, "neuroplast", "plans", "current-objective.md");
+  const now = new Date();
+  const oneMinuteAgo = new Date(now.getTime() - 60_000);
+  fs.utimesSync(currentContextPath, oneMinuteAgo, oneMinuteAgo);
+  fs.utimesSync(planPath, now, now);
+
+  const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  const finding = payload.findings.find((entry) => entry.code === "current_context_briefing_stale");
+  assert.ok(finding);
+  assert.equal(finding.level, "warning");
+  assert.match(finding.message, /newer context artifacts exist/);
+  assert.match(finding.message, /neuroplast\/plans\/current-objective\.md/);
+});
+
+test("sync refreshes current-context from the latest plan when still managed", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "sync-current-context-refresh" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", [
+    "# Current Objective",
+    "#plan",
+    "",
+    "## Current Objective",
+    "- Ship a compact briefing refresh.",
+    "",
+    "## Execution Steps",
+    "- [ ] Implement the auto-refresh behavior.",
+    "",
+    "## Verification",
+    "- Run `npm run validate`.",
+    "",
+    "## Related",
+    "- [[project-concept/context-efficiency-and-success-reliability.md]]",
+    ""
+  ].join("\n"));
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.3.0";
+  });
+
+  const result = runCli(["sync"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const currentContext = readFile(repoRoot, CURRENT_CONTEXT_FILE);
+  assert.match(currentContext, /`neuroplast\/plans\/current-objective\.md`/);
+  assert.match(currentContext, /Ship a compact briefing refresh\./);
+  assert.match(currentContext, /Implement the auto-refresh behavior\./);
+  assert.match(currentContext, /project-concept\/context-efficiency-and-success-reliability\.md/);
+});
+
+test("sync preserves locally edited current-context briefings", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "sync-current-context-preserve" });
+  writeFile(repoRoot, CURRENT_CONTEXT_FILE, "# Current Context\n\nCustom local briefing.\n");
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.3.0";
+  });
+
+  const result = runCli(["sync"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  assert.match(result.output, /\[neuroplast\]\[preserve\] neuroplast\/current-context\.md \(local edits detected \(no stored baseline\)\)/);
+  assert.equal(readFile(repoRoot, CURRENT_CONTEXT_FILE), "# Current Context\n\nCustom local briefing.\n");
+});
+
 test("route --json resolves canonical act phrases when an active plan exists", (t) => {
   const { repoRoot } = createInitializedRepo(t, { label: "route-json-act" });
   writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\nBounded work.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
 
   const result = runCli(["route", "go ahead", "--json"], { targetRoot: repoRoot });
 
@@ -238,6 +335,8 @@ test("route --json resolves canonical act phrases when an active plan exists", (
   assert.equal(payload.resolution.type, "routed_phrase");
   assert.equal(payload.resolution.intent, "act");
   assert.equal(payload.resolution.instruction, "neuroplast/act.md");
+  assert.equal(payload.recommendation.contextDepth, "lean");
+  assert.deepEqual(payload.recommendation.briefingEmphasis, ["objective", "next_step", "verification", "blockers"]);
 });
 
 test("route --json falls back to clarify for act phrases without an active plan", (t) => {
@@ -251,6 +350,20 @@ test("route --json falls back to clarify for act phrases without an active plan"
   assert.equal(payload.resolution.type, "clarify");
   assert.equal(payload.resolution.intent, "clarify");
   assert.equal(payload.resolution.instruction, null);
+  assert.equal(payload.recommendation.contextDepth, "standard");
+});
+
+test("route prefers explicit active-plan pointer over newest-file heuristic", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "route-json-active-plan-pointer" });
+  writeFile(repoRoot, "neuroplast/plans/older-plan.md", "# Older Plan\n#plan\n");
+  writeFile(repoRoot, "neuroplast/plans/newer-plan.md", "# Newer Plan\n#plan\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "older-plan.md\n");
+
+  const result = runCli(["route", "go ahead", "--json"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.match(payload.resolution.reason, /older-plan\.md \(pointer\)/);
 });
 
 test("route --json resolves conceptualize phrases", (t) => {
@@ -263,6 +376,52 @@ test("route --json resolves conceptualize phrases", (t) => {
   assert.equal(payload.schemaVersion, ROUTING_JSON_SCHEMA_VERSION);
   assert.equal(payload.resolution.intent, "conceptualize");
   assert.equal(payload.resolution.instruction, "neuroplast/conceptualize.md");
+  assert.equal(payload.recommendation.contextDepth, "deep");
+  assert.deepEqual(payload.recommendation.briefingEmphasis, ["objective", "scope", "assumptions", "related_files"]);
+});
+
+test("sync-generated current-context includes route-aware reading hints", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "sync-current-context-route-hints" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Use route-aware hints.\n");
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.3.0";
+  });
+
+  const result = runCli(["sync"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const currentContext = readFile(repoRoot, CURRENT_CONTEXT_FILE);
+  assert.match(currentContext, /## Route-Aware Reading Hints/);
+  assert.match(currentContext, /\*\*act\*\* -> use `lean` context depth/);
+  assert.match(currentContext, /\*\*conceptualize\*\* -> use `deep` context depth/);
+});
+
+test("sync-generated current-context uses explicit active-plan pointer when present", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "sync-current-context-active-plan-pointer" });
+  writeFile(repoRoot, "neuroplast/plans/older-plan.md", "# Older Plan\n#plan\n\n## Current Objective\n- Pointer-selected plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/newer-plan.md", "# Newer Plan\n#plan\n\n## Current Objective\n- Newer mtime plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "older-plan.md\n");
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.3.0";
+  });
+
+  const result = runCli(["sync"], { targetRoot: repoRoot });
+
+  assertSuccess(result);
+  const currentContext = readFile(repoRoot, CURRENT_CONTEXT_FILE);
+  assert.match(currentContext, /\*\*Active plan:\*\* `neuroplast\/plans\/older-plan\.md`/);
+  assert.match(currentContext, /\*\*Active plan source:\*\* pointer/);
+  assert.match(currentContext, /Pointer-selected plan\./);
+});
+
+test("validate fails when active-plan pointer target is missing", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-active-plan-pointer-missing-target" });
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "missing-plan.md\n");
+
+  const result = runCli(["validate"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /Active plan pointer target is missing: neuroplast\/plans\/missing-plan\.md/);
 });
 
 test("validate fails when interaction routing artifact is missing", (t) => {
@@ -341,6 +500,8 @@ test("validate fails when an active local extension has no canonical step files"
 
 test("validate succeeds when a bundled extension follows the minimal file convention", (t) => {
   const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-bundled-extension-valid" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Test active plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
 
   writeFile(repoRoot, "neuroplast/manifest.yaml", `${readFile(repoRoot, "neuroplast/manifest.yaml").replace("active_bundled: []", "active_bundled:\n    - verification-first")}`);
 
@@ -386,7 +547,7 @@ test("sync --dry-run reports changes without writing files or state", (t) => {
   assertSuccess(result);
   assert.match(result.output, /Dry run enabled: previewing sync changes without modifying files or state\./);
   assert.match(result.output, /\[neuroplast\]\[create\]\[dry-run\] neuroplast\/extensions\/README\.md/);
-  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 50 baselines adopted, 0 unchanged\)\./);
+  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 52 baselines adopted, 1 unchanged\)\./);
   assert.match(result.output, /Dry run enabled: no files or state were modified\./);
   assert.equal(exists(repoRoot, MANAGED_FILE), false);
   assert.equal(readFile(repoRoot, STATE_PATH), stateBefore);
@@ -427,7 +588,7 @@ test("sync summary distinguishes unchanged files from preserved edits", (t) => {
   const result = runCli(["sync"], { targetRoot: repoRoot });
 
   assertSuccess(result);
-  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 51 unchanged\)\./);
+  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 53 unchanged\)\./);
 });
 
 test("sync skips on package downgrade by default", (t) => {

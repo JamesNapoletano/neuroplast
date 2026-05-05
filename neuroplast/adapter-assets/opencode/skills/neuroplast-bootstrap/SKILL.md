@@ -12,6 +12,7 @@ Use this kebab-case OpenCode skill to establish the Neuroplast startup contract.
 - Read `neuroplast/WORKFLOW_CONTRACT.md`, `neuroplast/manifest.yaml`, `neuroplast/capabilities.yaml`, and `neuroplast/interaction-routing.yaml` before interpreting requests.
 - Read any active workflow extensions declared in `neuroplast/manifest.yaml`.
 - Resolve the current instruction from explicit file requests, explicit step requests, or canonical routed phrases.
+- After the mandatory startup files, prefer `lean`, `standard`, or `deep` advisory context depth based on task risk and ambiguity.
 
 ## Routing Rules
 - `go ahead` / `continue` imply `neuroplast/act.md` only when a bounded active plan already exists; otherwise clarify.
