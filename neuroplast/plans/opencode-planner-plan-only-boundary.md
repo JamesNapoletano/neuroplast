@@ -86,3 +86,4 @@
 ## Related
 - [[plans/opencode-neuroplast-agents.md]]
 - [[project-concept/cross-adapter-interaction-routing.md]]
+- [[project-concept/changelog/2026-05-07.md]]

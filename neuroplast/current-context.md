@@ -16,7 +16,7 @@ It is auto-refreshed by `neuroplast sync` when it still matches the managed base
 
 ## Current Snapshot
 - **Active plan:** `neuroplast/plans/context-efficiency-and-success-reliability.md`
-- **Active plan source:** latest_mtime
+- **Active plan source:** pointer
 - **Objective:** Define a bounded Neuroplast improvement track that lowers startup token cost and makes planner/orchestrator outputs more consistently successful without changing the filesystem-first contract.
 - **Next bounded step:** - [x] Capture the initiative as a durable plan and concept note instead of leaving it only in conversation state.
 - **Blockers:** None recorded.
@@ -30,7 +30,7 @@ It is auto-refreshed by `neuroplast sync` when it still matches the managed base
 ## Relevant Files
 - `neuroplast/plans/context-efficiency-and-success-reliability.md`
 - `project-concept/context-efficiency-and-success-reliability.md`
-- `neuroplast/project-concept/changelog/2026-04-25.md`
+- `neuroplast/project-concept/changelog/2026-05-07.md`
 - `ARCHITECTURE.md`
 
 ## Refresh Sources
