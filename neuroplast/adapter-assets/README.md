@@ -23,3 +23,4 @@ These files are copy/paste-ready operational assets for AI tools that support st
 - These assets must not redefine workflow phases, file structure, or artifact roles.
 - They must load `neuroplast/WORKFLOW_CONTRACT.md`, `neuroplast/manifest.yaml`, `neuroplast/capabilities.yaml`, and `neuroplast/interaction-routing.yaml` before resolving short prompts.
 - They must preserve the canonical `go ahead` / `continue` behavior: route to `neuroplast/act.md` only when a bounded active plan already exists; otherwise clarify.
+- Planning-only assets should use explicit read-only tool allowlists and runtime-side mutation denial when the host tool supports per-agent enforcement.

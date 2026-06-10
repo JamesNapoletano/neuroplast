@@ -15,12 +15,12 @@ It is auto-refreshed by `neuroplast sync` when it still matches the managed base
 - **deep** — use `standard`, then add broader concept, learning, and adjacent plan context for reframing or higher-risk work.
 
 ## Current Snapshot
-- **Active plan:** `neuroplast/plans/context-efficiency-and-success-reliability.md`
+- **Active plan:** `neuroplast/plans/neuroplast-first-party-harness.md`
 - **Active plan source:** pointer
-- **Objective:** Define a bounded Neuroplast improvement track that lowers startup token cost and makes planner/orchestrator outputs more consistently successful without changing the filesystem-first contract.
-- **Next bounded step:** - [x] Capture the initiative as a durable plan and concept note instead of leaving it only in conversation state.
+- **Objective:** Persist a durable Neuroplast direction for a first-party harness that can replace adapter-dependent execution surfaces with a Neuroplast-owned runtime and VS Code extension strategy.
+- **Next bounded step:** Plan the first implementation slice for sidecar capability enforcement, reservation lifecycle management, live sync publishing, and extension UX for presence and approvals.
 - **Blockers:** None recorded.
-- **Verification:** The initiative is captured in /neuroplast/plans/ with explicit scope, assumptions, and non-goals. | A matching concept artifact records why this direction matters to Neuroplast.
+- **Verification:** A bounded plan and matching concept note exist for the harness direction. | The harness concept now includes an initial capability manifest shape plus reservation and collaboration policy guidance. | `npm run validate` completed after the capability/collaboration update with no errors.
 
 ## Route-Aware Reading Hints
 - **act** -> use `lean` context depth and emphasize objective, next bounded step, blockers, verification.
@@ -28,9 +28,9 @@ It is auto-refreshed by `neuroplast sync` when it still matches the managed base
 - **conceptualize** -> use `deep` context depth and emphasize objective, scope assumptions, related files, recent context.
 
 ## Relevant Files
-- `neuroplast/plans/context-efficiency-and-success-reliability.md`
-- `project-concept/context-efficiency-and-success-reliability.md`
-- `neuroplast/project-concept/changelog/2026-05-07.md`
+- `neuroplast/plans/neuroplast-first-party-harness.md`
+- `project-concept/neuroplast-first-party-harness.md`
+- `neuroplast/project-concept/changelog/2026-05-18.md`
 - `ARCHITECTURE.md`
 
 ## Refresh Sources

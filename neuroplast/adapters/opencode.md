@@ -26,7 +26,7 @@ Start by reading `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared a
 
 Prefer `neuroplast/act.md` for normal bounded work once project context exists. Use `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization. Use `neuroplast/reconcile-conflicts.md` when merge conflicts or competing edits need a preservation-first reconciliation pass. Use `neuroplast/conceptualize.md` when the project mind needs to be created or reframed.
 
-When using the bundled OpenCode agents, treat `neuroplast-planner` as strict read-only plan mode: it should return a bounded plan in chat, not implementation or repository writes. After planning, explicitly switch to `neuroplast-orchestrator` for execution and any plan persistence. The orchestrator should accept that same-session bounded planner handoff as valid execution input and persist it into `neuroplast/plans/` before broader implementation work.
+When using the bundled OpenCode agents, treat `neuroplast-planner` as strict read-only plan mode: it should return a bounded plan in chat, not implementation or repository writes. After planning, explicitly switch to `neuroplast-orchestrator` for execution and any plan persistence. The orchestrator should accept that same-session bounded planner handoff as valid execution input and persist it into `neuroplast/plans/` before broader implementation work. Complete prevention of planner writes requires host-runtime enforcement: keep the planner on a read-only tool allowlist and isolate planner sessions from prior mutable builder/executor lanes when possible.
 
 ## Interaction Routing
 - Prefer explicit instruction-file requests or explicit step names when possible.
@@ -45,6 +45,8 @@ When using the bundled OpenCode agents, treat `neuroplast-planner` as strict rea
 - Use `neuroplast/capabilities.yaml` to adjust behavior if environment limits apply.
 - Keep updates inside the canonical Neuroplast folders and root `ARCHITECTURE.md`.
 - Prefer `neuroplast-orchestrator` as the default OpenCode agent for execution and file updates; use `neuroplast-planner` only to produce read-only handoff-ready plans that the orchestrator persists before execution.
+- If OpenCode allows per-agent tool policies, enforce planner mode with a read-only allowlist (`read`, `grep`, `glob`, and optional fetch-only tools) and deny all mutation-capable tools server-side.
+- If OpenCode can reuse session state across agent switches, force a fresh planner session or equivalent isolation after builder/executor use so mutation-capable tools do not leak into planner mode.
 
 ## Known Limitations
 - Tool availability may differ by runtime, so always confirm file-writing and terminal capabilities before assuming them.

@@ -453,11 +453,142 @@ function validateAdapterAssets(context, findings) {
     }
   }
 
+  validateOpenCodePlannerAsset(context, adapterAssetsDir, findings);
+
   if (allPresent) {
     findings.push(createFinding({
       level: "ok",
       code: "adapter_assets_present",
       message: "Copy/paste-ready adapter bootstrap assets are present: neuroplast/adapter-assets"
+    }));
+  }
+}
+
+function validateOpenCodePlannerAsset(context, adapterAssetsDir, findings) {
+  const relativePlannerPath = path.join("neuroplast", "adapter-assets", "opencode", "agents", "neuroplast-planner.md");
+  const plannerPath = path.join(adapterAssetsDir, "opencode", "agents", "neuroplast-planner.md");
+
+  if (!fs.existsSync(plannerPath)) {
+    return;
+  }
+
+  const content = fs.readFileSync(plannerPath, "utf8");
+  let frontmatter;
+
+  try {
+    frontmatter = parseFrontmatter(content);
+  } catch (error) {
+    findings.push(createFinding({
+      level: "error",
+      code: "opencode_planner_asset_frontmatter_invalid",
+      message: `OpenCode planner asset frontmatter is invalid: ${relativePlannerPath}`,
+      remediation: `Fix the YAML frontmatter in ${relativePlannerPath} so validation can confirm the planner boundary.`
+    }));
+    return;
+  }
+
+  if (!frontmatter || typeof frontmatter !== "object") {
+    findings.push(createFinding({
+      level: "error",
+      code: "opencode_planner_asset_frontmatter_missing",
+      message: `OpenCode planner asset is missing frontmatter: ${relativePlannerPath}`,
+      remediation: `Restore the frontmatter in ${relativePlannerPath} so the planner tool surface can be validated.`
+    }));
+    return;
+  }
+
+  const allowedTools = {
+    read: true,
+    grep: true,
+    glob: true
+  };
+  const tools = frontmatter.tools;
+
+  if (!tools || typeof tools !== "object" || Array.isArray(tools)) {
+    findings.push(createFinding({
+      level: "error",
+      code: "opencode_planner_asset_tools_missing",
+      message: `OpenCode planner asset must declare an explicit tool map: ${relativePlannerPath}`,
+      remediation: `Declare the strict read-only tool allowlist in ${relativePlannerPath}.`
+    }));
+  } else {
+    let toolSurfaceValid = true;
+
+    for (const [toolName, expectedValue] of Object.entries(allowedTools)) {
+      if (tools[toolName] !== expectedValue) {
+        findings.push(createFinding({
+          level: "error",
+          code: "opencode_planner_asset_tool_required",
+          message: `OpenCode planner asset must set tools.${toolName} to true: ${relativePlannerPath}`,
+          remediation: `Set tools.${toolName}: true in ${relativePlannerPath}.`
+        }));
+        toolSurfaceValid = false;
+      }
+    }
+
+    const forbiddenTools = ["bash", "write", "edit", "apply_patch", "task", "todowrite"];
+    for (const toolName of forbiddenTools) {
+      if (tools[toolName] === true) {
+        findings.push(createFinding({
+          level: "error",
+          code: "opencode_planner_asset_tool_forbidden",
+          message: `OpenCode planner asset must not enable mutation-capable tool '${toolName}': ${relativePlannerPath}`,
+          remediation: `Remove tools.${toolName} or set it to false in ${relativePlannerPath}.`
+        }));
+        toolSurfaceValid = false;
+      }
+    }
+
+    for (const [toolName, value] of Object.entries(tools)) {
+      if (!(toolName in allowedTools) && value === true) {
+        findings.push(createFinding({
+          level: "error",
+          code: "opencode_planner_asset_tool_unexpected",
+          message: `OpenCode planner asset enables unexpected tool '${toolName}': ${relativePlannerPath}`,
+          remediation: `Limit ${relativePlannerPath} to the strict read-only planner allowlist unless the validation contract is intentionally updated.`
+        }));
+        toolSurfaceValid = false;
+      }
+    }
+
+    if (toolSurfaceValid) {
+      findings.push(createFinding({
+        level: "ok",
+        code: "opencode_planner_asset_tool_surface_valid",
+        message: `OpenCode planner asset keeps the strict read-only tool surface: ${relativePlannerPath}`
+      }));
+    }
+  }
+
+  const requiredSnippets = [
+    "## Automatic Safety Lock (Always On)",
+    "Planner mode is strictly read-only.",
+    "Never invoke mutation-capable tools or commands.",
+    "If asked to implement in planner mode, refuse execution and hand off to `neuroplast-orchestrator`.",
+    "Begin planner responses with: `Planner mode active (read-only, no execution).`",
+    "End planner responses with: `Planner safety check: no file/repo mutations performed. Switch to neuroplast-orchestrator for execution.`",
+    "Do not call write/edit/bash mutation flows even if requested; stay in planner-only behavior.",
+    "If the plan needs to be persisted, tell the user to switch to `neuroplast-orchestrator` or save the returned plan explicitly outside planner mode."
+  ];
+
+  let languageValid = true;
+  for (const snippet of requiredSnippets) {
+    if (!content.includes(snippet)) {
+      findings.push(createFinding({
+        level: "error",
+        code: "opencode_planner_asset_safety_language_missing",
+        message: `OpenCode planner asset is missing required safety-lock language '${snippet}': ${relativePlannerPath}`,
+        remediation: `Restore the required planner safety-lock language in ${relativePlannerPath}.`
+      }));
+      languageValid = false;
+    }
+  }
+
+  if (languageValid) {
+    findings.push(createFinding({
+      level: "ok",
+      code: "opencode_planner_asset_safety_language_valid",
+      message: `OpenCode planner asset includes the required safety-lock language: ${relativePlannerPath}`
     }));
   }
 }

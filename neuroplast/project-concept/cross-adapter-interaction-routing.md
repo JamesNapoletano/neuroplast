@@ -44,6 +44,7 @@ Treat interaction routing as an additive intent-resolution layer that sits above
 - The OpenCode wrapper split is now explicit: `neuroplast-planner` is a strict read-only planner that ends with a handoff-ready plan in chat, while `neuroplast-orchestrator` owns bounded execution and repository writes.
 - The bundled OpenCode planner asset now includes an always-on safety lock section that explicitly forbids file mutations and execution behavior, and requires planner-mode safety attestation language in responses.
 - The OpenCode execution handoff now explicitly allows `neuroplast-orchestrator` to treat a same-session bounded planner handoff as temporary active plan state, provided the orchestrator persists that handoff into `neuroplast/plans/` before broader execution.
+- The packaged OpenCode guidance now also states the hard boundary plainly: prompt text is not enough for absolute prevention, so complete planner write-locking depends on host-runtime read-only tool gating and planner-session isolation after mutable builder/executor use.
 
 ## Non-Goals
 - Redefine the canonical workflow phase order.

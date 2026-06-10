@@ -259,6 +259,7 @@ State tracks:
 - `route` now provides a narrow CLI inspection seam for canonical phrase-resolution without expanding into adapter orchestration.
 - Published schema files under `schemas/` now document the machine-readable payload contracts for `init`, `sync`, `validate`, and `route` JSON modes.
 - Validation now includes sync-state integrity checks plus active-extension shape validation to improve operator trust without expanding CLI scope.
+- Validation now also enforces the bundled OpenCode planner asset boundary by checking its read-only tool surface and required safety-lock language so package drift is caught before release.
 - Startup guidance now includes advisory `lean`, `standard`, and `deep` context depths layered on top of the mandatory bootstrap contract.
 - Portability proof currently treats the terminal-only guide as the actively verified first-loop environment; other bundled guides remain documentation-only until separately exercised.
 
@@ -295,6 +296,7 @@ Neuroplast's portability model is centered on the `/neuroplast/` filesystem cont
 - Optional bundled environment guides live under `neuroplast/adapters/` and mirror source docs under `src/adapters/`.
 - Copy/paste-ready bundled adapter bootstrap assets live under `neuroplast/adapter-assets/` and mirror source assets under `src/adapter-assets/`.
 - Those adapter bootstrap assets now also carry additive success-oriented response-shape guidance for planner and execution agents.
+- The bundled OpenCode planner asset now also documents that prompt-level safety is insufficient by itself and that complete write-prevention depends on host-runtime tool gating plus fresh-session isolation when mutable lanes may have been used earlier in the session.
 - Support boundaries should distinguish actively verified environments from documentation-only guides instead of implying equal evidence across every adapter.
 - Optional bundled workflow extensions live under `neuroplast/extensions/`; repo-local custom extensions may live under `neuroplast/local-extensions/`.
 - Bundled extensions currently ship as three separate opt-in paths: `verification-first`, `artifact-sync`, and `context-continuity`.
@@ -306,3 +308,13 @@ Neuroplast's portability model is centered on the `/neuroplast/` filesystem cont
 - `neuroplast/WORKFLOW_CONTRACT.md` is the canonical installed workflow contract that future portability layers should reference.
 - `neuroplast/manifest.yaml` is the canonical installed machine-readable map of workflow structure and document roles.
 - `neuroplast/capabilities.yaml` is the advisory installed capability profile for constrained-environment execution.
+
+## Emerging First-Party Harness Direction
+
+- A future first-party Neuroplast harness is now an explicit product direction for reducing dependence on third-party execution surfaces without changing the filesystem-first contract.
+- The preferred shape is a VS Code-compatible extension plus a local runtime/sidecar boundary, where the extension owns user interaction and approvals while the runtime owns provider abstraction, policy enforcement, MCP brokering, shared-workspace coordination, and auditable execution.
+- This harness direction is additive to the current package architecture: `.lcp/`, `/neuroplast/`, and `ARCHITECTURE.md` remain authoritative, while the harness would operationalize those artifacts.
+- LCP remains the semantic source, Neuroplast remains the implementation profile and durable project mind, and MCP remains a tool/resource transport layer rather than a workflow authority.
+- The security stance for any first-party harness should be capability-based and least-privilege by default, with explicit approvals, secret isolation, schema validation, and audited tool use rather than prompt-only safety language.
+- The collaboration direction for that harness is now a real shared live workspace with hybrid conflict controls: hard reservations for high-risk governed artifacts and softer presence/edit-intent awareness for lower-risk files.
+- The next design seam for that harness is an explicit sidecar-enforced capability manifest plus a collaboration permission model that separates presence, reservation, edit, publish, and override rights instead of treating them as one generic write permission.

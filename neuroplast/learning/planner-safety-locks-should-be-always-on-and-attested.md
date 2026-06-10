@@ -10,9 +10,10 @@ Planner-only agents are most reliable when safety boundaries are framed as alway
 - Require a planner-mode start attestation and end-of-response safety attestation.
 - Route all implementation requests from planner mode to the execution agent explicitly.
 - Pair prompt-level boundaries with read-only tool surfaces where possible.
+- Treat prompt instructions as advisory unless the host runtime also enforces a read-only tool allowlist and isolates planner sessions from earlier mutable lanes.
 
 ## Distinct-Learning Check
-- This cycle produced one primary reusable learning focused on planner safety enforcement patterns; no second materially distinct learning required a separate note.
+- This learning now covers both attested planner safety language and the need for runtime-side enforcement; no second materially distinct learning note is required.
 
 ## Related
 - [[plans/opencode-planner-automatic-safety-lock.md]]

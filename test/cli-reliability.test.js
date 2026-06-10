@@ -72,6 +72,36 @@ test("init --with-obsidian installs shared obsidian config", (t) => {
   assert.ok(state.managedFiles.includes(OBSIDIAN_FILE));
 });
 
+test("validate fails when the bundled OpenCode planner asset enables mutation-capable tools", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-opencode-planner-tool-surface" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Test active plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
+
+  const plannerPath = "neuroplast/adapter-assets/opencode/agents/neuroplast-planner.md";
+  const plannerContent = readFile(repoRoot, plannerPath).replace("  glob: true", "  glob: true\n  bash: true");
+  writeFile(repoRoot, plannerPath, plannerContent);
+
+  const result = runCli(["validate"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /must not enable mutation-capable tool 'bash'/);
+});
+
+test("validate fails when the bundled OpenCode planner asset loses required safety-lock language", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { withArchitecture: true, label: "validate-opencode-planner-safety-language" });
+  writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Test active plan.\n");
+  writeFile(repoRoot, "neuroplast/plans/.active-plan", "current-objective.md\n");
+
+  const plannerPath = "neuroplast/adapter-assets/opencode/agents/neuroplast-planner.md";
+  const plannerContent = readFile(repoRoot, plannerPath).replace("## Automatic Safety Lock (Always On)\n", "");
+  writeFile(repoRoot, plannerPath, plannerContent);
+
+  const result = runCli(["validate"], { targetRoot: repoRoot });
+
+  assert.equal(result.code, 1, result.output);
+  assert.match(result.output, /missing required safety-lock language/);
+});
+
 test("validate succeeds for a complete initialized repository", (t) => {
   const { repoRoot } = createInitializedRepo(t, { label: "validate-success" });
   writeFile(repoRoot, "neuroplast/plans/current-objective.md", "# Current Objective\n#plan\n\n## Current Objective\n- Test active plan.\n");
