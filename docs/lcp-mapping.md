@@ -50,7 +50,7 @@ The official normative source for LCP is:
 
 ## Versioning Statement Model
 
-- `Neuroplast v1.3.3 implements LCP v1`
+- `Neuroplast v1.3.4 implements LCP v1`
 
 Later, when upstream tags are pinned:
 
