@@ -21,6 +21,7 @@ It is auto-refreshed by `neuroplast sync` when it still matches the managed base
 - **Next bounded step:** Plan the first implementation slice for sidecar capability enforcement, reservation lifecycle management, live sync publishing, and extension UX for presence and approvals.
 - **Blockers:** None recorded.
 - **Verification:** A bounded plan and matching concept note exist for the harness direction. | The harness concept now includes an initial capability manifest shape plus reservation and collaboration policy guidance. | `npm run validate` completed after the capability/collaboration update with no errors.
+- **Most recent completed cycle (2026-06-10):** Documented the file-based Claude Code integration path (root `CLAUDE.md`), added the install-location section to `src/adapters/claude-code.md`, re-synced the installed copy, and wired this repo with a root `CLAUDE.md`. See `neuroplast/plans/claude-code-desktop-adapter-bootstrap.md`.
 
 ## Route-Aware Reading Hints
 - **act** -> use `lean` context depth and emphasize objective, next bounded step, blockers, verification.
@@ -30,7 +31,7 @@ It is auto-refreshed by `neuroplast sync` when it still matches the managed base
 ## Relevant Files
 - `neuroplast/plans/neuroplast-first-party-harness.md`
 - `project-concept/neuroplast-first-party-harness.md`
-- `neuroplast/project-concept/changelog/2026-05-18.md`
+- `neuroplast/project-concept/changelog/2026-06-10.md`
 - `ARCHITECTURE.md`
 
 ## Refresh Sources

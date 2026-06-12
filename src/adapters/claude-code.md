@@ -23,6 +23,16 @@ Before executing any Neuroplast workflow step in Claude Code:
 
 Prefer `neuroplast/act.md` for normal bounded work once enough project context exists. Use `neuroplast/reverse-engineering.md` when an existing codebase needs code-grounded project-mind reconstruction before conceptualization. Use `neuroplast/reconcile-conflicts.md` when merge conflicts or competing edits need a preservation-first reconciliation pass. Use `neuroplast/conceptualize.md` when the project is new, ambiguous, or needs reframing.
 
+## Installing the Bootstrap (Where the File Goes)
+Neuroplast ships no plugin or MCP server for Claude Code. Integration is purely file-based: Claude Code (terminal app, desktop app, and IDE extension alike) auto-loads a `CLAUDE.md` from the project root at the start of every session. To wire a repository:
+1. Open the target repository as the Claude Code working directory.
+2. Copy the shipped bootstrap asset to the repository root as `CLAUDE.md`:
+   - macOS/Linux: `cp neuroplast/adapter-assets/claude-code/CLAUDE.md ./CLAUDE.md`
+   - Windows (PowerShell): `Copy-Item neuroplast\adapter-assets\claude-code\CLAUDE.md .\CLAUDE.md`
+3. Start a session. The root `CLAUDE.md` directs Claude through the mandatory startup sequence above before any work.
+
+The desktop app behaves the same as the terminal app because it runs the same agent; no desktop-specific setup is required beyond the root `CLAUDE.md`.
+
 ## Workflow Entrypoint
 Read `neuroplast/WORKFLOW_CONTRACT.md`, then any manifest-declared active workflow extensions, then execute the current workflow step through the matching instruction file. Treat the repository files as the project mind, not just as a task checklist.
 
