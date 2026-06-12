@@ -21,7 +21,7 @@ It is auto-refreshed by `neuroplast sync` when it still matches the managed base
 - **Next bounded step:** Plan the first implementation slice for sidecar capability enforcement, reservation lifecycle management, live sync publishing, and extension UX for presence and approvals.
 - **Blockers:** None recorded.
 - **Verification:** A bounded plan and matching concept note exist for the harness direction. | The harness concept now includes an initial capability manifest shape plus reservation and collaboration policy guidance. | `npm run validate` completed after the capability/collaboration update with no errors.
-- **Most recent completed cycle (2026-06-10):** Documented the file-based Claude Code integration path (root `CLAUDE.md`), added the install-location section to `src/adapters/claude-code.md`, re-synced the installed copy, and wired this repo with a root `CLAUDE.md`. See `neuroplast/plans/claude-code-desktop-adapter-bootstrap.md`.
+- **Most recent completed cycle (2026-06-11):** Released patch version `1.3.4` — bumped `package.json` and synced the canonical `Neuroplast v1.3.4 implements LCP v1` statement across release-facing source, docs, and the LCP bridge profile; `npm run validate` and `npm run release:verify` passed. Sync-impact decision: no migration needed. See `neuroplast/plans/patch-release-1.3.4.md`.
 
 ## Route-Aware Reading Hints
 - **act** -> use `lean` context depth and emphasize objective, next bounded step, blockers, verification.
@@ -31,7 +31,7 @@ It is auto-refreshed by `neuroplast sync` when it still matches the managed base
 ## Relevant Files
 - `neuroplast/plans/neuroplast-first-party-harness.md`
 - `project-concept/neuroplast-first-party-harness.md`
-- `neuroplast/project-concept/changelog/2026-06-10.md`
+- `neuroplast/project-concept/changelog/2026-06-11.md`
 - `ARCHITECTURE.md`
 
 ## Refresh Sources
