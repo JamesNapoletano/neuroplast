@@ -9,8 +9,9 @@ Enforce complete artifact sync for Claude Code adapter assets in this repository
 | Canonical source | Must stay in sync with | Mechanism |
 |---|---|---|
 | `src/adapter-assets/claude-code/plugin/` | `neuroplast/adapter-assets/claude-code/plugin/` | `npx neuroplast sync` |
-| `src/adapter-assets/claude-code/plugin/agents/*.md` | `~/.claude/agents/` (installed copies) | Manual reinstall of plugin |
-| `src/adapter-assets/claude-code/plugin/skills/*/SKILL.md` | `~/.claude/skills/neuroplast-*/` (installed copies) | Manual reinstall of plugin |
+| `src/adapter-assets/claude-code/.claude-plugin/marketplace.json` | `neuroplast/adapter-assets/claude-code/.claude-plugin/marketplace.json` | `npx neuroplast sync` |
+| `src/adapter-assets/claude-code/install-plugin.js` | `neuroplast/adapter-assets/claude-code/install-plugin.js` | `npx neuroplast sync` |
+| `neuroplast/adapter-assets/claude-code/plugin/` (installed content) | `~/.claude/plugins/cache/neuroplast-local/neuroplast/<version>/` | `claude plugin update` (version bump) or uninstall+install (same-version edit) |
 | Claude Code plugin agent/skill semantics | `src/adapter-assets/opencode/agents/` and `src/adapter-assets/opencode/skills/` | Manual cross-adapter review |
 | `src/adapter-assets/claude-code/plugin/.claude-plugin/plugin.json` version | `package.json` version | Manual bump on release |
 | `src/adapter-assets/claude-code/CLAUDE.md` | `neuroplast/adapter-assets/claude-code/CLAUDE.md` | `npx neuroplast sync` |
@@ -24,8 +25,9 @@ Declare `claude-code-adapter-sync` in `extensions.active_local` inside `neuropla
 - `think` → `think.md`
 
 ## Scope
-- Claude Code plugin source-to-installed sync
-- Installed-copy (agent/skill) reinstall tracking
+- Claude Code plugin source-to-installed sync (`src/` → `neuroplast/adapter-assets/`)
+- Local marketplace manifest and installer sync
+- Plugin cache refresh tracking (`claude plugin update` after content changes)
 - Cross-adapter semantic alignment (Claude Code ↔ OpenCode)
 - Plugin version consistency
 

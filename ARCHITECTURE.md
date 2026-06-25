@@ -139,6 +139,7 @@ src/adapter-assets/shared/neuroplast-bootstrap.md → ./neuroplast/adapter-asset
 src/adapter-assets/codex/AGENTS.md → ./neuroplast/adapter-assets/codex/AGENTS.md
 src/adapter-assets/claude-code/CLAUDE.md → ./neuroplast/adapter-assets/claude-code/CLAUDE.md
 src/adapter-assets/claude-code/install-plugin.js → ./neuroplast/adapter-assets/claude-code/install-plugin.js
+src/adapter-assets/claude-code/.claude-plugin/marketplace.json → ./neuroplast/adapter-assets/claude-code/.claude-plugin/marketplace.json
 src/adapter-assets/claude-code/plugin/.claude-plugin/plugin.json → ./neuroplast/adapter-assets/claude-code/plugin/.claude-plugin/plugin.json
 src/adapter-assets/claude-code/plugin/agents/neuroplast-orchestrator.md → ./neuroplast/adapter-assets/claude-code/plugin/agents/neuroplast-orchestrator.md
 src/adapter-assets/claude-code/plugin/agents/neuroplast-planner.md → ./neuroplast/adapter-assets/claude-code/plugin/agents/neuroplast-planner.md
@@ -304,6 +305,7 @@ Neuroplast's portability model is centered on the `/neuroplast/` filesystem cont
 - Optional bundled environment guides live under `neuroplast/adapters/` and mirror source docs under `src/adapters/`.
 - Copy/paste-ready bundled adapter bootstrap assets live under `neuroplast/adapter-assets/` and mirror source assets under `src/adapter-assets/`.
 - A Claude Code installable plugin lives at `src/adapter-assets/claude-code/plugin/` (source) and `neuroplast/adapter-assets/claude-code/plugin/` (installed). It packages the bootstrap skill, routing skill, execute-act skill, orchestrator agent, and planner agent so Claude Code users can install Neuroplast workflow support without manual file copying. Plugin files and the corresponding adapter assets must be kept in sync on release.
+- The plugin is installed via the official `claude plugin` CLI as a local "directory" marketplace. `src/adapter-assets/claude-code/.claude-plugin/marketplace.json` declares the `neuroplast-local` marketplace (the `claude-code/` directory is its root; the plugin is referenced via `source: "./plugin"`). `install-plugin.js` runs `claude plugin marketplace add <dir>` then `claude plugin install neuroplast@neuroplast-local`. Claude Code caches plugin content at install time; `claude plugin update` picks up edits only across a version bump, so same-version content edits require uninstall+reinstall to refresh the cache.
 - Those adapter bootstrap assets now also carry additive success-oriented response-shape guidance for planner and execution agents.
 - The bundled OpenCode planner asset now also documents that prompt-level safety is insufficient by itself and that complete write-prevention depends on host-runtime tool gating plus fresh-session isolation when mutable lanes may have been used earlier in the session.
 - Support boundaries should distinguish actively verified environments from documentation-only guides instead of implying equal evidence across every adapter.

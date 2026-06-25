@@ -1,107 +1,64 @@
 #!/usr/bin/env node
 /**
- * Registers the Neuroplast Claude Code plugin permanently in ~/.claude/.
+ * Installs the Neuroplast Claude Code plugin via the official `claude plugin` CLI.
  * Run from your project root after `npx neuroplast init`:
  *
  *   node neuroplast/adapter-assets/claude-code/install-plugin.js
  *
- * Idempotent — safe to run multiple times.
+ * This registers the directory containing this script as a local "directory"
+ * marketplace (named `neuroplast-local` per .claude-plugin/marketplace.json),
+ * then installs the `neuroplast` plugin from it. Both steps are idempotent —
+ * the CLI detects and reports already-installed state.
+ *
+ * Because the CLI caches plugin content at install time, refresh the cache
+ * after editing plugin files: `claude plugin update neuroplast@neuroplast-local`
+ * picks up a version bump, but same-version edits require uninstall+reinstall.
  */
 
-const fs = require("fs");
 const path = require("path");
-const os = require("os");
+const { spawnSync } = require("child_process");
 
-const PLUGIN_KEY = "neuroplast@local";
-const PLUGIN_DIR = path.resolve(__dirname, "plugin");
-const CLAUDE_DIR = path.join(os.homedir(), ".claude");
-const SETTINGS_PATH = path.join(CLAUDE_DIR, "settings.json");
-const INSTALLED_PLUGINS_PATH = path.join(CLAUDE_DIR, "plugins", "installed_plugins.json");
+// The directory containing this script is the marketplace root —
+// it holds .claude-plugin/marketplace.json which declares the `neuroplast` plugin.
+const MARKETPLACE_DIR = __dirname;
+const MARKETPLACE_NAME = "neuroplast-local";
+const PLUGIN_REF = `neuroplast@${MARKETPLACE_NAME}`;
 
-function readJson(filePath, fallback) {
-  if (!fs.existsSync(filePath)) return fallback;
-  try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
-  } catch {
-    console.error(`[neuroplast] Could not parse ${filePath} — aborting.`);
-    process.exit(1);
-  }
+function hasClaudeCli() {
+  const result = spawnSync("claude", ["--version"], { encoding: "utf8" });
+  return result.status === 0;
 }
 
-function writeJson(filePath, data) {
-  fs.mkdirSync(path.dirname(filePath), { recursive: true });
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + "\n", "utf8");
+function runClaude(args) {
+  const result = spawnSync("claude", args, { encoding: "utf8", stdio: "inherit" });
+  if (result.error) {
+    console.error(`[neuroplast] Failed to run 'claude ${args.join(" ")}': ${result.error.message}`);
+    process.exit(1);
+  }
+  if (result.status !== 0) {
+    console.error(`[neuroplast] 'claude ${args.join(" ")}' exited with code ${result.status}.`);
+    process.exit(result.status || 1);
+  }
 }
 
 function installPlugin() {
-  if (!fs.existsSync(PLUGIN_DIR)) {
-    console.error(`[neuroplast] Plugin directory not found: ${PLUGIN_DIR}`);
-    console.error(`[neuroplast] Make sure you have run 'npx neuroplast init' first.`);
+  if (!hasClaudeCli()) {
+    console.error(`[neuroplast] The 'claude' CLI was not found on your PATH.`);
+    console.error(`[neuroplast] Install Claude Code first: https://docs.claude.com/claude-code`);
     process.exit(1);
   }
 
-  if (!fs.existsSync(CLAUDE_DIR)) {
-    console.error(`[neuroplast] ~/.claude directory not found at ${CLAUDE_DIR}`);
-    console.error(`[neuroplast] Make sure Claude Code is installed before running this script.`);
-    process.exit(1);
-  }
+  console.log(`[neuroplast] Adding local marketplace from ${MARKETPLACE_DIR} ...`);
+  runClaude(["plugin", "marketplace", "add", MARKETPLACE_DIR]);
 
-  // Update installed_plugins.json
-  const installedPlugins = readJson(INSTALLED_PLUGINS_PATH, { version: 2, plugins: {} });
-  if (!installedPlugins.plugins) installedPlugins.plugins = {};
-
-  if (installedPlugins.plugins[PLUGIN_KEY]) {
-    const existing = installedPlugins.plugins[PLUGIN_KEY][0];
-    if (existing && existing.installPath === PLUGIN_DIR) {
-      console.log(`[neuroplast] Plugin already registered at ${PLUGIN_DIR} — skipping installed_plugins.json update.`);
-    } else {
-      installedPlugins.plugins[PLUGIN_KEY] = buildEntry();
-      writeJson(INSTALLED_PLUGINS_PATH, installedPlugins);
-      console.log(`[neuroplast] Updated plugin install path in installed_plugins.json.`);
-    }
-  } else {
-    installedPlugins.plugins[PLUGIN_KEY] = buildEntry();
-    writeJson(INSTALLED_PLUGINS_PATH, installedPlugins);
-    console.log(`[neuroplast] Registered plugin in installed_plugins.json.`);
-  }
-
-  // Update settings.json
-  const settings = readJson(SETTINGS_PATH, {});
-  if (!settings.enabledPlugins) settings.enabledPlugins = {};
-
-  if (settings.enabledPlugins[PLUGIN_KEY] === true) {
-    console.log(`[neuroplast] Plugin already enabled in settings.json — skipping.`);
-  } else {
-    settings.enabledPlugins[PLUGIN_KEY] = true;
-    writeJson(SETTINGS_PATH, settings);
-    console.log(`[neuroplast] Enabled plugin in settings.json.`);
-  }
+  console.log(`[neuroplast] Installing plugin ${PLUGIN_REF} ...`);
+  runClaude(["plugin", "install", PLUGIN_REF]);
 
   console.log(`[neuroplast] Neuroplast Claude Code plugin installed successfully.`);
-  console.log(`[neuroplast] Plugin path: ${PLUGIN_DIR}`);
   console.log(`[neuroplast] Start a new Claude Code session to load the plugin.`);
-}
-
-function buildEntry() {
-  const now = new Date().toISOString();
-  return [
-    {
-      scope: "user",
-      installPath: PLUGIN_DIR,
-      version: resolvePluginVersion(),
-      installedAt: now,
-      lastUpdated: now
-    }
-  ];
-}
-
-function resolvePluginVersion() {
-  try {
-    const manifest = JSON.parse(fs.readFileSync(path.join(PLUGIN_DIR, ".claude-plugin", "plugin.json"), "utf8"));
-    return manifest.version || "0.1.0";
-  } catch {
-    return "0.1.0";
-  }
+  console.log(`[neuroplast] To pick up updated plugin files later:`);
+  console.log(`[neuroplast]   after a version bump:   claude plugin update ${PLUGIN_REF}`);
+  console.log(`[neuroplast]   same-version edits:     claude plugin uninstall ${PLUGIN_REF} && claude plugin install ${PLUGIN_REF}`);
 }
 
 installPlugin();

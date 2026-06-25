@@ -26,12 +26,21 @@ After running `npx neuroplast init` in your project, run the install script from
 node neuroplast/adapter-assets/claude-code/install-plugin.js
 ```
 
-This registers the plugin in `~/.claude/` so it loads automatically in every Claude Code session. The script is idempotent — safe to run again after a `npx neuroplast sync` that updates plugin files.
+This uses the official `claude plugin` CLI to register a local "directory" marketplace (`neuroplast-local`, declared in `neuroplast/adapter-assets/claude-code/.claude-plugin/marketplace.json`) and install the `neuroplast` plugin from it. It loads automatically in every Claude Code session. The script is idempotent — safe to run again.
 
-**From the marketplace (once published):**
+Equivalent manual steps:
+```bash
+claude plugin marketplace add /path/to/your-project/neuroplast/adapter-assets/claude-code
+claude plugin install neuroplast@neuroplast-local
 ```
-/plugin install neuroplast
-```
+
+> **Note:** Claude Code caches plugin content at install time. To pick up changed plugin files:
+> - **On a version bump** (`plugin.json` version increased): `claude plugin update neuroplast@neuroplast-local`.
+> - **Same-version content edits** (e.g. local iteration): `update` will report "already at latest version" and do nothing — reinstall to force a refresh:
+>   ```bash
+>   claude plugin uninstall neuroplast@neuroplast-local && claude plugin install neuroplast@neuroplast-local
+>   ```
+> Start a new Claude Code session afterward.
 
 **Per-session only (no permanent install):**
 ```bash

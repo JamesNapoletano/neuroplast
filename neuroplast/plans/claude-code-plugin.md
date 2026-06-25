@@ -56,11 +56,13 @@ Package the Neuroplast Claude Code adapter assets (agents and skills) as an inst
 - [x] `npx neuroplast validate` — 101 checks, 0 errors.
 - [x] Dynamic listing confirms 7 plugin files + `install-plugin.js` appear under `claude-code/`.
 - [x] Install script runs idempotently — both "first install" and "already installed" paths verified.
-- [x] Plugin permanently registered in `~/.claude/` — `neuroplast@local` entry in `installed_plugins.json` and `settings.json`.
+- [x] Plugin permanently installed via official `claude plugin` CLI as `neuroplast@neuroplast-local` (local "directory" marketplace declared in `.claude-plugin/marketplace.json`). Replaced the earlier fragile hand-edited-JSON approach, which caused the "Marketplace 'local' not found" error and `/plugin list` disappearance.
+- [x] `claude plugin list` confirms `neuroplast@neuroplast-local` v1.4.0 enabled.
 - [ ] Agents appear in Claude Code `/agents` list after fresh session start (pending session restart).
 
 ## Handoff
-- Start a new Claude Code session to confirm agents and skills load from the permanent registration.
+- Start a new Claude Code session to confirm agents and skills load and no marketplace error appears.
+- After editing plugin files, run `claude plugin update neuroplast@neuroplast-local` to refresh the cached copy (content is cached at install time).
 - Future: publish plugin to Claude Code marketplace when ready.
 
 ## Related
