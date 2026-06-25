@@ -19,7 +19,7 @@ Create an npm package with an explicit CLI initializer that:
 6. Copies instruction files (`act.md`, `conceptualize.md`, `reverse-engineering.md`, `reconcile-conflicts.md`, etc.) to `/neuroplast/`
 7. Optionally installs `.obsidian/` configuration under `/neuroplast/.obsidian/`
 8. Ships optional environment guidance docs under `/neuroplast/adapters/`
-9. Ships copy/paste-ready tool-facing bootstrap assets under `/neuroplast/adapter-assets/`
+9. Ships copy/paste-ready tool-facing bootstrap assets under `/neuroplast/adapter-assets/`, including an installable Claude Code plugin at `neuroplast/adapter-assets/claude-code/plugin/`
 10. Ships optional bundled workflow extension scaffolding under `/neuroplast/extensions/`
 11. Supports repo-local custom workflow extensions declared in the manifest
 12. Creates the expected `/neuroplast/` folder structure
@@ -71,7 +71,7 @@ neuroplast/
 | `PLANNING_INSTRUCTIONS.md` | `<project>/neuroplast/` | if not exists |
 | `extensions/README.md` | `<project>/neuroplast/extensions/` | if not exists |
 | `adapters/*.md` | `<project>/neuroplast/adapters/` | if not exists |
-| `adapter-assets/**/*` | `<project>/neuroplast/adapter-assets/` | if not exists |
+| `adapter-assets/**/*` | `<project>/neuroplast/adapter-assets/` | if not exists (includes Claude Code plugin at `adapter-assets/claude-code/plugin/`) |
 | `.obsidian/` | `<project>/neuroplast/.obsidian/` | only with flag |
 
 ## Usage Scenarios

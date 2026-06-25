@@ -138,6 +138,14 @@ src/adapter-assets/README.md → ./neuroplast/adapter-assets/README.md
 src/adapter-assets/shared/neuroplast-bootstrap.md → ./neuroplast/adapter-assets/shared/neuroplast-bootstrap.md
 src/adapter-assets/codex/AGENTS.md → ./neuroplast/adapter-assets/codex/AGENTS.md
 src/adapter-assets/claude-code/CLAUDE.md → ./neuroplast/adapter-assets/claude-code/CLAUDE.md
+src/adapter-assets/claude-code/install-plugin.js → ./neuroplast/adapter-assets/claude-code/install-plugin.js
+src/adapter-assets/claude-code/plugin/.claude-plugin/plugin.json → ./neuroplast/adapter-assets/claude-code/plugin/.claude-plugin/plugin.json
+src/adapter-assets/claude-code/plugin/agents/neuroplast-orchestrator.md → ./neuroplast/adapter-assets/claude-code/plugin/agents/neuroplast-orchestrator.md
+src/adapter-assets/claude-code/plugin/agents/neuroplast-planner.md → ./neuroplast/adapter-assets/claude-code/plugin/agents/neuroplast-planner.md
+src/adapter-assets/claude-code/plugin/skills/neuroplast-bootstrap/SKILL.md → ./neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-bootstrap/SKILL.md
+src/adapter-assets/claude-code/plugin/skills/neuroplast-route-short-prompts/SKILL.md → ./neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-route-short-prompts/SKILL.md
+src/adapter-assets/claude-code/plugin/skills/neuroplast-execute-act/SKILL.md → ./neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-execute-act/SKILL.md
+src/adapter-assets/claude-code/plugin/README.md → ./neuroplast/adapter-assets/claude-code/plugin/README.md
 src/adapter-assets/opencode/skills/README.md → ./neuroplast/adapter-assets/opencode/skills/README.md
 src/adapter-assets/opencode/skills/neuroplast-bootstrap/SKILL.md → ./neuroplast/adapter-assets/opencode/skills/neuroplast-bootstrap/SKILL.md
 src/adapter-assets/opencode/skills/neuroplast-route-short-prompts/SKILL.md → ./neuroplast/adapter-assets/opencode/skills/neuroplast-route-short-prompts/SKILL.md
@@ -295,6 +303,7 @@ Neuroplast's portability model is centered on the `/neuroplast/` filesystem cont
 - Environment-specific guidance should remain optional and must not override the core workflow contract.
 - Optional bundled environment guides live under `neuroplast/adapters/` and mirror source docs under `src/adapters/`.
 - Copy/paste-ready bundled adapter bootstrap assets live under `neuroplast/adapter-assets/` and mirror source assets under `src/adapter-assets/`.
+- A Claude Code installable plugin lives at `src/adapter-assets/claude-code/plugin/` (source) and `neuroplast/adapter-assets/claude-code/plugin/` (installed). It packages the bootstrap skill, routing skill, execute-act skill, orchestrator agent, and planner agent so Claude Code users can install Neuroplast workflow support without manual file copying. Plugin files and the corresponding adapter assets must be kept in sync on release.
 - Those adapter bootstrap assets now also carry additive success-oriented response-shape guidance for planner and execution agents.
 - The bundled OpenCode planner asset now also documents that prompt-level safety is insufficient by itself and that complete write-prevention depends on host-runtime tool gating plus fresh-session isolation when mutable lanes may have been used earlier in the session.
 - Support boundaries should distinguish actively verified environments from documentation-only guides instead of implying equal evidence across every adapter.

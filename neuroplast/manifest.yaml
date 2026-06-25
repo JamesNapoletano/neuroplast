@@ -50,6 +50,7 @@ extensions:
     - context-continuity
   active_local:
     - package-maintainer
+    - claude-code-adapter-sync
 portability_profile:
   filesystem_first: true
   editor_agnostic: true

@@ -1,0 +1,10 @@
+{
+  "name": "neuroplast",
+  "version": "1.4.0",
+  "description": "Neuroplast workflow support for Claude Code — filesystem-first project mind with LCP alignment.",
+  "author": {
+    "name": "James Napoletano",
+    "email": "jnap9311@gmail.com"
+  },
+  "keywords": ["neuroplast", "lcp", "workflow", "project-mind"]
+}
