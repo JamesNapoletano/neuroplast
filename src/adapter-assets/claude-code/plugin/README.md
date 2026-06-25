@@ -11,6 +11,7 @@ This plugin packages the Neuroplast workflow support for Claude Code. It provide
 | `neuroplast-execute-act` skill | Execute bounded work once routing resolves to `act.md` |
 | `neuroplast-orchestrator` agent | Default agent for day-to-day Neuroplast work — bootstrap, route, execute |
 | `neuroplast-planner` agent | Read-only planning agent for new, ambiguous, or reframed work |
+| `neuroplast-gate` hook (`UserPromptSubmit`) | Injects the mandatory startup sequence + canonical routing into context on **every** prompt, so the contract is enforced deterministically by the harness — not left to advisory `CLAUDE.md` text the model can skip |
 
 ## Requirements
 
@@ -50,6 +51,8 @@ cc --plugin-dir /path/to/your-project/neuroplast/adapter-assets/claude-code/plug
 ## Usage
 
 Once installed, the agents and skills are available automatically in any Claude Code session inside a Neuroplast-managed repository. The `neuroplast-bootstrap` skill runs the mandatory startup sequence; the agents invoke it automatically.
+
+The bundled `neuroplast-gate` hook (`hooks/hooks.json` → `hooks/neuroplast-gate.js`) needs no configuration: as soon as the plugin is enabled, it injects the startup gate and routing rules on every prompt. It is a self-contained Node script (no dependencies) and no-ops in repositories that have no `neuroplast/` contract. A hook guarantees the contract is *present* every turn; for a stricter gate, also set `neuroplast-orchestrator` as your default agent. To activate the hook after this update, refresh the plugin cache (`claude plugin update neuroplast@neuroplast-local`) and start a new session.
 
 Typical flow:
 1. Open a Claude Code session in your project.

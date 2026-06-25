@@ -1,0 +1,17 @@
+{
+  "description": "Neuroplast contract-enforcement gate — injects the mandatory startup sequence and canonical short-prompt routing into context on every prompt.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/neuroplast-gate.js\"",
+            "statusMessage": "Loading Neuroplast startup gate",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
