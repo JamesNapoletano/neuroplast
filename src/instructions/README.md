@@ -12,7 +12,7 @@ Neuroplast helps you and an AI keep the project's context, plans, decisions, and
 3. Open `ARCHITECTURE.md` if you need the bigger picture.
 4. Choose the step file that matches what you are doing next.
 
-If you only remember one idea, remember this: `project-concept/`, `plans/`, `project-concept/changelog/`, and `learning/` are the shared memory of the project.
+If you only remember one idea, remember this: `project-concept/`, `plans/`, `project-concept/changelog/`, and `.lcp/knowledge/neuroplast-learning.yaml` are the shared memory of the project.
 
 ## Which File Should I Use?
 - `act.md` — use this when the work is already understood and you are ready to do the next bounded step.
@@ -39,7 +39,7 @@ If you only remember one idea, remember this: `project-concept/`, `plans/`, `pro
 
 ### When finishing a task
 - Record what changed in `project-concept/changelog/`.
-- Capture reusable lessons in `learning/`.
+- Capture reusable lessons with `npx neuroplast remember` (writes to `.lcp/knowledge/neuroplast-learning.yaml`).
 - Run `npx neuroplast validate`.
 
 ## First Practical Loop
@@ -58,7 +58,7 @@ If you only remember one idea, remember this: `project-concept/`, `plans/`, `pro
 - `project-concept/` — durable understanding of what the project is and why it works the way it does
 - `plans/` — the active objective, scope, blockers, and handoff state
 - `project-concept/changelog/` — dated history of completed work
-- `learning/` — reusable, non-sensitive lessons from previous work
+- `.lcp/knowledge/neuroplast-learning.yaml` — reusable, non-sensitive lessons from previous work, as durable LCP memory (no separate `learning/` folder)
 
 These folders are not just storage. They are how people and AI systems pick work back up without guessing.
 

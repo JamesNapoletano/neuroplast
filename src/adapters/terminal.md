@@ -58,7 +58,7 @@ This path proves that the workflow stays usable from files and commands alone.
 
 ## Known Limitations
 - Terminal-only workflows may require more manual navigation and document tracking.
-- If no agent memory exists, rely on plan files, changelog entries, and learning notes to preserve context.
+- If no agent memory exists, rely on plan files, changelog entries, and `.lcp/knowledge/neuroplast-learning.yaml` to preserve context.
 
 ## Boundary Reminder
 This guide is optional documentation and must not override the Neuroplast workflow contract.

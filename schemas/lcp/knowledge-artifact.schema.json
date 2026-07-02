@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcp.dev/schemas/knowledge-artifact.schema.json",
+  "title": "LCP Knowledge Artifact",
+  "allOf": [
+    { "$ref": "./common-envelope.schema.json" },
+    {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "knowledge_artifact" },
+        "content_type": {
+          "type": "string"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "description": "Stable identifier for this entry within the artifact. Required for an entry to be superseded, referenced, or tracked across edits.",
+                "type": "string",
+                "minLength": 1
+              },
+              "status": {
+                "description": "Lifecycle state of the memory entry.",
+                "type": "string",
+                "enum": ["active", "deprecated", "superseded"],
+                "default": "active"
+              },
+              "supersedes": {
+                "description": "Entry id(s), within this artifact or another, that this entry replaces.",
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "confidence": {
+                "description": "Authoring confidence in the entry, from 0 (speculative) to 1 (established).",
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "provenance": {
+                "description": "Where this memory came from. Captures who or what formed it and on what basis.",
+                "type": "object",
+                "properties": {
+                  "origin": { "type": "string" },
+                  "authors": { "type": "array", "items": { "type": "string" } },
+                  "derived_from": { "type": "array", "items": { "type": "string" } },
+                  "method": { "type": "string" }
+                },
+                "additionalProperties": true
+              },
+              "updated_at": {
+                "description": "Last update to this specific entry, in RFC 3339 format.",
+                "type": "string",
+                "format": "date-time"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    }
+  ]
+}

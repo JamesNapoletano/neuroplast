@@ -7,7 +7,7 @@ Normative protocol source:
 
 - <https://github.com/JamesNapoletano/lcp>
 
-Neuroplast installs a Neuroplast working layout plus an LCP bridge layout into host projects.
+Neuroplast installs a Neuroplast working layout plus a living LCP v2.0 context into host projects. Neuroplast acts as an LCP operational layer: it reads an assembled context view and writes durable memory back as LCP knowledge entries (lifecycle + provenance). That memory lives solely in `.lcp/knowledge/neuroplast-learning.yaml` — there is no separate rendered copy; Neuroplast is a workflow layered on the LCP context, not a second memory store. The context is quantized into two derived, disposable bundles: `.lcp/indexes/context.lcpq` (pack, lossless) and `.lcp/indexes/context.distilled.lcpq` (distill, the high-signal working view that applies the memory lifecycle). Both are regenerated together by `sync` and `remember`, so neither reverts the other.
 
 ## Architecture Layers
 
@@ -67,8 +67,9 @@ Neuroplast is organized into three layers:
 | `src/cli/output.js` | Shared human/JSON command reporting for init and sync | Node.js modules |
 | `src/cli/interaction-routing.js` | Canonical phrase-resolution inspection and routing validation helpers | Node.js modules |
 | `src/migrations/` | Versioned managed-file upgrade logic | Node.js modules |
-| `src/lcp/` | LCP bridge/profile definitions and validation helpers | Node.js modules |
-| `src/lcp-files/` | Packaged `.lcp/` bridge documents | YAML |
+| `src/lcp/` | LCP v2.0 helpers: YAML parse/serialize, schema validation, memory lifecycle, context assembly, native `.lcpq` quantization, and validation | Node.js modules |
+| `src/lcp-files/` | Packaged `.lcp/` v2.0 context documents (manifest, profile, rule, workflow, reasoning, tool, knowledge memory) | YAML |
+| `schemas/lcp/` | Vendored LCP v2.0 JSON Schemas used for schema-true validation | JSON |
 | `src/instructions/` | Source workflow, metadata, capabilities, and project-mind instruction files | Markdown + YAML |
 | `src/extensions/` | Optional bundled workflow extensions and authoring scaffold | Markdown |
 | `src/adapters/` | Optional environment guidance documents | Markdown |
@@ -90,7 +91,7 @@ Neuroplast is organized into three layers:
 9. **State writer** → records applied migrations, managed files, and per-file baseline metadata
 10. **Completion logging** → prints create/skip/update/preserve actions or emits structured JSON summaries when requested
 
-The installed file set is meant to act as a durable project mind: orientation context in `project-concept/`, active objective and handoff state in `plans/`, dated history in `project-concept/changelog/`, and reusable lessons in `learning/`.
+The installed file set is meant to act as a durable project mind: orientation context in `project-concept/`, active objective and handoff state in `plans/`, dated history in `project-concept/changelog/`, and reusable lessons as LCP memory entries in `.lcp/knowledge/neuroplast-learning.yaml` (written via `neuroplast remember`).
 
 An optional `neuroplast/current-context.md` briefing capsule can compress the current objective, next step, blockers, verification, and relevant files for faster startup without replacing the canonical memory artifacts. When the file is still managed, `sync` can refresh it from the latest plan and nearby durable artifacts while preserving local edits.
 
@@ -147,6 +148,10 @@ src/adapter-assets/claude-code/plugin/skills/neuroplast-bootstrap/SKILL.md → .
 src/adapter-assets/claude-code/plugin/skills/neuroplast-route-short-prompts/SKILL.md → ./neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-route-short-prompts/SKILL.md
 src/adapter-assets/claude-code/plugin/skills/neuroplast-execute-act/SKILL.md → ./neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-execute-act/SKILL.md
 src/adapter-assets/claude-code/plugin/README.md → ./neuroplast/adapter-assets/claude-code/plugin/README.md
+src/adapter-assets/claude-code/plugin/hooks/hooks.json → ./neuroplast/adapter-assets/claude-code/plugin/hooks/hooks.json
+src/adapter-assets/claude-code/plugin/hooks/neuroplast-gate.js → ./neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-gate.js
+src/adapter-assets/claude-code/plugin/hooks/neuroplast-track-changes.js → ./neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-track-changes.js
+src/adapter-assets/claude-code/plugin/hooks/neuroplast-artifact-gate.js → ./neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-artifact-gate.js
 src/adapter-assets/opencode/skills/README.md → ./neuroplast/adapter-assets/opencode/skills/README.md
 src/adapter-assets/opencode/skills/neuroplast-bootstrap/SKILL.md → ./neuroplast/adapter-assets/opencode/skills/neuroplast-bootstrap/SKILL.md
 src/adapter-assets/opencode/skills/neuroplast-route-short-prompts/SKILL.md → ./neuroplast/adapter-assets/opencode/skills/neuroplast-route-short-prompts/SKILL.md
@@ -184,7 +189,6 @@ src/obsidian/.obsidian/graph.json        → neuroplast/.obsidian/graph.json
 ```
 ./neuroplast/project-concept/
 ./neuroplast/project-concept/changelog/
-./neuroplast/learning/
 ./neuroplast/plans/
 ```
 
@@ -242,6 +246,16 @@ State tracks:
 - `validate --json` now includes a `schemaVersion` field and is documented as a stable machine-readable contract for the active major version via `schemas/validate-json.schema.json`.
 - Validation uses a built-in lightweight YAML/frontmatter parser to avoid external runtime dependencies.
 - Validation is intentionally scoped to workflow contract compliance rather than editor or environment orchestration.
+
+#### Contract-Enforcement Hooks (Claude Code plugin)
+
+The bundled Claude Code plugin ships three self-contained, dependency-free Node hooks under `plugin/hooks/`, escalating from *presenting* the contract to *enforcing* it. All no-op outside a `neuroplast/` repository and are fail-open (an internal error never interrupts or hangs a session):
+
+- `neuroplast-gate.js` (`UserPromptSubmit`) — injects the startup sequence and canonical routing into context every prompt. Guarantees the contract is *present*, but injected text remains advisory in effect.
+- `neuroplast-track-changes.js` (`PostToolUse` on Edit/Write/MultiEdit/NotebookEdit) — records edited/created files into a session-scoped tracker in the OS temp dir. Passive; never blocks a tool.
+- `neuroplast-artifact-gate.js` (`Stop`) — the mechanical enforcement half. If the session changed real files (excluding `plans/` and `changelog/`) but recorded no changelog entry, it returns `{"decision":"block"}` and the harness withholds turn completion until the changelog (and `ARCHITECTURE.md`, if structural) is updated. It nudges once per turn (`stop_hook_active` guards against loops) and verifies a changelog file was *touched*, not that its content is *meaningful* — that residual gap needs human review, not a hook.
+
+This is the file-backed answer to advisory drift: the `artifact-sync` extension and `CLAUDE.md` can only remind; the Stop hook is the only mechanism in the system that can refuse to end a turn.
 
 #### Technical Stack
 

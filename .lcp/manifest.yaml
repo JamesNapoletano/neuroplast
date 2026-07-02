@@ -1,15 +1,38 @@
-lcp_version: "1.0"
+lcp_version: "2.0"
 kind: manifest
-id: neuroplast.bridge.manifest
-title: Neuroplast LCP bridge manifest
-summary: LCP bridge entrypoint for Neuroplast-managed repository-local cognitive augmentation.
-document_paths:
-  - .lcp/profiles/neuroplast-default.yaml
-  - .lcp/workflows/neuroplast-loop.yaml
-  - .lcp/rules/neuroplast-boundaries.yaml
-  - .lcp/reasoning/neuroplast-execution-scaffold.yaml
-  - .lcp/tools/neuroplast-cli.yaml
-  - .lcp/knowledge/neuroplast-compatibility.yaml
+id: neuroplast.manifest
+title: Neuroplast LCP context
+summary: LCP v2.0 entrypoint for Neuroplast-managed repository-local cognitive augmentation.
+refs:
+  - id: lcp-protocol
+    uri: https://github.com/JamesNapoletano/lcp
+    kind: protocol
+    rel: depends_on
+documents:
+  - id: neuroplast-default-profile
+    path: .lcp/profiles/neuroplast-default.yaml
+  - id: neuroplast-loop-workflow
+    path: .lcp/workflows/neuroplast-loop.yaml
+  - id: neuroplast-boundaries-rule
+    path: .lcp/rules/neuroplast-boundaries.yaml
+  - id: neuroplast-execution-scaffold
+    path: .lcp/reasoning/neuroplast-execution-scaffold.yaml
+  - id: neuroplast-cli-tool
+    path: .lcp/tools/neuroplast-cli.yaml
+  - id: neuroplast-compatibility-knowledge
+    path: .lcp/knowledge/neuroplast-compatibility.yaml
+  - id: neuroplast-learning-memory
+    path: .lcp/knowledge/neuroplast-learning.yaml
+active_profiles:
+  - neuroplast-default
+extensions:
+  - name: lcp/quantized
+    required: false
+  - name: neuroplast/operational-binding
+    required: false
 scope:
   root: .
-updated_at: "2026-04-02T00:00:00Z"
+tags:
+  - neuroplast
+  - implementation
+updated_at: "2026-06-30T12:00:00Z"

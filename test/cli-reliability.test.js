@@ -577,7 +577,7 @@ test("sync --dry-run reports changes without writing files or state", (t) => {
   assertSuccess(result);
   assert.match(result.output, /Dry run enabled: previewing sync changes without modifying files or state\./);
   assert.match(result.output, /\[neuroplast\]\[create\]\[dry-run\] neuroplast\/extensions\/README\.md/);
-  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 63 baselines adopted, 1 unchanged\)\./);
+  assert.match(result.output, /Managed file preview complete \(1 created, 0 updated, 0 preserved, 64 baselines adopted, 1 unchanged\)\./);
   assert.match(result.output, /Dry run enabled: no files or state were modified\./);
   assert.equal(exists(repoRoot, MANAGED_FILE), false);
   assert.equal(readFile(repoRoot, STATE_PATH), stateBefore);
@@ -618,7 +618,7 @@ test("sync summary distinguishes unchanged files from preserved edits", (t) => {
   const result = runCli(["sync"], { targetRoot: repoRoot });
 
   assertSuccess(result);
-  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 64 unchanged\)\./);
+  assert.match(result.output, /Managed file refresh complete \(0 created, 0 updated, 0 preserved, 0 baselines adopted, 65 unchanged\)\./);
 });
 
 test("sync skips on package downgrade by default", (t) => {
@@ -708,4 +708,395 @@ test("sync adopts a baseline for matching managed files without prior baseline m
   assert.ok(state.managedFileState[MANAGED_FILE]);
   assert.equal(state.managedFileState[MANAGED_FILE].lastSyncedVersion, PACKAGE_VERSION);
   assert.equal(typeof state.managedFileState[MANAGED_FILE].contentHash, "string");
+});
+
+// --- LCP v2.0 context, memory model, and quantization ---------------------
+
+const { parseYaml, stringifyYaml } = require("../src/lcp/yaml");
+
+const LCP_LEARNING_ARTIFACT = ".lcp/knowledge/neuroplast-learning.yaml";
+const LCP_INDEX = ".lcp/indexes/context.lcpq";
+const LCP_DISTILLED_INDEX = ".lcp/indexes/context.distilled.lcpq";
+
+function readLcpDoc(repoRoot, relativePath) {
+  return parseYaml(readFile(repoRoot, relativePath));
+}
+
+test("init scaffolds a v2.0 LCP manifest with documents and extensions", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-v2-manifest" });
+  const manifest = readLcpDoc(repoRoot, LCP_MANIFEST);
+
+  assert.equal(manifest.lcp_version, "2.0");
+  assert.equal(manifest.kind, "manifest");
+  assert.ok(Array.isArray(manifest.documents));
+  assert.ok(manifest.documents.every((ref) => typeof ref.id === "string" && typeof ref.path === "string"));
+  assert.ok(manifest.documents.some((ref) => ref.path === LCP_LEARNING_ARTIFACT));
+  assert.ok(Array.isArray(manifest.extensions));
+  assert.ok(manifest.extensions.some((ext) => ext.name === "lcp/quantized"));
+  assert.ok(manifest.extensions.some((ext) => ext.name === "neuroplast/operational-binding"));
+});
+
+test("validate accepts the v2.0 context and reports the missing quantized index", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-v2-validate" });
+
+  const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+
+  assert.equal(payload.ok, true);
+  assert.ok(payload.findings.some((f) => f.code === "lcp_document_schema_valid"));
+  assert.ok(payload.findings.some((f) => f.code === "lcp_memory_lifecycle_valid"));
+  assert.ok(payload.findings.some((f) => f.code === "lcp_quantized_index_missing" && f.level === "warning"));
+  assert.ok(payload.findings.some((f) => f.code === "lcp_distilled_index_missing" && f.level === "warning"));
+});
+
+test("validate flags a schema-invalid LCP document", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-v2-schema-bad" });
+  // Break the rule document: kind must be the const "rule".
+  writeFile(repoRoot, ".lcp/rules/neuroplast-boundaries.yaml", 'lcp_version: "2.0"\nkind: not_a_rule\nid: x\ntitle: X\n');
+
+  const result = runCli(["validate", "--json"], { targetRoot: repoRoot });
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.ok, false);
+  assert.ok(payload.findings.some((f) => f.code === "lcp_document_schema_invalid" || f.code === "lcp_document_kind_invalid"));
+});
+
+test("validate errors on an unimplemented future LCP major but only warns on legacy v1", (t) => {
+  // Future/unknown major this consumer does not implement -> error (semantics.md).
+  const future = createInitializedRepo(t, { label: "lcp-future-major" });
+  writeFile(future.repoRoot, ".lcp/rules/neuroplast-boundaries.yaml",
+    'lcp_version: "3.0"\nkind: rule\nid: neuroplast-boundaries\ntitle: X\nstatement: X\nseverity: error\nscope:\n  root: .\n');
+  const futureResult = runCli(["validate", "--json"], { targetRoot: future.repoRoot });
+  const futurePayload = JSON.parse(futureResult.stdout);
+  assert.equal(futurePayload.ok, false);
+  assert.ok(futurePayload.findings.some((f) => f.code === "lcp_version_unsupported" && f.level === "error"),
+    futureResult.stdout);
+
+  // Legacy v1 is re-baselined by v2.0 and remains structurally valid -> warning, not error.
+  const legacy = createInitializedRepo(t, { label: "lcp-legacy-major" });
+  writeFile(legacy.repoRoot, ".lcp/rules/neuroplast-boundaries.yaml",
+    'lcp_version: "1.0"\nkind: rule\nid: neuroplast-boundaries\ntitle: X\nstatement: X\nseverity: error\nscope:\n  root: .\n');
+  const legacyResult = runCli(["validate", "--json"], { targetRoot: legacy.repoRoot });
+  const legacyPayload = JSON.parse(legacyResult.stdout);
+  assert.ok(legacyPayload.findings.some((f) => f.code === "lcp_version_legacy" && f.level === "warning"),
+    legacyResult.stdout);
+  assert.ok(!legacyPayload.findings.some((f) => f.code === "lcp_version_unsupported"),
+    legacyResult.stdout);
+});
+
+test("quantize writes a current .lcpq bundle that validate recognizes", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-quantize" });
+
+  const result = runCli(["quantize"], { targetRoot: repoRoot });
+  assertSuccess(result);
+  assert.equal(exists(repoRoot, LCP_INDEX), true);
+  assert.match(readFile(repoRoot, LCP_INDEX), /^LCPQ\/2 pack/);
+
+  const validateResult = runCli(["validate", "--json"], { targetRoot: repoRoot });
+  const payload = JSON.parse(validateResult.stdout);
+  assert.ok(payload.findings.some((f) => f.code === "lcp_quantized_index_current" && f.level === "ok"));
+});
+
+test("quantize --distill produces a distilled bundle at its own path, leaving pack untouched", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-distill" });
+
+  assertSuccess(runCli(["quantize"], { targetRoot: repoRoot }));
+  assert.match(readFile(repoRoot, LCP_INDEX), /^LCPQ\/2 pack/);
+
+  const result = runCli(["quantize", "--distill", "--json"], { targetRoot: repoRoot });
+  assertSuccess(result);
+  const payload = JSON.parse(result.stdout);
+  assert.equal(payload.result.quantize.mode, "distill");
+  assert.equal(payload.result.quantize.index, LCP_DISTILLED_INDEX);
+  assert.match(readFile(repoRoot, LCP_DISTILLED_INDEX), /^LCPQ\/2 distill/);
+
+  // Distilling must not clobber the separately-maintained pack bundle.
+  assert.match(readFile(repoRoot, LCP_INDEX), /^LCPQ\/2 pack/);
+});
+
+test("remember writes an LCP memory entry and regenerates both derived indexes", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-remember" });
+
+  const result = runCli([
+    "remember",
+    "--id", "use-stable-ids",
+    "--title", "Use Stable IDs",
+    "--note", "## Insight\nStable ids let memory be superseded.",
+    "--json"
+  ], { targetRoot: repoRoot });
+  assertSuccess(result);
+
+  const artifact = readLcpDoc(repoRoot, LCP_LEARNING_ARTIFACT);
+  const entry = artifact.entries.find((e) => e.id === "use-stable-ids");
+  assert.ok(entry);
+  assert.equal(entry.status, "active");
+  assert.ok(entry.provenance && typeof entry.provenance.origin === "string");
+
+  // Neuroplast holds no memory of its own outside the artifact: no rendered
+  // markdown view is written. Both derived quantized indexes are regenerated.
+  assert.equal(exists(repoRoot, "neuroplast/learning"), false);
+  assert.match(readFile(repoRoot, LCP_INDEX), /^LCPQ\/2 pack/);
+  assert.match(readFile(repoRoot, LCP_DISTILLED_INDEX), /^LCPQ\/2 distill/);
+});
+
+test("remember --supersedes retires the prior entry and the distilled index drops it", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-supersede" });
+
+  assertSuccess(runCli(["remember", "--id", "policy-v1", "--note", "## Insight\nOld policy."], { targetRoot: repoRoot }));
+  assertSuccess(runCli(["remember", "--id", "policy-v2", "--supersedes", "policy-v1", "--note", "## Insight\nNew policy."], { targetRoot: repoRoot }));
+
+  const artifact = readLcpDoc(repoRoot, LCP_LEARNING_ARTIFACT);
+  const v1 = artifact.entries.find((e) => e.id === "policy-v1");
+  const v2 = artifact.entries.find((e) => e.id === "policy-v2");
+  assert.equal(v1.status, "superseded");
+  assert.equal(v2.status, "active");
+  assert.ok(v2.supersedes.includes("policy-v1"));
+
+  // The superseded entry's content is dropped from the distilled working view
+  // (only its id may remain, referenced by v2's `supersedes`), but the pack
+  // bundle stays lossless (both entries' content present) so history round-trips.
+  const distilled = readFile(repoRoot, LCP_DISTILLED_INDEX);
+  assert.doesNotMatch(distilled, /Old policy/);
+  assert.match(distilled, /New policy/);
+  const packed = readFile(repoRoot, LCP_INDEX);
+  assert.match(packed, /Old policy/);
+  assert.match(packed, /New policy/);
+});
+
+test("v2.0 upgrade migration upgrades a legacy v1.0 bridge and migrates learning notes", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-v2-migration" });
+
+  // Simulate a pre-2.0 install: a locally-edited v1.0 bridge document, a legacy
+  // markdown learning note, and no learning memory artifact yet.
+  writeFile(repoRoot, ".lcp/profiles/neuroplast-default.yaml", [
+    'lcp_version: "1.0"',
+    "kind: profile",
+    "id: neuroplast.default",
+    "title: Neuroplast default profile",
+    "refs:",
+    "  - neuroplast/manifest.yaml",
+    "scope:",
+    "  root: .",
+    "profile:",
+    "  version_statement: Neuroplast v1.3.4 implements LCP v1",
+    ""
+  ].join("\n"));
+  writeFile(repoRoot, "neuroplast/learning/legacy-note.md", "# Legacy Note\n#learning\n\n## Insight\nA migrated insight.\n");
+  remove(repoRoot, LCP_LEARNING_ARTIFACT);
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.4.2";
+    state.appliedMigrations = state.appliedMigrations.filter((id) => id !== "2026-06-30-lcp-v2-upgrade");
+    delete state.managedFileState[".lcp/profiles/neuroplast-default.yaml"];
+  });
+
+  const result = runCli(["sync", "--force"], { targetRoot: repoRoot });
+  assertSuccess(result);
+
+  // Bridge document upgraded to v2.0.
+  const profile = readLcpDoc(repoRoot, ".lcp/profiles/neuroplast-default.yaml");
+  assert.equal(profile.lcp_version, "2.0");
+
+  // Legacy note migrated into an LCP memory entry.
+  const artifact = readLcpDoc(repoRoot, LCP_LEARNING_ARTIFACT);
+  const migrated = artifact.entries.find((e) => e.id === "legacy-note");
+  assert.ok(migrated);
+  assert.equal(migrated.status, "active");
+  assert.ok(migrated.provenance && migrated.provenance.origin === "learning-migration");
+
+  // Whole context validates clean afterward.
+  const validateResult = runCli(["validate", "--json"], { targetRoot: repoRoot });
+  const payload = JSON.parse(validateResult.stdout);
+  assert.equal(payload.findings.filter((f) => f.level === "error").length, 0, validateResult.stdout);
+});
+
+test("remove-learning-view migration folds unmigrated notes into LCP memory and removes the folder", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-remove-learning-view" });
+
+  // One note already migrated (present in the artifact), one note that is not
+  // (simulating an install between the 2026-06-30 and 2026-07-01 migrations).
+  writeFile(repoRoot, "neuroplast/learning/already-migrated.md", "# Already Migrated\n#learning\n\n## Insight\nAlready in the artifact.\n");
+  writeFile(repoRoot, "neuroplast/learning/not-yet-migrated.md", "# Not Yet Migrated\n#learning\n\n## Insight\nStill only a markdown note.\n");
+  const artifact = readLcpDoc(repoRoot, LCP_LEARNING_ARTIFACT);
+  artifact.entries.push({
+    id: "already-migrated",
+    status: "active",
+    confidence: 0.8,
+    title: "Already Migrated",
+    note: "Already in the artifact.",
+    provenance: { origin: "learning-migration", method: "captured-during-work-cycle" },
+    updated_at: "2026-06-30T00:00:00Z"
+  });
+  writeFile(repoRoot, LCP_LEARNING_ARTIFACT, stringifyYaml(artifact));
+  updateState(repoRoot, (state) => {
+    state.appliedMigrations = state.appliedMigrations.filter((id) => id !== "2026-07-01-remove-learning-view");
+  });
+
+  const result = runCli(["sync", "--force"], { targetRoot: repoRoot });
+  assertSuccess(result);
+
+  // The unmigrated note is folded in; the already-migrated entry is not duplicated.
+  const updated = readLcpDoc(repoRoot, LCP_LEARNING_ARTIFACT);
+  assert.equal(updated.entries.filter((e) => e.id === "already-migrated").length, 1);
+  const folded = updated.entries.find((e) => e.id === "not-yet-migrated");
+  assert.ok(folded);
+  assert.equal(folded.status, "active");
+
+  // The rendered folder is gone entirely; memory lives only in the artifact.
+  assert.equal(exists(repoRoot, "neuroplast/learning"), false);
+
+  const validateResult = runCli(["validate", "--json"], { targetRoot: repoRoot });
+  const payload = JSON.parse(validateResult.stdout);
+  assert.equal(payload.findings.filter((f) => f.level === "error").length, 0, validateResult.stdout);
+});
+
+test("remove-learning-view migration strips the stale learning_dir role from the user's own manifest.yaml", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-remove-learning-view-manifest" });
+
+  // neuroplast/manifest.yaml is never overwritten by sync (no shipped baseline),
+  // so simulate a pre-2.0.1 install whose own manifest still requires the
+  // folder and maps the now-removed learning_dir document role. Start from the
+  // real current manifest and reintroduce just the two stale lines, so the
+  // test isolates that delta instead of hand-maintaining a drift-prone copy.
+  const currentManifest = readFile(repoRoot, "neuroplast/manifest.yaml");
+  const staleManifest = currentManifest
+    .replace(
+      "  - neuroplast/plans\n",
+      "  - neuroplast/plans\n  - neuroplast/learning\n"
+    )
+    .replace(
+      "  plans_dir: neuroplast/plans\n",
+      "  plans_dir: neuroplast/plans\n  learning_dir: neuroplast/learning\n"
+    );
+  assert.notEqual(staleManifest, currentManifest, "test setup must actually add the stale lines");
+  writeFile(repoRoot, "neuroplast/manifest.yaml", staleManifest);
+  updateState(repoRoot, (state) => {
+    state.appliedMigrations = state.appliedMigrations.filter((id) => id !== "2026-07-01-remove-learning-view");
+  });
+
+  const result = runCli(["sync", "--force"], { targetRoot: repoRoot });
+  assertSuccess(result);
+
+  const manifest = readLcpDoc(repoRoot, "neuroplast/manifest.yaml");
+  assert.ok(!manifest.required_directories.includes("neuroplast/learning"));
+  assert.equal(manifest.document_roles.learning_dir, undefined);
+  // Everything else the user's manifest declared survives untouched.
+  assert.ok(manifest.required_directories.includes("neuroplast/project-concept"));
+  assert.equal(manifest.document_roles.concept_dir, "neuroplast/project-concept");
+
+  const validateResult = runCli(["validate", "--json"], { targetRoot: repoRoot });
+  const payload = JSON.parse(validateResult.stdout);
+  assert.equal(payload.findings.filter((f) => f.level === "error").length, 0, validateResult.stdout);
+});
+
+test("upgrade rescue refreshes unbaselined managed instruction files and backs up prior content", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-upgrade-rescue" });
+
+  // Simulate a pre-baseline install (e.g. 1.2.2): managed instruction files that
+  // have no baseline and no longer match the shipped version. This is the class
+  // of file that would otherwise be stranded stale forever on upgrade. One is
+  // untouched-old-shipped, one carries a local edit — without a baseline we
+  // cannot tell them apart, so both are rescued and their prior content backed up.
+  writeFile(repoRoot, "neuroplast/act.md", "# Old Act\n#instruction\n\nAncient pre-baseline content.\n");
+  writeFile(repoRoot, "neuroplast/think.md", "# Old Think\n#instruction\n\nAncient content.\n<!-- local customization -->\n");
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.2.2";
+    delete state.managedFileState["neuroplast/act.md"];
+    delete state.managedFileState["neuroplast/think.md"];
+  });
+
+  const result = runCli(["sync"], { targetRoot: repoRoot });
+  assertSuccess(result);
+
+  // Both files are refreshed to the shipped v2.0.1 content.
+  assert.match(readFile(repoRoot, "neuroplast/act.md"), /Assemble the working context/);
+  assert.match(readFile(repoRoot, "neuroplast/think.md"), /assess its confidence deliberately/);
+
+  // Nothing is lost: the prior content (including the local edit) is backed up.
+  const backupsRoot = path.join(repoRoot, "neuroplast", ".backups");
+  const backupDirs = fs.existsSync(backupsRoot) ? fs.readdirSync(backupsRoot) : [];
+  assert.ok(backupDirs.length > 0, "an upgrade backup directory should exist");
+  const backedUpThink = fs.readFileSync(
+    path.join(backupsRoot, backupDirs[0], "neuroplast", "think.md"),
+    "utf8"
+  );
+  assert.match(backedUpThink, /local customization/, "prior edited content is preserved in the backup");
+
+  // Baselines are recorded, so a second sync treats them as controlled (no re-rescue).
+  assert.ok(readState(repoRoot).managedFileState["neuroplast/act.md"], "act.md baseline recorded after rescue");
+  const second = runCli(["sync", "--force"], { targetRoot: repoRoot });
+  assertSuccess(second);
+  assert.doesNotMatch(`${second.stdout}${second.stderr}`, /Refreshed unbaselined managed file/);
+});
+
+test("backfill migration adds missing document_roles to an older install's manifest", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "backfill-doc-roles" });
+
+  // Simulate an old manifest missing two document roles newer versions require,
+  // with a user comment that must survive the surgical backfill.
+  const stale = readFile(repoRoot, "neuroplast/manifest.yaml")
+    .replace(/^  interaction_routing:.*\n/m, "")
+    .replace(/^  adapter_assets_dir:.*\n/m, "")
+    .replace(/^document_roles:\n/m, "document_roles:\n  # user note in the roles block\n");
+  writeFile(repoRoot, "neuroplast/manifest.yaml", stale);
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.2.2";
+    state.appliedMigrations = state.appliedMigrations.filter((id) => id !== "2026-07-02-backfill-document-roles");
+  });
+
+  const result = runCli(["sync", "--force"], { targetRoot: repoRoot });
+  assertSuccess(result);
+
+  const manifest = readLcpDoc(repoRoot, "neuroplast/manifest.yaml");
+  assert.equal(manifest.document_roles.interaction_routing, "neuroplast/interaction-routing.yaml");
+  assert.equal(manifest.document_roles.adapter_assets_dir, "neuroplast/adapter-assets");
+  // Surgical: the user comment and pre-existing roles are untouched.
+  assert.match(readFile(repoRoot, "neuroplast/manifest.yaml"), /# user note in the roles block/);
+  assert.equal(manifest.document_roles.plans_dir, "neuroplast/plans");
+
+  // Whole context validates clean afterward.
+  const validateResult = runCli(["validate", "--json"], { targetRoot: repoRoot });
+  const payload = JSON.parse(validateResult.stdout);
+  assert.equal(payload.findings.filter((f) => f.level === "error").length, 0, validateResult.stdout);
+});
+
+test("upgrade rescue leaves user-maintainable config (manifest) untouched even without a baseline", (t) => {
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-upgrade-rescue-config" });
+
+  const customManifest = `${readFile(repoRoot, "neuroplast/manifest.yaml")}\n# user customization marker\n`;
+  writeFile(repoRoot, "neuroplast/manifest.yaml", customManifest);
+  updateState(repoRoot, (state) => {
+    state.lastSyncedVersion = "1.2.2";
+    delete state.managedFileState["neuroplast/manifest.yaml"];
+  });
+
+  const result = runCli(["sync"], { targetRoot: repoRoot });
+  assertSuccess(result);
+  assert.match(readFile(repoRoot, "neuroplast/manifest.yaml"), /# user customization marker/);
+});
+
+test("assembleView returns a prioritized working context view with lifecycle filtering", (t) => {
+  const { assembleView } = require("../src/lcp/assemble");
+  const { repoRoot } = createInitializedRepo(t, { label: "lcp-assemble" });
+
+  // Seed memory: one active and one superseded entry.
+  assertSuccess(runCli(["remember", "--id", "keep-me", "--note", "## Insight\nActive."], { targetRoot: repoRoot }));
+  assertSuccess(runCli(["remember", "--id", "replace-me", "--note", "## Insight\nOld."], { targetRoot: repoRoot }));
+  assertSuccess(runCli(["remember", "--id", "replace-me-v2", "--supersedes", "replace-me", "--note", "## Insight\nNew."], { targetRoot: repoRoot }));
+
+  const view = assembleView(repoRoot, { intent: "act" });
+  assert.equal(view.intent, "act");
+  assert.ok(Array.isArray(view.profiles) && view.profiles.includes("neuroplast-default"));
+
+  // Hard constraints (rules) are ordered ahead of reasoning scaffolds.
+  const ruleIndex = view.documents.findIndex((d) => d.kind === "rule");
+  const scaffoldIndex = view.documents.findIndex((d) => d.kind === "reasoning_scaffold");
+  assert.ok(ruleIndex !== -1 && scaffoldIndex !== -1 && ruleIndex < scaffoldIndex);
+
+  // Superseded memory never reaches the assembled view.
+  const learningEntries = view.documents
+    .filter((d) => d.kind === "knowledge_artifact")
+    .flatMap((d) => d.entries || []);
+  assert.ok(learningEntries.some((e) => e.id === "keep-me"));
+  assert.ok(learningEntries.some((e) => e.id === "replace-me-v2"));
+  assert.ok(!learningEntries.some((e) => e.id === "replace-me"));
 });

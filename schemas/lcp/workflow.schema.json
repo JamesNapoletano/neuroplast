@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcp.dev/schemas/workflow.schema.json",
+  "title": "LCP Workflow",
+  "allOf": [
+    { "$ref": "./common-envelope.schema.json" },
+    {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "workflow" },
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "title"],
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "summary": { "type": "string" },
+              "outputs": {
+                "type": "array",
+                "items": { "type": "string" }
+              }
+            },
+            "additionalProperties": true
+          }
+        },
+        "descriptive_only": {
+          "type": "boolean",
+          "const": true
+        }
+      },
+      "required": ["stages"]
+    }
+  ]
+}

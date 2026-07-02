@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcp.dev/schemas/reference.schema.json",
+  "title": "LCP Reference",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "uri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "rel": {
+      "description": "Typed relationship from the containing document to the referenced resource. Core values are normative; extensions may use namespaced values such as 'x_example/relation'.",
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "related",
+            "depends_on",
+            "derived_from",
+            "refines",
+            "supersedes",
+            "superseded_by",
+            "contradicts",
+            "describes",
+            "governs",
+            "example_of"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^(x_[a-z0-9_]+|[a-z0-9.-]+/[a-z0-9_./-]+)$"
+        }
+      ]
+    },
+    "anchor": {
+      "type": "string"
+    }
+  },
+  "anyOf": [
+    { "required": ["id"] },
+    { "required": ["path"] },
+    { "required": ["uri"] }
+  ],
+  "additionalProperties": true
+}

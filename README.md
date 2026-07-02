@@ -10,11 +10,11 @@ LCP is the standard. Neuroplast is an implementation of that standard.
 
 Neuroplast remains domain-agnostic. It can support software repositories, research repositories, marine biology repositories, educational repositories, collaborative learning repositories, and other local knowledge contexts.
 
-Neuroplast preserves its existing `/neuroplast/` working layout while also installing an explicit `.lcp/` bridge entrypoint for visible LCP alignment.
+Neuroplast preserves its existing `/neuroplast/` working layout while also installing an explicit, living `.lcp/` LCP v2.0 context. Durable memory is stored as LCP knowledge entries (with lifecycle and provenance), the context can be quantized to a `.lcp/indexes/context.lcpq` bundle, and Neuroplast reads assembled context and writes memory back per the LCP operational binding.
 
 Current version statement:
 
-- `Neuroplast v1.4.0 implements LCP v1`
+- `Neuroplast v2.0 implements LCP v2.0`
 
 ## Quick Start
 
@@ -65,6 +65,20 @@ Emit machine-readable validation results for CI or wrapper tooling:
 
 ```bash
 npx neuroplast validate --json
+```
+
+Quantize the LCP context into a derived `.lcp/indexes/context.lcpq` bundle (one read instead of N), or distill it to a high-signal, current-memory view:
+
+```bash
+npx neuroplast quantize
+npx neuroplast quantize --distill
+```
+
+Record a durable learning as an LCP memory entry (the operational-binding write-back). New learnings are added with provenance; revisions supersede prior entries instead of overwriting them, and the `neuroplast/learning/*.md` view is re-rendered:
+
+```bash
+npx neuroplast remember --id prefer-additive-edits --note "## Insight\nSupersede memory; never overwrite."
+npx neuroplast remember --id prefer-additive-edits-v2 --supersedes prefer-additive-edits --note "..."
 ```
 
 Run the full maintainer pre-release verification flow:

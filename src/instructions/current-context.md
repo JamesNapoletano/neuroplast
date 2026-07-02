@@ -10,7 +10,7 @@ Use it to compress the active objective into a fast startup summary without repl
 
 ## Boundary
 - This file is advisory, not canonical.
-- `plans/`, `project-concept/`, `project-concept/changelog/`, `learning/`, and `ARCHITECTURE.md` remain the durable source of truth.
+- `plans/`, `project-concept/`, `project-concept/changelog/`, `.lcp/knowledge/neuroplast-learning.yaml`, and `ARCHITECTURE.md` remain the durable source of truth.
 - Update this file when the active objective, next step, blockers, or verification picture changes materially.
 - If you want this file to become a custom hand-written briefing, edit it directly and future sync runs will preserve your local version.
 
@@ -44,4 +44,4 @@ Use it to compress the active objective into a fast startup summary without repl
 - `neuroplast/plans/` for active scope and handoff state
 - `neuroplast/project-concept/` for durable project meaning
 - `neuroplast/project-concept/changelog/` for recent completed changes
-- `neuroplast/learning/` for reusable practices that affect the current step
+- `.lcp/knowledge/neuroplast-learning.yaml` (read via `.lcp/indexes/context.distilled.lcpq`) for reusable practices that affect the current step

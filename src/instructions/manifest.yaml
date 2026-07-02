@@ -3,13 +3,18 @@ contract_version: 1
 metadata_schema_version: 1
 lcp:
   normative_protocol_source: https://github.com/JamesNapoletano/lcp
-  compatibility_statement: Neuroplast v1.4.0 implements LCP v1
+  compatibility_statement: Neuroplast v2.0 implements LCP v2.0
   bridge_manifest: .lcp/manifest.yaml
+  memory_artifact: .lcp/knowledge/neuroplast-learning.yaml
+  quantized_index: .lcp/indexes/context.lcpq
+  distilled_index: .lcp/indexes/context.distilled.lcpq
+  extensions:
+    - lcp/quantized
+    - neuroplast/operational-binding
 required_directories:
   - neuroplast/project-concept
   - neuroplast/project-concept/changelog
   - neuroplast/plans
-  - neuroplast/learning
 required_instruction_files:
   - neuroplast/WORKFLOW_CONTRACT.md
   - neuroplast/conceptualize.md
@@ -33,7 +38,6 @@ document_roles:
   concept_dir: neuroplast/project-concept
   changelog_dir: neuroplast/project-concept/changelog
   plans_dir: neuroplast/plans
-  learning_dir: neuroplast/learning
   environment_guides_dir: neuroplast/adapters
   adapter_assets_dir: neuroplast/adapter-assets
   extensions_dir: neuroplast/extensions
@@ -76,6 +80,10 @@ validation_targets:
   - current_context_briefing_is_not_stale
   - lcp_bridge_manifest_is_parseable
   - lcp_bridge_documents_resolve
+  - lcp_documents_validate_against_v2_schemas
+  - lcp_memory_lifecycle_is_consistent
+  - lcp_quantized_index_is_current
+  - lcp_distilled_index_is_current
   - required_directories_exist
   - required_instruction_files_exist
   - required_support_files_exist

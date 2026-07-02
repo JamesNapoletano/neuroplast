@@ -1,13 +1,25 @@
-lcp_version: "1.0"
+lcp_version: "2.0"
 kind: tool_description
-id: neuroplast.cli
+id: neuroplast-cli
 title: Neuroplast CLI
-summary: Tooling for initializing, syncing, and validating Neuroplast repositories.
+summary: Tooling for initializing, syncing, validating, and quantizing Neuroplast repositories.
+inputs:
+  - a target repository root
+  - an interaction-routing phrase (for route)
+outputs:
+  - scaffolded and refreshed managed files (init, sync)
+  - a validation report against the LCP v2.0 schemas (validate)
+  - a derived .lcp/indexes/context.lcpq bundle (quantize)
+commands:
+  - init
+  - sync
+  - validate
+  - route
+  - quantize
+constraints:
+  - The .lcpq bundle is derived; the source .lcp documents remain authoritative.
+  - Consumer-owned knowledge memory is never overwritten by sync.
+  - The tool describes a local utility and is not an invocation protocol.
 scope:
   root: .
-updated_at: "2026-04-02T00:00:00Z"
-tool:
-  commands:
-    - init
-    - sync
-    - validate
+updated_at: "2026-06-30T00:00:00Z"

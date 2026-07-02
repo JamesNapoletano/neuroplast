@@ -1,14 +1,19 @@
-lcp_version: "1.0"
+lcp_version: "2.0"
 kind: reasoning_scaffold
-id: neuroplast.execution-scaffold
+id: neuroplast-execution-scaffold
 title: Neuroplast execution scaffold
 summary: Explicit scaffold for carrying out bounded work while preserving durable context.
+checkpoints:
+  - Assemble the working context view from the distilled high-signal index (active profile, scope, intent).
+  - Update the active plan.
+  - Execute the bounded work.
+  - Record changelog updates.
+  - Write durable learnings back as LCP memory entries.
+  - Regenerate the lossless (pack) and high-signal (distill) quantized indexes so the next cycle assembles current memory.
+criteria:
+  - Read assembled context before acting; treat the view as derived and disposable.
+  - Keep memory explicit and inspectable; supersede rather than overwrite.
+  - Quantize after write-back; distill applies the memory lifecycle so retired and low-confidence entries do not re-enter the loaded context.
 scope:
   root: .
-updated_at: "2026-04-02T00:00:00Z"
-scaffold:
-  checkpoints:
-    - read context
-    - update plan
-    - execute bounded work
-    - record changelog and learning updates
+updated_at: "2026-06-30T12:00:00Z"

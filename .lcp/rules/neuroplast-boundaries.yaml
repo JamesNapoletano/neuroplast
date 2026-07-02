@@ -1,13 +1,20 @@
-lcp_version: "1.0"
+lcp_version: "2.0"
 kind: rule
-id: neuroplast.boundaries
+id: neuroplast-boundaries
 title: Neuroplast implementation boundaries
 summary: Boundaries that keep Neuroplast aligned with LCP.
+refs:
+  - id: lcp-protocol
+    uri: https://github.com/JamesNapoletano/lcp
+    kind: protocol
+    rel: depends_on
+statement: Neuroplast is an LCP operational layer; it must read assembled context and write durable memory back as ordinary LCP knowledge entries without redefining the core protocol.
+rationale: Keeping Neuroplast a conformant consumer of LCP preserves portability and lets any other consumer interpret the same files.
+severity: error
+requirements:
+  - Neuroplast must reference the official LCP repository as the normative protocol source.
+  - Neuroplast must not claim to define LCP independently.
+  - Durable memory must be recorded as LCP knowledge entries with provenance, never as opaque runtime state.
 scope:
   root: .
-updated_at: "2026-04-02T00:00:00Z"
-severity: error
-rule:
-  requirements:
-    - Neuroplast must reference the official LCP repository as the normative protocol source.
-    - Neuroplast must not claim to define LCP independently.
+updated_at: "2026-06-30T12:00:00Z"

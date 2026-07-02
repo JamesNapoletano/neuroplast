@@ -1,15 +1,25 @@
-lcp_version: "1.0"
+lcp_version: "2.0"
 kind: workflow
-id: neuroplast.loop
+id: neuroplast-loop
 title: Neuroplast execution loop
 summary: Declarative description of the Neuroplast working loop.
+descriptive_only: true
+stages:
+  - id: conceptualize
+    title: Conceptualize
+    summary: Frame or reframe the work against the durable project mind.
+  - id: plan
+    title: Plan
+    summary: Produce a bounded, resumable plan under neuroplast/plans/.
+  - id: act
+    title: Act
+    summary: Execute one bounded step, reading assembled context and respecting the contract.
+  - id: changelog
+    title: Changelog
+    summary: Record the completed cycle and keep user-facing docs in sync.
+  - id: think
+    title: Think
+    summary: Capture durable learnings as LCP memory entries via write-back, then regenerate the pack and distilled quantized indexes for the next cycle.
 scope:
   root: .
-updated_at: "2026-04-02T00:00:00Z"
-workflow:
-  stages:
-    - conceptualize
-    - plan
-    - act
-    - changelog
-    - think
+updated_at: "2026-06-30T12:00:00Z"

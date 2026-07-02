@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcp.dev/schemas/tool-description.schema.json",
+  "title": "LCP Tool Description",
+  "allOf": [
+    { "$ref": "./common-envelope.schema.json" },
+    {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "tool_description" },
+        "inputs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "outputs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "constraints": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  ]
+}

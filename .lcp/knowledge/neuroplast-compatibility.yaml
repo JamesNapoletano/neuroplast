@@ -1,12 +1,34 @@
-lcp_version: "1.0"
+lcp_version: "2.0"
 kind: knowledge_artifact
-id: neuroplast.compatibility
+id: neuroplast-compatibility
 title: Neuroplast compatibility knowledge
-summary: Summary of how Neuroplast fits inside LCP while preserving its own defaults.
+summary: How Neuroplast fits inside LCP while preserving its own defaults.
+content_type: compatibility
+entries:
+  - id: neuroplast-implements-lcp
+    status: active
+    confidence: 1
+    note: Neuroplast is an implementation (operational layer) of LCP.
+    provenance:
+      origin: neuroplast-design
+      method: maintainer-decision
+    updated_at: "2026-06-30T00:00:00Z"
+  - id: neuroplast-owns-working-layout
+    status: active
+    confidence: 1
+    note: Neuroplast preserves /neuroplast/ as its implementation-owned working layout, while .lcp/ holds the portable LCP context.
+    provenance:
+      origin: neuroplast-design
+      method: maintainer-decision
+    updated_at: "2026-06-30T00:00:00Z"
+  - id: neuroplast-binds-operationally
+    status: active
+    confidence: 1
+    note: Neuroplast reads assembled context views and writes durable memory back as LCP knowledge entries, per the operational-binding extension.
+    provenance:
+      origin: neuroplast-design
+      method: maintainer-decision
+    updated_at: "2026-06-30T00:00:00Z"
 scope:
   root: .
-updated_at: "2026-04-02T00:00:00Z"
-knowledge:
-  statements:
-    - Neuroplast is an implementation of LCP.
-    - Neuroplast preserves `/neuroplast/` as its implementation-owned layout.
+updated_at: "2026-06-30T00:00:00Z"

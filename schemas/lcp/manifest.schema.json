@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcp.dev/schemas/manifest.schema.json",
+  "title": "LCP Manifest",
+  "allOf": [
+    { "$ref": "./common-envelope.schema.json" },
+    {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "manifest" },
+        "active_profiles": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "documents": {
+          "type": "array",
+          "items": { "$ref": "./reference.schema.json" }
+        },
+        "extensions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string" },
+              "required": { "type": "boolean" }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": ["documents"]
+    }
+  ]
+}

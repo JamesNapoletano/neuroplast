@@ -9,7 +9,6 @@ neuroplast:
   writes_to:
     - neuroplast/project-concept
     - neuroplast/project-concept/changelog
-    - neuroplast/learning
     - ARCHITECTURE.md
   outputs:
     - neuroplast/project-concept/codebase-reverse-engineering-evidence.md
@@ -43,7 +42,7 @@ Reverse-engineering is a specialized pre-conceptualization mode. It does not rep
 - `PLANNING_INSTRUCTIONS.md`
 - `conceptualize.md`
 - The repository's code, configuration, and documentation (primary evidence source)
-- Any existing files under `/neuroplast/project-concept/`, `/neuroplast/plans/`, and `/neuroplast/learning/` (treat as secondary evidence; do not assume they are current)
+- Any existing files under `/neuroplast/project-concept/` and `/neuroplast/plans/`, and existing memory in `.lcp/knowledge/neuroplast-learning.yaml` (treat as secondary evidence; do not assume they are current)
 - Current human operator goals, scope boundaries, and any known no-go areas
 
 ## Outputs
@@ -80,7 +79,6 @@ The evidence artifact is a single, self-contained note that captures what the co
 3. Ensure required folders exist:
    - `/neuroplast/project-concept/`
    - `/neuroplast/project-concept/changelog/`
-   - `/neuroplast/learning/`
    - `/neuroplast/plans/`
 4. Inventory the repository at the top level: README and docs, package or build manifests, language footprint, entry points, CLI or binary targets, test roots, CI configuration. Record the raw observations; do not yet synthesize conclusions.
 5. Walk the code breadth-first and identify candidate work surfaces: major modules, bounded contexts, data stores, external interfaces, runtime loops, and scheduled work.

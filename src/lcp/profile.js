@@ -1,11 +1,10 @@
 function getNeuroplastProfile() {
   return {
-    versionStatement: "Neuroplast v1.4.0 implements LCP v1",
+    versionStatement: "Neuroplast v2.0 implements LCP v2.0",
     rootArchitecturePath: "ARCHITECTURE.md",
     requiredDirectories: [
       "neuroplast/project-concept",
       "neuroplast/project-concept/changelog",
-      "neuroplast/learning",
       "neuroplast/plans"
     ],
     requiredInstructionFiles: [
@@ -33,7 +32,6 @@ function getNeuroplastProfile() {
       concept_dir: "neuroplast/project-concept",
       changelog_dir: "neuroplast/project-concept/changelog",
       plans_dir: "neuroplast/plans",
-      learning_dir: "neuroplast/learning",
       environment_guides_dir: "neuroplast/adapters",
       adapter_assets_dir: "neuroplast/adapter-assets",
       extensions_dir: "neuroplast/extensions"

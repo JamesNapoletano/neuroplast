@@ -1,0 +1,10 @@
+lcp_version: "2.0"
+kind: knowledge_artifact
+id: neuroplast-learning
+title: Neuroplast durable learning memory
+summary: Durable, reusable learnings captured during Neuroplast work cycles. This is the sole source of truth for memory; there is no separate rendered view.
+content_type: learning
+entries: []
+scope:
+  root: .
+updated_at: "2026-06-30T00:00:00Z"

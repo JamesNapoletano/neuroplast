@@ -8,6 +8,7 @@ const {
   refreshManagedFiles
 } = require("./constants");
 const { resolveActivePlan } = require("./active-plan");
+const { regenerateQuantizedIndex } = require("./lcp");
 const { ensureDirectory, maybeBackupFile } = require("./filesystem");
 const {
   loadState,
@@ -99,6 +100,10 @@ function runSync(context, { isPostInit }) {
     });
   }
 
+  // Operational binding: keep the derived quantized indexes (pack + distill)
+  // current against the authoritative LCP memory after migrations have run.
+  result.lcpProjection = refreshLcpProjection(context);
+
   if (!context.syncOptions.dryRun) {
     finalizeManagedStaticFiles(context, state, managedRefreshResult.controlledPaths);
     state.lastSyncedVersion = PACKAGE_VERSION;
@@ -116,6 +121,31 @@ function runSync(context, { isPostInit }) {
   return result;
 }
 
+function refreshLcpProjection(context) {
+  try {
+    const index = regenerateQuantizedIndex(context);
+    if (index.regenerated) {
+      context.logInfo(`Quantized LCP indexes regenerated: ${index.index}, ${index.distilledIndex}.`);
+    }
+    return { index };
+  } catch (error) {
+    context.logInfo(`Skipped LCP projection refresh: ${error.message}`);
+    return { index: null, error: error.message };
+  }
+}
+
+// Managed files that hold user-specific configuration or runtime state and are
+// expected to diverge from the shipped defaults (declared extensions, custom
+// document roles, environment capability values, routing overlays, the active
+// plan pointer). The upgrade rescue must never overwrite these, even when they
+// have no baseline — only package-owned instruction/documentation content.
+const USER_MAINTAINABLE_MANAGED_FILES = new Set([
+  "neuroplast/manifest.yaml",
+  "neuroplast/capabilities.yaml",
+  "neuroplast/interaction-routing.yaml",
+  "neuroplast/plans/.active-plan"
+]);
+
 function refreshManagedStaticFiles(context, state) {
   const result = {
     scanned: 0,
@@ -131,6 +161,17 @@ function refreshManagedStaticFiles(context, state) {
   const backupRoot = context.syncOptions.backup
     ? path.join(context.targetRoot, "neuroplast", ".backups", createTimestampLabel())
     : null;
+
+  // A version-increasing sync is an upgrade. Repos installed before managed-file
+  // baselines existed (or otherwise missing them) have no baseline to recognize a
+  // shipped file by, so an evolved package-owned file with no baseline that no
+  // longer matches the shipped version would be stranded on its old release
+  // forever. On an upgrade we refresh those files to the shipped version instead
+  // of preserving them — but always back up the prior content first, so the
+  // change is non-destructive and recoverable regardless of the --backup flag.
+  const isUpgradeSync =
+    Boolean(state.lastSyncedVersion) && compareSemver(PACKAGE_VERSION, state.lastSyncedVersion) > 0;
+  let upgradeBackupRoot = backupRoot;
 
   for (const file of refreshManagedFiles) {
     result.scanned += 1;
@@ -169,11 +210,32 @@ function refreshManagedStaticFiles(context, state) {
         context.logInfo(`Adopted managed baseline for ${relativeDestinationPath}.`);
         result.adopted += 1;
         controlledPathSet.add(relativeDestinationPath);
-      } else {
-        context.logPreserved(relativeDestinationPath, context.syncOptions.dryRun, "local edits detected (no stored baseline)");
-        result.preserved += 1;
+        continue;
       }
 
+      // Upgrade rescue: an unbaselined, package-owned file that no longer matches
+      // the shipped version. Without a baseline we cannot tell an unedited old
+      // release from a local edit, so we do the non-destructive thing — back up
+      // the current content, then refresh to shipped and adopt a baseline. User-
+      // maintainable config files are exempt (they are meant to diverge).
+      if (isUpgradeSync && !USER_MAINTAINABLE_MANAGED_FILES.has(relativeDestinationPath)) {
+        if (!context.syncOptions.dryRun) {
+          if (!upgradeBackupRoot) {
+            upgradeBackupRoot = path.join(context.targetRoot, "neuroplast", ".backups", createTimestampLabel());
+          }
+          maybeBackupFile(context, destinationPath, upgradeBackupRoot);
+          fs.copyFileSync(sourcePath, destinationPath);
+        }
+        context.logInfo(
+          `Refreshed unbaselined managed file to shipped version (prior content backed up): ${relativeDestinationPath}`
+        );
+        result.updated += 1;
+        controlledPathSet.add(relativeDestinationPath);
+        continue;
+      }
+
+      context.logPreserved(relativeDestinationPath, context.syncOptions.dryRun, "local edits detected (no stored baseline)");
+      result.preserved += 1;
       continue;
     }
 
@@ -561,8 +623,34 @@ function createMigrationContext(context, state) {
     trackManagedFile(relativePath) {
       trackManagedFile(state, relativePath);
     },
+    resetManagedBaseline(relativePath) {
+      // Drop the stored baseline so the next sync re-adopts the file (used when a
+      // migration legitimately rewrites a previously preserved managed file).
+      const normalized = normalizeRelativePath(relativePath);
+      if (state.managedFileState && typeof state.managedFileState === "object") {
+        delete state.managedFileState[normalized];
+      }
+    },
+    setManagedBaseline(relativePath) {
+      // Record a baseline from the file's current content so a migration that
+      // rewrote a managed file leaves it controlled within this same sync. Future
+      // upgrades then flow through the normal 3-way managed refresh instead of the
+      // ambiguous "no stored baseline" preserve path.
+      const normalized = normalizeRelativePath(relativePath);
+      const absolutePath = path.join(context.targetRoot, normalized);
+      if (!fs.existsSync(absolutePath)) {
+        return;
+      }
+      setManagedFileBaseline(state, normalized, {
+        contentHash: hashFileContents(fs.readFileSync(absolutePath, "utf8")),
+        lastSyncedVersion: PACKAGE_VERSION
+      });
+    },
     logCreatedFile(relativePath) {
       context.logCreated(relativePath, context.syncOptions.dryRun);
+    },
+    logUpdatedFile(relativePath) {
+      context.logUpdated(relativePath, context.syncOptions.dryRun);
     },
     dryRun: context.syncOptions.dryRun
   };

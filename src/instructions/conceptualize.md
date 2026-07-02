@@ -8,7 +8,6 @@ neuroplast:
   writes_to:
     - neuroplast/project-concept
     - neuroplast/project-concept/changelog
-    - neuroplast/learning
     - neuroplast/plans
     - ARCHITECTURE.md
   outputs:
@@ -35,7 +34,6 @@ Create or reframe project-mind context when the project direction is new, ambigu
 ## Outputs
 - Folder: `/neuroplast/project-concept/`
 - Folder: `/neuroplast/project-concept/changelog/`
-- Folder: `/neuroplast/learning/`
 - Folder: `/neuroplast/plans/`
 - Project-mind artifacts defined by `PLANNING_INSTRUCTIONS.md`, stored in `/neuroplast/project-concept/`
 
@@ -45,7 +43,6 @@ Create or reframe project-mind context when the project direction is new, ambigu
 3. Ensure required folders exist:
    - `/neuroplast/project-concept/`
    - `/neuroplast/project-concept/changelog/`
-   - `/neuroplast/learning/`
    - `/neuroplast/plans/`
 4. Use `PLANNING_INSTRUCTIONS.md` to build or refresh the durable project-mind context needed for future sessions.
 5. Capture the current objective, key constraints, important work surfaces, and open questions in `/neuroplast/project-concept/`.

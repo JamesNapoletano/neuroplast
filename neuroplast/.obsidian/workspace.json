@@ -179,6 +179,8 @@
   },
   "active": "e47f143baa5524da",
   "lastOpenFiles": [
+    "plans/neuroplast-2.0-lcp-integration.md",
+    "project-concept/changelog/2026-06-30.md",
     "learning/explicit-active-plan-pointers-are-more-reliable-than-newest-file-heuristics.md",
     "learning/route-results-should-recommend-context-depth-and-briefing-emphasis.md",
     "learning/stale-briefings-should-warn-against-newer-plan-and-changelog-inputs.md",
@@ -203,8 +205,6 @@
     "learning/source-and-installed-workflow-instructions-should-be-kept-in-lockstep.md",
     "plans/act-entrypoint-guidance-alignment.md",
     "learning/learning-capture-should-allow-multiple-distinct-notes-per-cycle.md",
-    "plans/multi-learning-capture-per-execution.md",
-    "learning/conflict-reconciliation-instructions-should-name-project-files-explicitly.md",
     "Untitled.base",
     "interaction-routing.yaml",
     "extensions/context-continuity",

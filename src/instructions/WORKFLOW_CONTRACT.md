@@ -21,30 +21,16 @@ neuroplast:
 #instruction
 
 ## Purpose
-Define the filesystem-first Neuroplast project-mind contract so a human and an AI can load project context, choose the current objective, do bounded work, and preserve durable memory across sessions and tools while explicitly aligning to LCP.
-
-Normative protocol source:
-
-- <https://github.com/JamesNapoletano/lcp>
-
-Neuroplast is an implementation of LCP, not the protocol standard itself.
+Define the filesystem-first Neuroplast project-mind contract so a human and an AI can load project context, choose the current objective, do bounded work, and preserve durable memory across sessions and tools while explicitly aligning to LCP (normative source: <https://github.com/JamesNapoletano/lcp>). Neuroplast is an implementation of LCP, not the protocol standard itself.
 
 ## Canonical Interface
-Neuroplast exposes a dual-layout interface:
+Neuroplast exposes a dual-layout interface, and the workflow must remain understandable and executable from files alone:
 
-- `.lcp/` provides the explicit LCP bridge entrypoint
-- `/neuroplast/` provides the Neuroplast-managed implementation workspace
-- root `ARCHITECTURE.md` is the Neuroplast default canonical architecture artifact
+- `.lcp/` — the explicit LCP bridge entrypoint
+- `/neuroplast/` — the Neuroplast-managed implementation workspace
+- root `ARCHITECTURE.md` — the default canonical architecture artifact
 
-The workflow must remain understandable and executable from files alone.
-
-Neuroplast should behave like a project mind, not only like a task checklist. The files should make it easy to answer:
-
-- What is this project?
-- What is true right now?
-- What are we trying to do next?
-- Why are we making these decisions?
-- What changed or was learned?
+It should behave like a project mind, not just a task checklist: the files should make it easy to answer what the project is, what is true now, what we are trying to do next, why decisions were made, and what changed or was learned.
 
 ## Required Layout
 
@@ -59,6 +45,7 @@ Neuroplast should behave like a project mind, not only like a task checklist. Th
 - `.lcp/reasoning/neuroplast-execution-scaffold.yaml`
 - `.lcp/tools/neuroplast-cli.yaml`
 - `.lcp/knowledge/neuroplast-compatibility.yaml`
+- `.lcp/knowledge/neuroplast-learning.yaml` — the sole durable memory store (see Artifact Roles); `.lcp/indexes/context.lcpq` (pack) and `.lcp/indexes/context.distilled.lcpq` (distill) are its derived, disposable quantized views
 
 ### Required `/neuroplast/` Files
 - `neuroplast/manifest.yaml`
@@ -78,7 +65,6 @@ Neuroplast should behave like a project mind, not only like a task checklist. Th
 - `neuroplast/project-concept/`
 - `neuroplast/project-concept/changelog/`
 - `neuroplast/plans/`
-- `neuroplast/learning/`
 
 ## Workflow Phases
 The canonical workflow loop is:
@@ -102,7 +88,7 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 ## Human + AI Collaboration Model
 - The human provides intent, priorities, constraints, and review.
 - The AI loads the project mind from files, updates the active plan, performs bounded work, and writes durable handoff context back to the repository.
-- Plans, changelogs, and learning notes are the shared memory surface when session memory or tool context is incomplete.
+- Plans, changelogs, and `.lcp/knowledge/neuroplast-learning.yaml` are the shared memory surface when session memory or tool context is incomplete.
 - The goal is not to force ceremony; the goal is to keep the project legible, resumable, and trustworthy.
 
 ## Artifact Roles
@@ -113,15 +99,12 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - `/neuroplast/project-concept/` stores durable project-mind context, orientation, assumptions, and structured domain understanding
 - `/neuroplast/plans/` stores the active objective, bounded work plans, blockers, and handoff state
 - `/neuroplast/project-concept/changelog/` stores dated history of completed work cycles
-- `/neuroplast/learning/` stores reusable practices and lessons from completed work
+- `.lcp/knowledge/neuroplast-learning.yaml` stores reusable practices and lessons from completed work, as LCP v2.0 memory entries with lifecycle and provenance; there is no separate rendered copy
 - `ARCHITECTURE.md` stores the canonical architecture, structure, or system map for the project
 
 ## Machine-Readable Metadata
-- `.lcp/manifest.yaml` is the LCP-facing bridge manifest.
-- `neuroplast/manifest.yaml` is the Neuroplast machine-readable map of workflow structure, document roles, and portability profile.
-- `neuroplast/capabilities.yaml` is the advisory machine-readable profile for environment limits and graceful degradation behavior.
-- `neuroplast/interaction-routing.yaml` is the additive machine-readable artifact for canonical phrase-routing semantics.
-- Top-level instruction files may include Neuroplast YAML frontmatter that describes step role, dependencies, write targets, outputs, and review expectations.
+- The manifests, capabilities profile, and interaction-routing artifact (see Artifact Roles) are the machine-readable surface for workflow structure, environment limits, and phrase routing.
+- Top-level instruction files may include Neuroplast YAML frontmatter describing step role, dependencies, write targets, outputs, and review expectations.
 - Frontmatter must stay workflow-oriented and must not include provider-specific tuning fields.
 
 ## Metadata Boundary
@@ -146,7 +129,7 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - If terminal commands are unavailable, continue with file-only workflow steps and record terminal-dependent blockers in the current plan.
 - If context is limited, work in smaller scopes and restate required context in plan files rather than assuming persistent conversation memory.
 - If multi-step execution is unavailable, complete one bounded step at a time and leave clear continuation instructions in the active plan.
-- If agent memory is unavailable, persist working context in `/neuroplast/plans/`, changelog entries, and learning notes.
+- If agent memory is unavailable, persist working context in `/neuroplast/plans/`, changelog entries, and `.lcp/knowledge/neuroplast-learning.yaml`.
 
 ## Validation Rules
 - `.lcp/manifest.yaml` must exist and remain parseable.
@@ -172,7 +155,7 @@ This loop defines the durable artifact lifecycle, not a requirement that every s
 - New work should create or update a current plan file in `/neuroplast/plans/`.
 - Architecture- or structure-relevant changes should be reflected in `ARCHITECTURE.md`.
 - Completed work should be recorded in the current dated changelog entry.
-- Reusable lessons should be captured in `/neuroplast/learning/`.
+- Reusable lessons should be captured in `.lcp/knowledge/neuroplast-learning.yaml` via `neuroplast remember` (see `think.md`).
 
 ## Naming Rules
 - Use root `ARCHITECTURE.md` as the canonical architecture artifact.

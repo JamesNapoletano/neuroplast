@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcp.dev/schemas/reasoning-scaffold.schema.json",
+  "title": "LCP Reasoning Scaffold",
+  "allOf": [
+    { "$ref": "./common-envelope.schema.json" },
+    {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "reasoning_scaffold" },
+        "questions": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "criteria": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "anyOf": [
+        { "required": ["questions"] },
+        { "required": ["criteria"] }
+      ]
+    }
+  ]
+}

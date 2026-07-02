@@ -1,0 +1,1756 @@
+lcp_version: "2.0"
+kind: knowledge_artifact
+id: neuroplast-learning
+title: Neuroplast durable learning memory
+summary: Durable, reusable learnings captured during Neuroplast work cycles. This is the sole source of truth for memory; there is no separate rendered view.
+content_type: learning
+entries:
+  - id: action-stream-reporting-makes-human-and-machine-cli-output-easier-to-keep-aligned
+    status: active
+    confidence: 0.8
+    title: Action-Stream Reporting Makes Human And Machine CLI Output Easier To Keep Aligned
+    note: |-
+      ## Insight
+      When a CLI needs both readable terminal logs and structured automation output, it is safer to build both modes from the same underlying action stream than to maintain separate reporting paths.
+
+      ## Reusable Practice
+      - Record command events once, then render them as human logs by default or as JSON when automation mode is requested.
+      - Keep structured output opt-in so interactive operator UX stays stable.
+      - Include command options, summary counts, and result-specific metadata in machine-readable payloads so wrappers do not have to infer behavior from raw events alone.
+      - Cover both modes with black-box tests to prevent silent drift between human and machine output paths.
+
+      ## Related
+      - [[plans/structured-init-sync-json-output.md]]
+      - [[project-concept/changelog/2026-04-12.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: active-extensions-should-load-by-step-not-by-memory
+    status: active
+    confidence: 0.8
+    title: Active Extensions Should Load By Step, Not By Memory
+    note: |-
+      ## Insight
+      Extensions feel awkward when operators have to remember them manually for each phase. They feel seamless when activation happens once in the manifest and loading follows a predictable per-step convention.
+
+      ## Reusable Practice
+      - Declare active extensions once in `neuroplast/manifest.yaml`.
+      - For each workflow phase, load the matching file from every active extension if it exists.
+      - Use stable step-to-file names so agents and operators can apply the rule consistently.
+      - Keep the core workflow unchanged; make the loading rule do the integration work.
+
+      ## Related
+      - [[project-concept/migration-guide-1.1.1.md]]
+      - [[plans/optional-workflow-extensions.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: adapters-should-explicitly-separate-guidance-from-execution
+    status: active
+    confidence: 0.8
+    title: Adapters Should Explicitly Separate Guidance from Execution
+    note: |-
+      ## Insight
+      If an adapter only says what the environment is for, users may mistake it for an executable step. Adapters become much clearer when they explicitly separate guidance order from execution order: adapter first for orientation, contract and metadata next for authority, and instruction files last for actual execution.
+
+      ## Reusable Practice
+      - Put a `Mandatory Start` section near the top of every adapter guide.
+      - Explicitly tell users and agents to read the workflow contract, manifest, and capability profile before executing any instruction file.
+      - Name the execution target directly so adapters are not mistaken for the executable artifact.
+      - Keep short-prompt examples aligned with the shared routing contract instead of inventing adapter-local meanings.
+      - Document clarification behavior for ambiguous prompts rather than letting adapters guess silently.
+      - Keep the adapter boundary reminder so the guide remains documentation-only.
+
+      ## Related
+      - [[plans/adapter-mandatory-start-clarification.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+      - [[plans/portability-phase-4-environment-guides.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: advisory-capability-profiles-preserve-contract-stability
+    status: active
+    confidence: 0.8
+    title: Advisory Capability Profiles Preserve Contract Stability
+    note: |-
+      ## Insight
+      Capability profiles should influence execution strategy, not redefine the workflow itself. Treating environment limits as advisory keeps the core contract stable while still allowing graceful degradation.
+
+      ## Reusable Practice
+      - Keep capability profiles machine-readable but advisory.
+      - Use capability limits to adjust sequencing, scope size, and fallback behavior rather than changing paths or artifact roles.
+      - Record blocked steps and fallback paths in the active plan when the environment cannot execute everything directly.
+      - Put validation targets in the manifest and higher-level validation rules in the workflow contract so future CLI validation can reuse the same source of truth.
+
+      ## Related
+      - [[plans/portability-phase-3-capabilities-and-validation.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+      - [[project-concept/neuroplast-portability-plan-v2.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: auto-refreshed-briefings-should-derive-from-active-plans-and-preserve-local-edits
+    status: active
+    confidence: 0.8
+    title: Auto-Refreshed Briefings Should Derive From Active Plans And Preserve Local Edits
+    note: |-
+      ## Insight
+      Compact current-state briefings stay useful when they derive from the active plan and nearby durable artifacts, but they must preserve local edits so operators can intentionally take over the briefing without fighting sync.
+
+      ## Reusable Practice
+      - Generate current-state briefings from the newest active plan first, then enrich them with nearby changelog and concept context.
+      - Treat the generated briefing as advisory and file-backed, not as a hidden runtime cache.
+      - Preserve local edits once the operator changes the briefing file directly.
+      - Keep generated briefings small enough that validation can warn about drift toward bloated context.
+
+      ## Related
+      - [[plans/context-efficiency-and-success-reliability.md]]
+      - [[project-concept/context-efficiency-and-success-reliability.md]]
+      - [[learning/briefing-capsules-should-compress-startup-context-without-replacing-canonical-memory.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: baseline-aware-sync-refresh-preserves-local-managed-file-edits
+    status: active
+    confidence: 0.8
+    title: Baseline-Aware Sync Refresh Preserves Local Managed File Edits
+    note: |-
+      ## Insight
+      Package-managed scaffold files can be safely refreshed without destructive overwrites when sync records the last known packaged baseline per file and compares current content against that baseline.
+
+      ## Reusable Practice
+      - Treat package-managed full-file refreshes separately from content-transforming migrations.
+      - Store per-file baseline metadata for managed files that may be refreshed by sync.
+      - Refresh an existing file only when its current contents still match the last synced baseline.
+      - For older installs with no baseline metadata yet, adopt a file into managed refresh only when its current contents already match the packaged file exactly.
+      - Preserve and report locally edited files instead of overwriting them silently.
+
+      ## Related
+      - [[plans/safe-managed-file-refresh-sync.md]]
+      - [[plans/versioned-managed-file-sync.md]]
+      - [[learning/versioned-managed-file-migrations.md]]
+      - [[project-concept/changelog/2026-03-19.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: behavioral-routing-metadata-should-live-in-an-additive-artifact-not-the-core-manifest
+    status: active
+    confidence: 0.8
+    title: Behavioral Routing Metadata Should Live In An Additive Artifact, Not The Core Manifest
+    note: |-
+      ## Insight
+      When a repository already has a core manifest that defines workflow structure and document roles, adding behavior-oriented routing semantics directly into that file creates schema pressure and weakens portability boundaries. A dedicated additive artifact keeps discovery simple without overloading the canonical workflow map.
+
+      ## Reusable Practice
+      - Keep the primary manifest focused on workflow structure, roles, activation, and portability profile.
+      - Put phrase-routing semantics in a separate additive machine-readable artifact.
+      - Let the manifest point to that artifact rather than absorb its full schema.
+      - Use root-level extension overlays for metadata that must be loaded before step selection.
+      - Add CLI inspection only after the additive artifact is stable enough to validate deterministically.
+      - Reserve CLI support for later phases once the metadata shape is stable.
+
+      ## Related
+      - [[project-concept/interaction-routing-metadata-shape.md]]
+      - [[project-concept/interaction-routing-canonical-contract.md]]
+      - [[plans/interaction-routing-phase-2-manifest-and-extension-shape.md]]
+      - [[learning/workflow-metadata-boundaries.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: black-box-cli-tests-work-best-when-the-cli-already-exposes-a-target-root-seam
+    status: active
+    confidence: 0.8
+    title: Black-Box CLI Tests Work Best When The CLI Already Exposes A Target-Root Seam
+    note: |-
+      ## Insight
+      When a CLI is implemented as a top-level executable that writes to the filesystem and may call `process.exit()`, black-box process tests are usually more reliable than trying to unit-test internal helpers retroactively.
+
+      ## Reusable Practice
+      - Prefer the built-in runtime test runner first when the package intentionally avoids external runtime dependencies.
+      - Expose one explicit target-root seam such as `INIT_CWD` so tests can run safely against temporary repositories.
+      - Assert exit codes, logs, filesystem effects, and persisted state together for CLI reliability work.
+      - Use seeded state files to simulate upgrades, downgrades, backups, and preservation paths without needing multiple published package versions in test setup.
+
+      ## Related
+      - [[plans/roadmap-phase-1-reliability-hardening.md]]
+      - [[project-concept/changelog/2026-03-24.md]]
+      - [[learning/post-foundation-roadmaps-should-sequence-hardening-before-expansion.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: briefing-capsules-should-compress-startup-context-without-replacing-canonical-memory
+    status: active
+    confidence: 0.8
+    title: Briefing Capsules Should Compress Startup Context Without Replacing Canonical Memory
+    note: |-
+      ## Insight
+      When a workflow relies on rich durable memory, the best way to reduce startup cost is usually to add a compact current-state briefing artifact that points back to canonical files, not to shrink or overload the canonical artifacts themselves.
+
+      ## Reusable Practice
+      - Keep the contract, plans, changelog, and learning notes as the durable source of truth.
+      - Use compact briefing artifacts only for current-state compression: active objective, next step, blockers, verification, and relevant files.
+      - Treat summary artifacts as additive and refreshable so they never silently replace the canonical memory surface.
+      - Design context-efficiency improvements at the workflow-behavior layer instead of adding provider-specific metadata to canonical files.
+
+      ## Related
+      - [[plans/context-efficiency-and-success-reliability.md]]
+      - [[project-concept/context-efficiency-and-success-reliability.md]]
+      - [[learning/project-mind-workflows-need-an-active-objective-and-durable-shared-memory.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: bundled-extensions-need-a-minimal-shape-contract
+    status: active
+    confidence: 0.8
+    title: Bundled Extensions Need A Minimal Shape Contract
+    note: |-
+      ## Insight
+      Optional extensions become hard to trust when activation only checks that a directory exists. A small, explicit shape contract makes extensions easier to ship, validate, and document without turning them into a second workflow system.
+
+      ## Reusable Practice
+      - Require each active extension to include a `README.md` at the extension root.
+      - Require the README to restate the additive boundary so the extension cannot masquerade as an alternate contract.
+      - Require at least one canonical step file so activation always maps to real overlay behavior.
+      - Keep extension files at the extension root and reuse canonical phase filenames so step-loading stays predictable.
+
+      ## Related
+      - [[plans/roadmap-phase-4-extension-system-mvp.md]]
+      - [[plans/phase-4-bundled-extensions-implementation.md]]
+      - [[learning/active-extensions-should-load-by-step-not-by-memory.md]]
+      - [[project-concept/changelog/2026-03-30.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: canonical-architecture-anchor-for-portable-workflows
+    status: active
+    confidence: 0.8
+    title: Canonical Architecture Anchor for Portable Workflows
+    note: |-
+      ## Insight
+      Portable workflow systems need one canonical architecture artifact name. If planning documents and execution instructions point at different architecture files, metadata and environment guidance will inherit that ambiguity and drift.
+
+      ## Reusable Practice
+      - Choose one canonical architecture artifact name early and use it across planning, execution, and documentation.
+      - If planning needs extra architecture notes, keep them clearly secondary to the canonical architecture file.
+      - Update bootstrap logic at the same time as documentation so newly initialized projects receive the stabilized contract.
+      - Distinguish optional editor conventions from required workflow conventions in the contract itself, not only in README prose.
+
+      ## Related
+      - [[plans/portability-phase-1-workflow-contract.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+      - [[ARCHITECTURE]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: canonical-version-statements-should-be-synced-across-shipped-docs-and-profiles
+    status: active
+    confidence: 0.8
+    title: Canonical version statements should be synced across shipped docs and profiles
+    note: |-
+      ## Insight
+      When `package.json` version changes, the canonical human-readable version statement must be updated everywhere it is shipped or generated, not just in README.
+
+      ## Why it matters
+      - Users may read stale version claims even when the package metadata is correct.
+      - Generated or packaged profile artifacts can drift from source expectations.
+      - Release confidence drops when docs and runtime-adjacent metadata disagree.
+
+      ## Practice
+      On every release version bump, search for the canonical version statement across:
+      - `README.md`
+      - shipped profile artifacts under `.lcp/` and `src/lcp-files/`
+      - source-generated profile code under `src/lcp/`
+      - workflow manifests or compatibility statements under `src/instructions/`
+      - LCP/compatibility documentation under `docs/`
+
+      If the maintainer repository is itself initialized with Neuroplast, also verify that any repo-local managed artifacts and sync state are not still advertising the prior version after the source files are corrected.
+
+      ## Maintenance pattern
+      - Treat version-statement synchronization as part of the same bounded release change as the `package.json` bump, not as an optional cleanup step.
+      - Prefer one targeted repository search for the full canonical statement so current release-facing files are corrected together.
+      - Preserve older plan and changelog records that mention prior versions as historical evidence rather than rewriting them.
+
+      ## Related
+      - [[plans/minor-version-doc-sync-1.2.0.md]]
+      - [[plans/minor-version-doc-sync-1.2.1.md]]
+      - [[plans/minor-version-doc-sync-1.2.2.md]]
+      - [[project-concept/changelog/2026-04-02.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: changelog-driven-readme-sync
+    status: active
+    confidence: 0.8
+    title: Changelog-Driven README Sync
+    note: |-
+      ## Insight
+      When workflow or CLI behavior changes are significant enough to enter the changelog, they often also require root `README.md` updates to keep user-facing guidance accurate.
+
+      ## Reusable Practice
+      - During changelog finalization, run a quick doc-impact check: commands, paths, output locations, flags, and workflow order.
+      - If impacted, update root `README.md` in the same cycle.
+      - Add an explicit validation item in changelog instructions so documentation sync becomes a standard gate.
+
+      ## Related
+      - [[project-concept/changelog/2026-03-14.md]]
+      - [[plans/root-instruction-file-removal.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: cli-flag-removal-and-template-scope
+    status: active
+    confidence: 0.8
+    title: CLI Flag Removal and Template Scope
+    note: |-
+      ## Insight
+      When a CLI flag controls inclusion of machine-local state, removing the flag should be paired with removing the corresponding source template file to keep behavior and payload aligned.
+
+      ## Reusable Practice
+      - Treat shared templates as deterministic defaults and avoid packaging machine-specific editor state.
+      - During flag removal, update all active surfaces together: parser logic, copy list, help text, README usage, architecture mapping, and concept requirements.
+      - Validate with a real CLI help run (`<cli> --help`) after edits so docs and runtime behavior stay in sync.
+
+      ## Related
+      - [[plans/remove-include-workspace-option.md]]
+      - [[project-concept/changelog/2026-03-14.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: cli-refactors-go-safer-when-you-preserve-the-entrypoint-and-lock-behavior-with-black-box-tests
+    status: active
+    confidence: 0.8
+    title: CLI Refactors Go Safer When You Preserve The Entrypoint And Lock Behavior With Black-Box Tests
+    note: |-
+      ## Insight
+      Large CLI files can be split into maintainable modules with low regression risk when the published entrypoint stays stable and behavior is guarded by end-to-end process tests.
+
+      ## Reusable Practice
+      - Keep the shipped executable path stable and move orchestration behind it instead of changing the public command surface during maintainability refactors.
+      - Extract modules by operational concern first: runtime, sync, validation, state, filesystem, parsing, shared helpers, constants, and logging.
+      - Preserve log text and output ordering while refactoring when tests or operators may already rely on them.
+      - Reuse existing black-box tests unchanged as the main regression gate before adding narrower unit coverage.
+
+      ## Related
+      - [[plans/roadmap-phase-2-cli-maintainability.md]]
+      - [[plans/roadmap-phase-1-reliability-hardening.md]]
+      - [[project-concept/changelog/2026-03-24.md]]
+      - [[learning/black-box-cli-tests-work-best-when-the-cli-already-exposes-a-target-root-seam.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: collaboration-capabilities-should-separate-presence-reservation-and-mutation-rights
+    status: active
+    confidence: 0.8
+    title: Collaboration Capabilities Should Separate Presence Reservation And Mutation Rights
+    note: |-
+      ## Insight
+      In a shared live workspace, collaboration safety improves when the system treats visibility, coordination, and mutation as different permissions. Bundling presence, reservation, and editing into one broad write grant makes least-privilege enforcement much harder.
+
+      ## Reusable Practice
+      - Model presence, intent, reservation, edit, publish, and override as separate capabilities.
+      - Keep planner-style roles limited to visibility and intent when possible.
+      - Require stronger approval and auditing for reservation overrides than for normal edits.
+      - Let the sidecar enforce collaboration rights at runtime instead of relying on agent wording alone.
+
+      ## Related
+      - [[plans/neuroplast-first-party-harness.md]]
+      - [[project-concept/neuroplast-first-party-harness.md]]
+      - [[learning/shared-live-workspaces-should-use-hybrid-conflict-controls.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: conflict-reconciliation-instructions-should-name-project-files-explicitly
+    status: active
+    confidence: 0.8
+    title: Conflict Reconciliation Instructions Should Name Project Files Explicitly
+    note: |-
+      ## Insight
+      If a conflict-resolution instruction is meant to reconcile both workflow artifacts and ordinary repository files, it should name project files explicitly in the purpose, execution steps, file-type guidance, validation checklist, and stop condition.
+
+      ## Why It Matters
+      Instructions that mention project files only in passing can drift into reconciling documentation about a conflict without clearly requiring the underlying source, test, config, or content files to be reconciled as first-class outputs.
+
+      ## Practice
+      - Name ordinary project files explicitly wherever the instruction defines scope and completion criteria.
+      - Distinguish reconciling the conflicted project file itself from updating Neuroplast artifacts that describe the reconciled result.
+      - Add file-type guidance for source, test, config, script, asset, and product-doc conflicts so the operator preserves valid behavior as well as prose.
+
+      ## Related
+      - [[neuroplast/reconcile-conflicts.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: context-efficiency-features-work-best-as-additive-briefings-and-advisory-budgets
+    status: active
+    confidence: 0.8
+    title: Context Efficiency Features Work Best As Additive Briefings And Advisory Budgets
+    note: |-
+      ## Insight
+      Context-efficiency improvements fit Neuroplast best when they compress current-state startup context through additive briefing artifacts and advisory validation budgets instead of changing the canonical contract or adding provider-tuning metadata.
+
+      ## Reusable Practice
+      - Add compact briefing artifacts that point back to canonical plans, concept notes, changelog entries, and architecture files.
+      - Keep bootstrap optimization rules advisory and layered after the mandatory contract-first startup sequence.
+      - Prefer lightweight validation warnings for context bloat before introducing stricter enforcement.
+      - Document context-depth behavior in installed guidance and shared adapter bootstrap assets so the optimization remains portable.
+
+      ## Related
+      - [[plans/context-efficiency-and-success-reliability.md]]
+      - [[project-concept/context-efficiency-and-success-reliability.md]]
+      - [[learning/briefing-capsules-should-compress-startup-context-without-replacing-canonical-memory.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: contract-first-portability-planning
+    status: active
+    confidence: 0.8
+    title: Contract-First Portability Planning
+    note: |-
+      ## Insight
+      When making a workflow system portable across tools, stabilize the core file contract and architecture naming first; otherwise environment guides, metadata, and convenience commands drift into conflicting secondary systems.
+
+      ## Reusable Practice
+      - Define the canonical workflow contract before adding adapter or environment-specific guidance.
+      - Standardize core artifact names early so planning and execution docs do not split around competing conventions.
+      - Add machine-readable metadata only after the contract vocabulary is stable.
+      - Treat environment guides as documentation layers unless repeated operator needs justify CLI support later.
+
+      ## Related
+      - [[project-concept/neuroplast-portability-plan-v2.md]]
+      - [[plans/portability-phase-1-workflow-contract.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: copy-paste-ready-adapter-assets-should-stay-thin-and-contract-anchored
+    status: active
+    confidence: 0.8
+    title: Copy-Paste-Ready Adapter Assets Should Stay Thin and Contract Anchored
+    note: |-
+      ## Insight
+      When a workflow wants better startup behavior across multiple AI tools, copy/paste-ready adapter assets can improve adoption without turning every adapter into a new execution authority. They stay trustworthy when they mirror likely destination formats but still defer all semantics to the shared workflow contract and routing artifact.
+
+      ## Reusable Practice
+      - Keep one shared bootstrap asset as the semantic source for startup order and short-prompt routing.
+      - Generate destination-like wrappers such as `AGENTS.md`, `CLAUDE.md`, or tool-native skill files from that shared contract instead of duplicating behavior manually.
+      - Treat these assets as operational wrappers, not proof of equal runtime support or alternate routing authorities.
+      - Validate that the shared bootstrap asset still references the canonical contract, manifest, capabilities profile, interaction-routing artifact, and normal execution entrypoint.
+
+      ## Related
+      - [[plans/adapter-bootstrap-assets.md]]
+      - [[project-concept/cross-adapter-interaction-routing.md]]
+      - [[project-concept/interaction-routing-compatibility-proof.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: cross-platform-npm-test-scripts-should-avoid-shell-glob-expansion
+    status: active
+    confidence: 0.8
+    title: Cross-Platform NPM Test Scripts Should Avoid Shell Glob Expansion
+    note: |-
+      ## Insight
+      An npm test command that relies on shell wildcard expansion can pass on POSIX runners and fail on Windows when the wildcard is forwarded as a literal file path.
+
+      ## Reusable Practice
+      - Prefer `node --test` for Node's built-in test discovery when the repository layout already follows default test locations.
+      - If explicit test selection is needed, pass concrete file paths rather than wildcard patterns that depend on the invoking shell.
+      - Keep release verification entrypoints aligned with the same cross-platform command used in CI.
+
+      ## Related
+      - [[plans/windows-ci-test-discovery-fix.md]]
+      - [[project-concept/release-operations.md]]
+      - [[learning/release-verification-should-check-the-packed-payload-against-the-real-files-allowlist.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: drift-scans-should-check-frontmatter-as-well-as-body-content
+    status: active
+    confidence: 0.8
+    title: Drift Scans Should Check Frontmatter As Well As Body Content
+    note: |-
+      ## Insight
+      Instruction drift scans should compare frontmatter metadata as carefully as markdown body text, because a single metadata field like `optional` can change the workflow contract even when the prose still matches.
+
+      ## Why It Matters
+      Workflow files encode behavior in both narrative guidance and machine-readable frontmatter. A parity check that only looks for visible prose changes can miss contract-relevant metadata drift.
+
+      ## Practice
+      - Compare full file contents, not just selected body sections, when checking source and installed instruction parity.
+      - Treat frontmatter mismatches as first-class workflow drift.
+      - Validate the repository after fixing either prose or metadata mismatches.
+
+      ## Related
+      - [[src/instructions/reverse-engineering.md]]
+      - [[neuroplast/reverse-engineering.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: dynamic-file-listing-makes-adapter-asset-additions-zero-code
+    status: active
+    confidence: 0.8
+    title: Dynamic File Listing Makes Adapter Asset Additions Zero-Code
+    note: |-
+      When `src/cli/constants.js` builds `adapterAssetFiles` via `listManagedFilesRelative`, it walks the entire `src/adapter-assets/` tree recursively. Adding new files or subdirectories under `src/adapter-assets/` requires no code change — the listing picks them up automatically on the next `init` or `sync` run.
+
+      This means the sync-impact decision for new adapter assets is almost always **no migration needed**, and the test file-count assertions are the only thing that need updating.
+
+      Verify with a node one-liner before assuming coverage:
+      ```
+      node -e "const {adapterAssetFiles} = require('./src/cli/constants'); console.log(adapterAssetFiles.join('\n'))"
+      ```
+
+      ## Related
+      - [[learning/sync-impact-decisions-should-be-explicit-before-managed-file-changes.md]]
+      - [[learning/source-and-installed-workflow-instructions-should-be-kept-in-lockstep.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-24T13:55:49Z"
+  - id: environment-guides-should-document-usage-not-behavior
+    status: active
+    confidence: 0.8
+    title: Environment Guides Should Document Usage, Not Behavior
+    note: |-
+      ## Insight
+      Environment guides are most portable when they explain how to apply the existing contract in a tool, not when they redefine the workflow for that tool. The moment a guide changes artifact roles or phase order, it becomes a competing system.
+
+      ## Reusable Practice
+      - Keep environment guides in a dedicated location separate from the normative workflow contract.
+      - Make every guide point back to the canonical contract, manifest, and capability profile.
+      - Use consistent sections across guides so differences stay operational, not structural.
+      - Review guides for accidental behavior drift before treating them as stable portability docs.
+
+      ## Related
+      - [[plans/portability-phase-4-environment-guides.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+      - [[project-concept/neuroplast-portability-plan-v2.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: explicit-active-plan-pointers-are-more-reliable-than-newest-file-heuristics
+    status: active
+    confidence: 0.8
+    title: Explicit Active-Plan Pointers Are More Reliable Than Newest-File Heuristics
+    note: |-
+      ## Insight
+      When multiple plan files can be updated for adjacent work, selecting the active plan by newest modification time is brittle. A small explicit pointer is a more trustworthy signal and still allows backward-compatible fallback.
+
+      ## Reusable Practice
+      - Add a small explicit pointer file for the active plan instead of overloading timestamps.
+      - Validate that the pointer resolves to an existing markdown plan under `neuroplast/plans/`.
+      - Keep newest-file fallback only as a compatibility path when the pointer is absent.
+      - Reuse the same active-plan selector across routing, briefing generation, and related validation.
+
+      ## Related
+      - [[plans/context-efficiency-and-success-reliability.md]]
+      - [[project-concept/context-efficiency-and-success-reliability.md]]
+      - [[learning/route-results-should-recommend-context-depth-and-briefing-emphasis.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: file-based-integration-docs-must-state-where-the-bootstrap-file-installs
+    status: active
+    confidence: 0.8
+    title: File-Based Integration Docs Must State Where the Bootstrap File Installs
+    note: |-
+      ## Insight
+      When a tool integration is purely file-based (the host auto-loads a well-known file like a root `CLAUDE.md`, `AGENTS.md`, or skill file), the integration guide must state explicitly **where** the bootstrap file has to live for the host to pick it up. A guide can fully describe the bootstrap file's contents and still leave the integration non-functional if it never says "copy it to the repository root." The "how to wire it up" step is the install location, not the file body.
+
+      ## Why It Matters
+      The Claude Code adapter guide described the bootstrap asset and its startup sequence but never told users to copy it to the repo root, so following the guide literally produced no working integration. Naming the destination path turned documentation into an actionable setup.
+
+      ## How To Apply
+      - For any file-based adapter, include an explicit install step with the exact destination path and a copy command per supported OS.
+      - State plainly when there is no plugin/MCP/runtime to install, so users do not look for a non-existent setup surface.
+      - Edit the shippable source-of-truth (e.g. `src/adapters/*`) and then re-sync the installed working copy, so source and installed versions do not drift.
+
+      ## Related
+      - [[environment-guides-should-document-usage-not-behavior]]
+      - [[copy-paste-ready-adapter-assets-should-stay-thin-and-contract-anchored]]
+      - [[installed-readmes-work-better-when-they-start-with-immediate-next-steps]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-12T16:38:08Z"
+  - id: first-party-harnesses-should-productize-contract-execution-without-replacing-the-contract
+    status: active
+    confidence: 0.8
+    title: First-Party Harnesses Should Productize Contract Execution Without Replacing the Contract
+    note: |-
+      ## Insight
+      When a workflow product grows its own harness, the harness should operationalize the existing contract instead of becoming a second source of truth. The durable filesystem contract remains the authority, while the harness improves execution, routing, visibility, and enforcement.
+
+      ## Reusable Practice
+      - Keep `.lcp/` and `/neuroplast/` as the canonical project-mind surface.
+      - Treat the harness as an additive runtime and UX layer.
+      - Store workflow semantics in contract files, not in provider-specific adapter behavior.
+      - Use the harness to improve reliability, approvals, and orchestration without moving durable memory into editor-only state.
+
+      ## Related
+      - [[plans/neuroplast-first-party-harness.md]]
+      - [[project-concept/neuroplast-first-party-harness.md]]
+      - [[project-concept/lcp-alignment-implementation-model.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: first-run-workflows-should-scaffold-required-root-artifacts
+    status: active
+    confidence: 0.8
+    title: First-Run Workflows Should Scaffold Required Root Artifacts
+    note: |-
+      ## Insight
+      If a bootstrap command creates a workflow contract that immediately requires a root artifact, adoption improves when the command scaffolds that artifact instead of forcing a manual step before the first successful validation loop.
+
+      ## Reusable Practice
+      - Let initialization create minimal required root artifacts when they are structural prerequisites, not user-authored content with hidden defaults.
+      - Keep the scaffold intentionally small so operator-authored architecture remains authoritative.
+      - Preserve non-destructive behavior by skipping the scaffold whenever the repository already provides the canonical file.
+      - Lock the onboarding path with black-box tests that cover fresh install success and existing-file preservation.
+
+      ## Related
+      - [[plans/first-run-architecture-scaffold.md]]
+      - [[project-concept/changelog/2026-04-12.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: governed-folder-scan-prevents-state-gated-migration-gaps
+    status: active
+    confidence: 0.8
+    title: Governed Folder Scan Prevents State-Gated Migration Gaps
+    note: |-
+      ## Insight
+      When migrations are intended to enforce folder-wide policy, deriving scope only from state-tracked bootstrap files can miss valid user-managed documents in governed folders.
+
+      ## Reusable Practice
+      - Match migration discovery scope to policy scope (folder rules should scan governed folders).
+      - Keep exclusions explicit for non-content domains (for example `.obsidian`, `.backups`).
+      - Preserve idempotency and dry-run behavior so broad scans remain safe.
+      - Keep fallback compatibility when expanding migration context APIs.
+
+      ## Related
+      - [[plans/sync-governed-folder-tag-backfill.md]]
+      - [[plans/obsidian-tag-enforcement-and-migration.md]]
+      - [[project-concept/changelog/2026-03-17.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: human-first-installed-readmes-should-delay-protocol-language
+    status: active
+    confidence: 0.8
+    title: Human-First Installed Readmes Should Delay Protocol Language
+    note: |-
+      ## Insight
+      When an installed workflow README is meant to help people use a deposited tool surface, it works better when plain-language usage guidance comes before protocol, manifest, or contract terminology.
+
+      ## Reusable Practice
+      - Start with what the reader is looking at and what they should do next.
+      - Explain the main working folders in everyday language before introducing machine-readable or contract-oriented details.
+      - Keep AI bootstrap requirements intact, but move them below the human-first orientation when the file serves both audiences.
+
+      ## Related
+      - [[neuroplast/README.md]]
+      - [[plans/installed-neuroplast-readme-practicality.md]]
+      - [[learning/installed-readmes-work-better-when-they-start-with-immediate-next-steps.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: init-output-path-contract
+    status: active
+    confidence: 0.8
+    title: "Learning: Keep CLI Output Paths Explicit and Centralized"
+    note: |-
+      ## Insight
+      When bootstrap CLIs install templates, users infer structure from folder names. If files are copied to a different root than expected, it feels like a partial install even when publish payload is correct.
+
+      ## Reusable Practice
+      - Keep destination path contracts explicit in one place in the CLI (single clear join root).
+      - Align README, architecture docs, and project concept docs immediately after path changes.
+      - Validate behavior with both packaging checks (`npm pack --dry-run`) and runtime smoke tests.
+      - Test at least one default run and one optional-flag run to confirm path behavior.
+
+      ## Related
+      - [[plans/init-output-under-neuroplast-folder.md]]
+      - [[project-concept/changelog/2026-03-14.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: installed-readmes-work-better-when-they-start-with-immediate-next-steps
+    status: active
+    confidence: 0.8
+    title: Installed Readmes Work Better When They Start With Immediate Next Steps
+    note: |-
+      ## Insight
+      An installed workflow README is more useful when its first lines answer "what do I do now?" instead of starting with only descriptive context.
+
+      ## Reusable Practice
+      - Lead with a one-sentence orientation that tells the reader they are in the right place and what to do next.
+      - Separate human and AI startup guidance when both audiences use the same installed files.
+      - Include a tiny prompt-behavior section when short prompts are part of the workflow so people do not need to infer routing rules from deeper contract files.
+
+      ## Related
+      - [[neuroplast/README.md]]
+      - [[plans/installed-neuroplast-readme-practicality.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: installed-workflow-sets-need-a-local-orientation-readme
+    status: active
+    confidence: 0.8
+    title: Installed Workflow Sets Need A Local Orientation README
+    note: |-
+      ## Insight
+      When a package deposits a whole working folder into consumer repositories, the package-level README is not enough for people who open the installed folder first.
+
+      ## Why It Matters
+      Users and AI tools often encounter the installed `/neuroplast/` directory before they revisit the package repository. A short local README reduces startup friction and makes the correct entrypoints, durable-memory folders, and maintenance commands obvious in context.
+
+      ## Reusable Practice
+      - Add a concise local README at the root of any installed workflow surface that is meant to be used directly inside consumer repositories.
+      - Keep that README practical: what to open first, which entrypoint to choose, where durable state lives, and which commands keep the installed files healthy.
+      - Treat the local README as a convenience orientation layer, not as a replacement for the canonical contract artifacts.
+
+      ## Related
+      - [[neuroplast/README.md]]
+      - [[README.md]]
+      - [[plans/installed-neuroplast-readme-practicality.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: interaction-routing-proof-should-separate-verified-cli-evidence-from-adapter-alignment
+    status: active
+    confidence: 0.8
+    title: Interaction Routing Proof Should Separate Verified CLI Evidence From Adapter Alignment
+    note: |-
+      ## Insight
+      Shared routing semantics can be genuinely portable before every adapter is independently proven. Trust stays higher when the repository distinguishes deterministic CLI/file-based evidence from adapter-guide alignment instead of implying equal verification everywhere.
+
+      ## Reusable Practice
+      - Treat the file contract and CLI inspection seam as the primary proof surface.
+      - Mark adapter guides as documentation-only until maintainers rerun them as proof paths.
+      - Add new adapters as thin wrappers over the same routing contract, not as new evidence by default.
+      - Tie release checks to routing semantics, route JSON schema, and adapter drift review when the contract changes.
+
+      ## Related
+      - [[project-concept/interaction-routing-compatibility-proof.md]]
+      - [[project-concept/cross-adapter-interaction-routing.md]]
+      - [[learning/portability-claims-need-a-single-verified-path-before-broad-environment-coverage.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: lcp-bridge-files-should-fit-the-repository-parser-before-claiming-compatibility
+    status: active
+    confidence: 0.8
+    title: LCP Bridge Files Should Fit the Repository Parser Before Claiming Compatibility
+    note: |-
+      ## Insight
+      When introducing a standards-alignment bridge into an existing repository, the bridge documents must fit the implementation's actual parser and validator constraints. A formally plausible format is not enough if the local loader cannot parse it.
+
+      ## Reusable Practice
+      - Validate new compatibility artifacts against the repository's real parser, not only against the intended external standard shape.
+      - When an implementation uses a deliberately limited parser, prefer a bridge format that is locally robust and clearly documented over a richer format that cannot yet be consumed safely.
+      - Separate protocol-facing bridge validation from implementation-profile validation so failures are easier to localize.
+
+      ## Related
+      - [[plans/lcp-alignment-and-dual-layout-compatibility.md]]
+      - [[project-concept/changelog/2026-04-02.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: learning-capture-should-allow-multiple-distinct-notes-per-cycle
+    status: active
+    confidence: 0.8
+    title: Learning Capture Should Allow Multiple Distinct Notes Per Cycle
+    note: |-
+      ## Insight
+      A single execution cycle can produce more than one reusable lesson, so learning-capture instructions should explicitly allow one or more notes rather than implicitly steering operators toward only one.
+
+      ## Why It Matters
+      When the workflow only requires a single learning update, operators may collapse unrelated insights into one vague note or skip secondary lessons that would be more reusable as separate artifacts.
+
+      ## Practice
+      - Treat one note as the minimum, not the maximum.
+      - Split distinct reusable lessons into separate notes when they would be easier to discover or reuse independently.
+      - Group tightly related insights into one note when they support the same practice and would be fragmented if separated.
+      - Prompt execution to check for multiple distinct learnings before closing the cycle.
+
+      ## Related
+      - [[neuroplast/think.md]]
+      - [[neuroplast/act.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: local-extensions-can-enforce-repo-specific-sync-surfaces-bundled-extensions-cannot
+    status: active
+    confidence: 0.8
+    title: Local Extensions Can Enforce Repo-Specific Sync Surfaces Bundled Extensions Cannot
+    note: |-
+      The bundled `artifact-sync` extension is intentionally generic — it checks that behavior-changing work updates supporting docs, but it has no knowledge of repo-specific artifact chains.
+
+      When a repository ships its own installable plugin (or other multi-location artifact), the sync surface is specific to that repo: canonical source → installed copy → user-installed copy → parallel adapter assets. A local extension is the right place to encode that surface explicitly so it isn't lost in a future session.
+
+      The pattern:
+      - Local extension `act.md` overlay names each sync surface and the mechanism for keeping it current.
+      - `CHANGELOG_INSTRUCTIONS.md` overlay requires noting which files changed and whether user reinstall is needed.
+      - `think.md` overlay captures cross-adapter alignment patterns as reusable learning.
+
+      This keeps repo-maintainer policy out of the bundled workflow contract while still making it durable and machine-readable.
+
+      ## Related
+      - [[learning/optional-extensions-prevent-maintainer-policy-from-leaking-into-core-workflows.md]]
+      - [[learning/copy-paste-ready-adapter-assets-should-stay-thin-and-contract-anchored.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-24T13:55:58Z"
+  - id: newline-sentinel-handling-for-idempotent-markdown-migrations
+    status: active
+    confidence: 0.8
+    title: Newline Sentinel Handling for Idempotent Markdown Migrations
+    note: |-
+      ## Insight
+      Splitting text by newline when content ends with a newline introduces a trailing empty sentinel element. If reconstruction appends a newline again, migrations can create blank-line-only churn.
+
+      ## Reusable Practice
+      - Detect and remove split sentinel empty lines before reconstructing content.
+      - Normalize trailing blank lines in reconstructed body for deterministic output.
+      - Preserve original newline presence (`hasTrailingNewline`) exactly once at final write.
+      - Re-run dry-run migration checks to confirm idempotency on compliant files.
+
+      ## Related
+      - [[plans/fix-sync-trailing-blank-lines.md]]
+      - [[plans/sync-governed-folder-tag-backfill.md]]
+      - [[project-concept/changelog/2026-03-17.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: npm-packaging-cli-init-pattern
+    status: active
+    confidence: 0.8
+    title: "NPM Packaging Learning: Prefer Explicit Init CLI Over Postinstall"
+    note: |-
+      ## Insight
+      For scaffold-style packages that create files in host repositories, an explicit CLI command (`npx <package> init`) is more predictable than `postinstall` hooks.
+
+      ## Reusable Practice
+      - Use a `bin` entrypoint for initialization logic and keep behavior explicit.
+      - Resolve host project root via `INIT_CWD` fallback to `process.cwd()` for compatibility with npm invocation contexts.
+      - Keep initialization non-destructive by default: skip existing files and log every skip/create action.
+      - Put installable templates under `src/` and control publish payload via `package.json#files`.
+      - Treat machine-specific files (like `.obsidian/workspace.json`) as opt-in, not default.
+
+      ## Related
+      - [[plans/npm-package-implementation.md]]
+      - [[project-concept/changelog/2026-03-13.md]]
+      - [[learning/path-standardization.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: npm-release-metadata-and-payload-checks
+    status: active
+    confidence: 0.8
+    title: "NPM Release Learning: Metadata + Payload Checklist Before First Publish"
+    note: |-
+      ## Insight
+      For first-time public npm releases, metadata completeness and payload minimization are as important as CLI correctness.
+
+      ## Reusable Practice
+      - Add `publishConfig.access="public"` in `package.json` even when publish command includes `--access public`.
+      - Ensure `license` field and root `LICENSE` file are both present and aligned.
+      - Keep `package.json#files` limited to runtime essentials (`bin`, template `src`, docs/license as needed).
+      - Run `npm pack --dry-run` before publish and inspect tarball contents for duplicates.
+      - Keep first stable release at `1.0.0` when behavior and interfaces are already intentional and documented.
+      - Lock in final package name before first publish and update all user-facing install examples in the same change.
+
+      ## Related
+      - [[plans/npm-release-readiness.md]]
+      - [[plans/package-rename-to-neuroplast.md]]
+      - [[project-concept/changelog/2026-03-14.md]]
+      - [[learning/npm-packaging-cli-init-pattern.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: obsidian-tag-policy-needs-closed-loop-execution
+    status: active
+    confidence: 0.8
+    title: Obsidian Tag Policy Needs Closed-Loop Execution
+    note: |-
+      ## Insight
+      Even when implementation changes are correct, skipping the final execution loop in `act.md` creates process drift (missing plan/changelog/learning updates) and reduces traceability.
+
+      ## Reusable Practice
+      - Treat `act.md` steps as a completion checklist, not guidance.
+      - Before reporting done, explicitly verify: plan updated, concept/architecture aligned, changelog updated, and learning recorded.
+      - Add a short "process-complete" verification pass at the end of every task.
+
+      ## Related
+      - [[plans/obsidian-tag-enforcement-and-migration.md]]
+      - [[project-concept/changelog/2026-03-17.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: on-demand-conflict-reconciliation-should-be-a-specialized-entrypoint
+    status: active
+    confidence: 0.8
+    title: On-Demand Conflict Reconciliation Should Be a Specialized Entrypoint
+    note: |-
+      ## Practice
+      When a workflow needs explicit rescue behavior for merge conflicts or competing edits, add a dedicated instruction entrypoint instead of forcing the behavior into everyday execution.
+
+      ## Why
+      Conflict resolution is a different mode from normal implementation. It requires preservation-first judgment across multiple competing inputs rather than forward progress on a single plan. A dedicated entrypoint keeps `act.md` simple for normal bounded work while still giving humans and AI a clear, explicit place to start when conflicts already exist.
+
+      ## How To Apply
+      - Add a specialized instruction that starts by loading the core contract, manifest, and capability profile.
+      - Tell the operator to use that instruction only when the immediate task is reconciliation rather than implementation.
+      - Make the instruction preserve unique facts from each side, meld compatible truth, and keep uncertainty explicit instead of guessing.
+      - Update shipped inventories, validation rules, adapter guidance, and tests in the same change when the instruction becomes part of the managed instruction set.
+
+      ## Related
+      - [[neuroplast/reconcile-conflicts.md]]
+      - [[neuroplast/act.md]]
+      - [[learning/reverse-engineering-should-feed-existing-conceptualization-not-replace-it.md]]
+      - [[plans/on-demand-conflict-reconciliation-instruction.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: open-code-skills-should-match-the-tool-native-folder-layout
+    status: active
+    confidence: 0.8
+    title: OpenCode Skills Should Match the Tool-Native Folder Layout
+    note: |-
+      ## Insight
+      Copy/paste-ready assets only help when they match the destination tool's actual file conventions. For OpenCode, a skill is not just a markdown file with a kebab-case name; it lives in a folder named for the skill and the file inside must be `SKILL.md`.
+
+      ## Reusable Practice
+      - Verify the destination tool's real on-disk asset shape before shipping copy/paste-ready wrappers.
+      - For OpenCode skills, use `skills/<skill-name>/SKILL.md` rather than flat markdown files.
+      - Include the tool-native frontmatter fields so the copied asset is directly usable.
+      - Update validation and tests whenever the packaged asset layout changes so the managed-file contract stays trustworthy.
+
+      ## Related
+      - [[plans/opencode-neuroplast-agents.md]]
+      - [[project-concept/interaction-routing-compatibility-proof.md]]
+      - [[learning/opencode-should-use-thin-agents-to-invoke-shared-neuroplast-skills.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: opencode-should-use-thin-agents-to-invoke-shared-neuroplast-skills
+    status: active
+    confidence: 0.8
+    title: OpenCode Should Use Thin Agents to Invoke Shared Neuroplast Skills
+    note: |-
+      ## Insight
+      When a tool supports reusable skills but does not guarantee they run first, thin agents are a good reliability layer. They can invoke the shared bootstrap and routing skills without becoming a second workflow contract.
+
+      ## Reusable Practice
+      - Keep the skills as the reusable execution surface.
+      - Add only a small number of thin agents whose job is to invoke those skills in the right order.
+      - Make the agent files defer to `neuroplast/WORKFLOW_CONTRACT.md`, `neuroplast/manifest.yaml`, `neuroplast/capabilities.yaml`, and `neuroplast/interaction-routing.yaml` instead of duplicating semantics.
+      - Prefer one default execution agent and one planning-first agent before adding narrower agent types.
+
+      ## Related
+      - [[plans/opencode-neuroplast-agents.md]]
+      - [[project-concept/cross-adapter-interaction-routing.md]]
+      - [[project-concept/interaction-routing-compatibility-proof.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: optional-extensions-prevent-maintainer-policy-from-leaking-into-core-workflows
+    status: active
+    confidence: 0.8
+    title: Optional Extensions Prevent Maintainer Policy From Leaking Into Core Workflows
+    note: |-
+      ## Insight
+      Repo- or maintainer-specific workflow rules should not be added to the canonical instruction set when they are not appropriate for every Neuroplast install.
+
+      ## Reusable Practice
+      - Keep the core workflow contract generic and portable.
+      - Put specialized guidance in opt-in workflow extensions.
+      - Support both bundled reusable extensions and repo-local custom extensions.
+      - Declare active extensions in `neuroplast/manifest.yaml` so operators know what extra guidance to load.
+      - Keep maintainer-only policies in repo-local extensions when they should not ship to every install.
+
+      ## Related
+      - [[plans/optional-workflow-extensions.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: orchestrators-should-persist-conversational-plan-handoffs-before-execution
+    status: active
+    confidence: 0.8
+    title: Orchestrators Should Persist Conversational Plan Handoffs Before Execution
+    note: |-
+      ## Insight
+      When a planner is intentionally read-only, the executor should be allowed to start from a usable same-session plan handoff in conversation context, but it should persist that handoff to repository plan files before broader execution.
+
+      ## Reusable Practice
+      - Let planner-mode output stay conversational when the planner is explicitly non-writing.
+      - Allow the execution agent to treat that bounded handoff as temporary active plan state in the same session.
+      - Require the execution agent to write the active plan file before implementation so continuity survives session loss or agent switching.
+      - Clarify short-prompt routing so `go ahead` does not bounce the user unnecessarily when a bounded planner handoff is already available in context.
+
+      ## Related
+      - [[plans/orchestrator-should-accept-planner-handoff-context.md]]
+      - [[learning/planning-only-agents-need-an-explicit-stop-boundary.md]]
+      - [[project-concept/cross-adapter-interaction-routing.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: path-standardization
+    status: active
+    confidence: 0.8
+    title: Path Standardization Learning
+    note: |-
+      ## Insight
+      When migrating repository conventions (for example, legacy folder names to canonical paths), perform a full-link and text audit before and after edits to avoid broken wiki-links and stale references.
+
+      ## Reusable Practice
+      - Run a repository-wide search for legacy terms before changes to scope impact.
+      - Apply updates consistently across architecture docs, plans, and instruction files.
+      - Re-run repository-wide search afterward to verify complete removal.
+      - Ensure bidirectional links between plan and changelog entries are maintained after path migrations.
+
+      ## Related
+      - [[plans/path-reference-removal.md]]
+      - [[project-concept/changelog/2026-03-13.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: planner-safety-locks-should-be-always-on-and-attested
+    status: active
+    confidence: 0.8
+    title: Planner Safety Locks Should Be Always-On And Attested
+    note: |-
+      ## Insight
+      Planner-only agents are most reliable when safety boundaries are framed as always-on, non-negotiable runtime behavior instead of optional guidance. Requiring explicit planner-mode start/end attestations makes boundary compliance auditable in logs and easier to verify during mixed-agent sessions.
+
+      ## Reusable Practice
+      - Add an always-on safety-lock section directly in planner agent assets.
+      - Explicitly forbid file mutations, execution behavior, and mutation-capable command flows.
+      - Require a planner-mode start attestation and end-of-response safety attestation.
+      - Route all implementation requests from planner mode to the execution agent explicitly.
+      - Pair prompt-level boundaries with read-only tool surfaces where possible.
+      - Treat prompt instructions as advisory unless the host runtime also enforces a read-only tool allowlist and isolates planner sessions from earlier mutable lanes.
+
+      ## Distinct-Learning Check
+      - This learning now covers both attested planner safety language and the need for runtime-side enforcement; no second materially distinct learning note is required.
+
+      ## Related
+      - [[plans/opencode-planner-automatic-safety-lock.md]]
+      - [[learning/planning-only-agents-need-an-explicit-stop-boundary.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: planning-only-agents-need-an-explicit-stop-boundary
+    status: active
+    confidence: 0.8
+    title: Planning-Only Agents Need an Explicit Stop Boundary
+    note: |-
+      ## Insight
+      If a planning agent can sound like a lightweight executor, users and wrappers will eventually let it drift into implementation. Planning-only agents stay reliable when they explicitly stop at a handoff-ready plan and name the execution agent that should take over next.
+
+      ## Reusable Practice
+      - State in the agent description that planning ends with a bounded plan, not implementation.
+      - Add a direct rule that the planner must not execute or validate the planned changes.
+      - If the environment supports separate planner and executor agents, name the executor explicitly in the planner handoff.
+      - Remove clearly execution-oriented capabilities when the tool surface would otherwise blur the boundary.
+      - If you need a truly non-executing planner, remove write and edit permissions too and treat the returned plan as chat output until an execution agent persists it.
+
+      ## Related
+      - [[plans/opencode-planner-plan-only-boundary.md]]
+      - [[learning/opencode-should-use-thin-agents-to-invoke-shared-neuroplast-skills.md]]
+      - [[project-concept/cross-adapter-interaction-routing.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: plugin-install-scripts-should-resolve-paths-relative-to-the-script-not-cwd
+    status: active
+    confidence: 0.8
+    title: Plugin Install Scripts Should Resolve Paths Relative to the Script, Not CWD
+    note: |-
+      When writing an install script that registers a co-located artifact (like a plugin directory), use `__dirname` to resolve the target path rather than `process.cwd()`. Users run the script from their project root, so `cwd` gives the repo root — but the artifact is relative to where the script itself lives.
+
+      Using `__dirname` means the script works correctly regardless of where the user runs it from, and no path argument is needed. The installed copy of the script always sits next to the plugin directory it registers.
+
+      This also makes the idempotency check reliable: the script can compare `installPath` against `path.resolve(__dirname, "plugin")` and know with certainty whether the current registration points to the right place.
+
+      ## Related
+      - [[learning/dynamic-file-listing-makes-adapter-asset-additions-zero-code.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-25T12:22:01Z"
+  - id: plugin-key-must-not-include-marketplace-suffix-for-local-plugins
+    status: active
+    confidence: 0.8
+    title: Local Claude Code Plugins Must Be Installed via a "directory" Marketplace, Not Hand-Edited JSON
+    note: |-
+      **Date:** 2026-06-25
+      **Context:** Permanent local install of the Neuroplast Claude Code plugin without marketplace submission
+
+      ## What I Got Wrong (twice)
+      1. Hand-edited `~/.claude/plugins/installed_plugins.json` + `settings.json` with key `neuroplast@local`. Claude Code parsed `@local` as a marketplace name, failed to find it in `known_marketplaces.json`, and showed "Marketplace 'local' not found" on every session.
+      2. Tried a bare `neuroplast` key — the plugin then vanished from `/plugin list` entirely (the `name@marketplace` form is required).
+      3. Tried registering a `local` marketplace stub with source type `"local"` — that type is invalid and **corrupted** the marketplace config (`marketplace list` then errored).
+
+      ## The Correct Mechanism
+      Claude Code ships a first-class CLI for exactly this. A local plugin is hosted by a local marketplace:
+
+      ```bash
+      claude plugin marketplace add /path/to/<marketplace-root>
+      claude plugin install <plugin-name>@<marketplace-name>
+      ```
+
+      - The marketplace root contains `.claude-plugin/marketplace.json` (validate with `claude plugin validate <dir>`).
+      - Marketplace source type for a local path is `"directory"` (NOT `"local"`).
+      - A plugin entry's `source` must be a **subdirectory** path (e.g. `"./plugin"`); `"."` is rejected.
+      - The marketplace NAME comes from `marketplace.json`'s `name` field and is what you reference as `<plugin>@<name>`.
+      - Both `marketplace add` and `install` are idempotent — safe to script.
+
+      ## Critical Gotcha: Content Is Cached, and `update` Is Version-Gated
+      `install` copies plugin content into `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/`. Editing the source files later does NOT update the running plugin. Refresh rule:
+      - **Version bump** (`plugin.json` version increased): `claude plugin update <plugin>@<marketplace>` picks it up.
+      - **Same-version edit:** `update` reports "already at latest version" and does nothing — you must `uninstall` + `install` to force a fresh cache copy.
+
+      ## Lesson
+      Don't reverse-engineer and hand-edit a tool's internal state files. Check for a supported CLI first (`claude plugin --help`). The `@marketplace` suffix in a plugin key is a resolved marketplace identifier, not a free-form tag — improvising it (or its backing config) breaks lookups or corrupts state.
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-25T13:07:26Z"
+  - id: portability-claims-need-a-single-verified-path-before-broad-environment-coverage
+    status: active
+    confidence: 0.8
+    title: Portability Claims Need a Single Verified Path Before Broad Environment Coverage
+    note: |-
+      ## Insight
+      Portability docs become more trustworthy when one environment is explicitly treated as the canonical verified path before claiming equal support across every documented tool. A support matrix and a concrete first-loop walkthrough make the evidence boundary visible.
+
+      ## Reusable Practice
+      - Pick one environment that best matches the core portability claim and verify that path first.
+      - Publish a support matrix that distinguishes actively verified environments from documentation-only guides.
+      - Put the first successful loop in user-facing docs so new users can follow a concrete proof path instead of reading only abstract guarantees.
+      - Keep other environment guides aligned with the contract, but do not imply they are equally verified until maintainers actually rerun them.
+
+      ## Related
+      - [[plans/roadmap-phase-5-portability-proof.md]]
+      - [[project-concept/changelog/2026-03-30.md]]
+      - [[learning/adapters-should-explicitly-separate-guidance-from-execution.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: portable-interaction-routing-needs-a-shared-intent-contract
+    status: active
+    confidence: 0.8
+    title: Portable Interaction Routing Needs a Shared Intent Contract
+    note: |-
+      ## Insight
+      Short prompts like `go ahead` feel universal to operators, but they are not universal runtime commands. Cross-adapter consistency only becomes realistic when the repository defines a shared phrase-to-intent contract before any adapter-specific automation tries to make those prompts feel seamless.
+
+      ## Reusable Practice
+      - Define natural-language routing at the shared contract layer, not inside adapter guides.
+      - Keep explicit step files and workflow metadata authoritative for execution.
+      - Resolve explicit file references and explicit step names before any natural-language aliasing.
+      - Treat `go ahead`-style prompts as permission to execute only when a bounded active objective already exists.
+      - Treat adapters as loaders and explainers of shared routing semantics, not owners of them.
+      - Let extensions add bounded phrase overlays only when they cannot override canonical intent meanings.
+      - Add a narrow CLI seam only after the routing contract is stable enough to validate and test.
+
+      ## Related
+      - [[project-concept/cross-adapter-interaction-routing.md]]
+      - [[project-concept/interaction-routing-canonical-contract.md]]
+      - [[plans/interaction-routing-phase-1-canonical-contract.md]]
+      - [[plans/interaction-routing-phase-2-manifest-and-extension-shape.md]]
+      - [[learning/adapters-should-explicitly-separate-guidance-from-execution.md]]
+      - [[learning/active-extensions-should-load-by-step-not-by-memory.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: post-foundation-roadmaps-should-sequence-hardening-before-expansion
+    status: active
+    confidence: 0.8
+    title: Post-Foundation Roadmaps Should Sequence Hardening Before Expansion
+    note: |-
+      ## Insight
+      Once a workflow product finishes its core contract and portability foundation, the next roadmap should shift from defining the model to proving it. Reliability, maintainability, and trust UX usually need to come before major ecosystem or adoption expansion.
+
+      ## Reusable Practice
+      - Put automated verification ahead of feature expansion when CLI state, migrations, or validation logic have grown materially.
+      - Separate maintainability work from user-facing UX work so each phase has a clear success condition.
+      - Finish extension validation and documentation before treating extensions as a flagship feature.
+      - Prove portability with concrete examples before broadening support claims.
+      - Add release and adoption discipline after the core product is stable enough to justify stronger guarantees.
+
+      ## Related
+      - [[project-concept/neuroplast-product-maturity-roadmap.md]]
+      - [[plans/product-maturity-roadmap-phases.md]]
+      - [[project-concept/changelog/2026-03-24.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: project-mind-workflows-need-an-active-objective-and-durable-shared-memory
+    status: active
+    confidence: 0.8
+    title: Project-Mind Workflows Need an Active Objective and Durable Shared Memory
+    note: |-
+      ## Insight
+      When a workflow product is meant to function as a project mind, the most important usability feature is not more phase language. It is a clear active objective plus durable shared memory that both humans and AI can reload quickly. Without that framing, the system feels like ceremony even when the underlying artifacts are useful.
+
+      ## Reusable Practice
+      - Treat `act.md` as the default entrypoint once enough project context exists.
+      - Reserve `conceptualize.md` for new, ambiguous, or materially reframed work.
+      - Use `/neuroplast/plans/` as the active-objective and handoff surface, not only as a formal plan archive.
+      - Describe `/neuroplast/project-concept/`, `/neuroplast/project-concept/changelog/`, and `/neuroplast/learning/` as shared project memory rather than post-work paperwork.
+      - Favor language that works for software and non-software projects alike.
+
+      ## Related
+      - [[plans/project-mind-operating-model-reframe.md]]
+      - [[project-concept/lcp-alignment-implementation-model.md]]
+      - [[learning/workflow-products-stay-distinct-when-they-productize-contract-durability-not-ceremony.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: published-json-schemas-reduce-wrapper-fragility-for-cli-automation
+    status: active
+    confidence: 0.8
+    title: Published JSON Schemas Reduce Wrapper Fragility For CLI Automation
+    note: |-
+      ## Insight
+      Machine-readable CLI modes become more trustworthy when the repository publishes schema artifacts for each payload and tests the implementation against the documented top-level contract.
+
+      ## Reusable Practice
+      - Publish a schema file for every supported JSON command mode, not only the oldest automation endpoint.
+      - Treat missing `code` or `remediation` fields in validation findings as contract bugs, even if human-readable output still looks acceptable.
+      - Add black-box tests that assert documented payload keys so wrapper regressions are caught before release.
+      - Keep schema documentation in README and architecture notes so automation consumers do not need to reverse-engineer payloads from examples.
+
+      ## Related
+      - [[plans/json-schema-contract-hardening.md]]
+      - [[project-concept/changelog/2026-04-12.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: release-verification-should-check-the-packed-payload-against-the-real-files-allowlist
+    status: active
+    confidence: 0.8
+    title: Release Verification Should Check the Packed Payload Against the Real Files Allowlist
+    note: |-
+      ## Insight
+      Release smoke tests are more trustworthy when payload verification is derived from the actual shipped file allowlist instead of a hand-maintained expected list.
+
+      ## Reusable Practice
+      - Build package payload expectations from the real published roots such as `bin/`, `src/`, `schemas/`, `README.md`, and `LICENSE`.
+      - Compare `npm pack --json` entries against that derived set so both missing and unexpected files are caught.
+      - Explicitly assert that repo-local maintainer-only assets stay out of the package payload.
+      - Run the same release verification entrypoint locally and in CI to avoid drift between maintainer and hosted checks.
+
+      ## Related
+      - [[plans/roadmap-phase-6-release-and-adoption-layer.md]]
+      - [[project-concept/release-operations.md]]
+      - [[learning/npm-release-metadata-and-payload-checks.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: reverse-engineering-should-feed-existing-conceptualization-not-replace-it
+    status: active
+    confidence: 0.8
+    title: Reverse-Engineering Should Feed Existing Conceptualization, Not Replace It
+    note: |-
+      ## Practice
+      When adding a new workflow entrypoint that extracts context from a codebase (reverse-engineering, discovery, audit-style passes), design it as a **specialized upstream step** that feeds the existing canonical instruction rather than producing its own parallel artifact set.
+
+      ## Why
+      Neuroplast already defines the durable artifact shapes in `PLANNING_INSTRUCTIONS.md` (Layer 1 Orientation, Layer 2 Detailed Context, root `ARCHITECTURE.md`). A reverse-engineering instruction that writes its own bespoke outputs would split the project mind into two incompatible shapes and force consumers to reconcile them. Routing the pass through `conceptualize.md` keeps a single canonical output surface and lets the reverse-engineering phase focus on what it is actually unique at: **producing evidence anchored in code paths and symbols.**
+
+      ## How To Apply
+      - Give the new instruction a narrow purpose: gather code-grounded evidence, record open questions, stop.
+      - Emit exactly one intermediate artifact (e.g., an evidence note) under `/neuroplast/project-concept/` that uses the same tagging and file conventions as normal concept artifacts.
+      - End the instruction's step sequence with an explicit handoff to the existing canonical instruction (here, `conceptualize.md`), so the durable orientation/detailed-context/architecture files are produced by the same code path everything else in the workflow uses.
+      - Keep the new file optional and repo-local first (outside `required_instruction_files`) until the shape is validated on a real codebase; once the pattern proves itself, promote it to `src/instructions/`, add it to the required manifest/profile lists, and update init/sync/test wiring in the same change.
+
+      ## Follow-through
+      - Promoting an instruction from repo-local to required is not just a file move; the managed install list, validation contract, README inventories, architecture inventories, and CLI tests must all change together.
+      - Keep the instruction specialized even after promotion. Required availability does not mean everyday default entrypoint.
+
+      ## Related
+      - [[neuroplast/reverse-engineering.md]]
+      - [[neuroplast/conceptualize.md]]
+      - [[neuroplast/PLANNING_INSTRUCTIONS.md]]
+      - [[plans/required-reverse-engineering-instruction-shipping.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: root-instruction-duplication-avoidance
+    status: active
+    confidence: 0.8
+    title: Root Instruction Duplication Avoidance
+    note: |-
+      ## Insight
+      When a package has a defined runtime source (`src/instructions`) and install target (`/neuroplast/`), keeping duplicate instruction files in repository root creates ambiguity and stale references.
+
+      ## Reusable Practice
+      - Keep exactly one canonical source directory for installable instruction templates.
+      - Treat generated/installed locations as runtime outputs, not authoring sources.
+      - Remove legacy duplicates after migration to prevent accidental edits in the wrong location.
+      - Record cleanup in a dated changelog and link a dedicated plan entry for traceability.
+
+      ## Related
+      - [[plans/root-instruction-file-removal.md]]
+      - [[project-concept/changelog/2026-03-14.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: route-results-should-recommend-context-depth-and-briefing-emphasis
+    status: active
+    confidence: 0.8
+    title: Route Results Should Recommend Context Depth And Briefing Emphasis
+    note: |-
+      ## Insight
+      When a routing layer already knows the likely intent, it can cheaply recommend how much context to load and which briefing fields matter most. That lowers redundant context reads without changing canonical routing behavior.
+
+      ## Reusable Practice
+      - Return additive context-depth recommendations from phrase routing rather than forcing wrappers to infer them.
+      - Keep recommendations intent-scoped, such as `lean` for execution and `deep` for conceptualization.
+      - Mirror the same emphasis guidance in compact briefing artifacts so humans and tools see the same reading strategy.
+      - Treat the recommendation as advisory metadata, not as a new routing contract.
+
+      ## Related
+      - [[plans/context-efficiency-and-success-reliability.md]]
+      - [[project-concept/context-efficiency-and-success-reliability.md]]
+      - [[learning/stale-briefings-should-warn-against-newer-plan-and-changelog-inputs.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: secure-ai-harnesses-need-capability-enforcement-not-prompt-only-rules
+    status: active
+    confidence: 0.8
+    title: Secure AI Harnesses Need Capability Enforcement Not Prompt-Only Rules
+    note: |-
+      ## Insight
+      Prompt instructions can explain safety boundaries, but they are not enough to enforce them. A secure AI harness needs runtime capability enforcement, approval gates, least-privilege tool access, and auditable policy decisions.
+
+      ## Reusable Practice
+      - Define per-agent capabilities for files, tools, network, and mutation rights.
+      - Require explicit approval for high-risk actions such as terminal execution, broad file writes, or new MCP trust grants.
+      - Treat model output, MCP output, and external content as untrusted until validated.
+      - Put security guarantees in runtime policy and tests, not only in agent wording.
+
+      ## Related
+      - [[plans/neuroplast-first-party-harness.md]]
+      - [[project-concept/neuroplast-first-party-harness.md]]
+      - [[learning/planning-only-agents-need-an-explicit-stop-boundary.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: shared-live-workspaces-should-use-hybrid-conflict-controls
+    status: active
+    confidence: 0.8
+    title: Shared Live Workspaces Should Use Hybrid Conflict Controls
+    note: |-
+      ## Insight
+      When a tool supports a real shared live workspace, conflict prevention should not rely on one mechanism everywhere. High-risk governed artifacts benefit from hard reservations, while ordinary file collaboration works better with softer presence and edit-intent awareness.
+
+      ## Reusable Practice
+      - Use hard reservations for critical shared artifacts such as active plans, architecture references, migrations, and other governed files.
+      - Use softer presence indicators and edit-intent warnings for broader collaborative editing.
+      - Treat reservation rights, edit rights, and administrative override rights as separate capabilities.
+      - Prefer deterministic synchronization and visible attribution before attempting ambitious always-merge collaboration semantics.
+
+      ## Related
+      - [[plans/neuroplast-first-party-harness.md]]
+      - [[project-concept/neuroplast-first-party-harness.md]]
+      - [[learning/secure-ai-harnesses-need-capability-enforcement-not-prompt-only-rules.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: source-and-installed-workflow-instructions-should-be-kept-in-lockstep
+    status: active
+    confidence: 0.8
+    title: Source And Installed Workflow Instructions Should Be Kept In Lockstep
+    note: |-
+      ## Insight
+      When Neuroplast maintains both source instruction files and a live installed `/neuroplast/` copy in the repository, wording changes should be checked in both places so entrypoint guidance does not drift.
+
+      ## Why It Matters
+      A small source-only wording regression can silently weaken the workflow contract even when the installed copy still looks correct, which creates ambiguity about what future packaged installs should receive.
+
+      ## Practice
+      - Review both the source instruction and the installed mirror whenever changing managed workflow wording.
+      - Compare entrypoint guidance against `WORKFLOW_CONTRACT.md` when the change affects routing or phase selection.
+      - Treat source/installed mismatches as bounded alignment work and record them in plan and changelog artifacts.
+
+      ## Related
+      - [[src/instructions/act.md]]
+      - [[neuroplast/act.md]]
+      - [[neuroplast/WORKFLOW_CONTRACT.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: source-obsidian-workspace-ignore-rule
+    status: active
+    confidence: 0.8
+    title: Source Obsidian Workspace Ignore Rule
+    note: |-
+      ## Insight
+      Ignoring only `.obsidian/workspace.json` at repository root does not cover nested source template paths like `src/obsidian/.obsidian/workspace.json`.
+
+      ## Reusable Practice
+      - Add explicit ignore rules for machine-local files under template source folders (for example, `src/obsidian/.obsidian/workspace.json`).
+      - After adding ignore rules, run `git status --ignored -- <path>` to verify the file is reported as ignored (`!!`).
+      - If the file was already staged or tracked, remove it from the index with `git rm --cached -- <path>`.
+
+      ## Related
+      - [[plans/ignore-obsidian-source-workspace-file.md]]
+      - [[project-concept/changelog/2026-03-14.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: stale-briefings-should-warn-against-newer-plan-and-changelog-inputs
+    status: active
+    confidence: 0.8
+    title: Stale Briefings Should Warn Against Newer Plan And Changelog Inputs
+    note: |-
+      ## Insight
+      Compact current-state briefings lose trust when they survive longer than the plan and changelog context they summarize. A lightweight stale warning is enough to prompt refresh without turning the briefing into a strict required artifact.
+
+      ## Reusable Practice
+      - Compare briefing freshness against the newest plan and recent changelog inputs that feed the briefing.
+      - Keep the stale signal advisory so preserved local briefings remain possible.
+      - Point remediation toward rerunning sync or manually refreshing the briefing instead of forcing regeneration.
+      - Pair freshness warnings with size-budget warnings so compact summaries stay both current and cheap to load.
+
+      ## Related
+      - [[plans/context-efficiency-and-success-reliability.md]]
+      - [[project-concept/context-efficiency-and-success-reliability.md]]
+      - [[learning/auto-refreshed-briefings-should-derive-from-active-plans-and-preserve-local-edits.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: success-oriented-output-contracts-fit-best-in-adapter-guidance-not-the-core-contract
+    status: active
+    confidence: 0.8
+    title: Success-Oriented Output Contracts Fit Best In Adapter Guidance Not The Core Contract
+    note: |-
+      ## Insight
+      When response consistency is the goal, Neuroplast works best when output-shape guidance lives in additive adapter assets and thin agent wrappers rather than in the canonical workflow contract. That improves execution quality without making the core files provider-shaped.
+
+      ## Reusable Practice
+      - Put response-shape guidance near the agent or adapter layer that actually produces conversational output.
+      - Keep the canonical workflow files focused on durable artifact behavior, not on one chat-output format.
+      - Standardize a small set of sections for planning and execution responses so users get better next-step clarity.
+      - Use additive wording that improves reliability without implying a second workflow contract.
+
+      ## Related
+      - [[plans/context-efficiency-and-success-reliability.md]]
+      - [[project-concept/context-efficiency-and-success-reliability.md]]
+      - [[learning/planning-only-agents-need-an-explicit-stop-boundary.md]]
+      - [[learning/orchestrators-should-persist-conversational-plan-handoffs-before-execution.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-11T16:29:56Z"
+  - id: sync-impact-decisions-should-be-explicit-before-managed-file-changes
+    status: active
+    confidence: 0.8
+    title: Sync Impact Decisions Should Be Explicit Before Managed File Changes
+    note: |-
+      ## Insight
+      When Neuroplast changes managed workflow assets, the riskiest failure mode is silently updating `init` behavior without adding the matching `sync` migration path for existing installs.
+
+      ## Reusable Practice
+      - Before implementing managed-asset changes, record a sync-impact decision in the active plan.
+      - Use only two outcomes: `migration required` or `no migration needed`.
+      - If a fresh `init` would produce something that an existing install also needs, create a migration in the same execution cycle.
+      - If sync behavior or migration requirements changed, mention that explicitly in the changelog and update `README.md` when user-facing behavior is affected.
+
+      ## Related
+      - [[plans/sync-migration-decision-gate.md]]
+      - [[plans/versioned-managed-file-sync.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: trust-oriented-cli-ux-should-add-remediation-and-structured-output-without-breaking-human-defaults
+    status: active
+    confidence: 0.8
+    title: Trust-Oriented CLI UX Should Add Remediation And Structured Output Without Breaking Human Defaults
+    note: |-
+      ## Insight
+      Operator trust improves when CLI diagnostics explain the next corrective action directly, but human-readable defaults should remain stable while structured output is added as an opt-in automation mode.
+
+      ## Reusable Practice
+      - Add remediation text to warnings and errors instead of only restating what failed.
+      - Keep default terminal output optimized for human scanning and make structured output opt-in with a dedicated flag.
+      - Improve preview commands by explicitly labeling dry-run mode and summarizing unchanged work separately from preserved local edits.
+      - Extend trust checks toward state integrity and extension contract shape before expanding command scope.
+
+      ## Related
+      - [[plans/roadmap-phase-3-validation-and-trust-ux.md]]
+      - [[project-concept/changelog/2026-03-24.md]]
+      - [[learning/cli-refactors-go-safer-when-you-preserve-the-entrypoint-and-lock-behavior-with-black-box-tests.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: validation-should-enforce-contract-not-orchestrate-environments
+    status: active
+    confidence: 0.8
+    title: Validation Should Enforce Contract, Not Orchestrate Environments
+    note: |-
+      ## Insight
+      Once a portable workflow has a stable contract, manifest, capability profile, and environment guides, the safest CLI expansion is validation. Validation strengthens the contract without dragging the CLI into system-specific orchestration.
+
+      ## Reusable Practice
+      - Add validation only after the workflow contract and metadata model are stable enough to check consistently.
+      - Keep validation focused on required paths, parseable metadata, frontmatter shape, and non-authoritative guide boundaries.
+      - Avoid adapter commands unless a repeated operator need proves they add value beyond documentation and validation.
+      - Prefer a narrow CLI with strong guarantees over a broad CLI with environment-specific behavior.
+
+      ## Related
+      - [[plans/portability-phase-5-cli-validation-and-polish.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+      - [[project-concept/neuroplast-portability-plan-v2.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: version-bumped-migrations-are-required-for-existing-install-backfills
+    status: active
+    confidence: 0.8
+    title: Version-Bumped Migrations Are Required For Existing-Install Backfills
+    note: |-
+      ## Insight
+      If `sync` skips same-version installs, a newly added migration only reaches existing users automatically when it ships with a higher package version.
+
+      ## Reusable Practice
+      - When adding a migration intended for users already on the current release, bump the package version first.
+      - Use the migration to backfill only package-managed files that older installs are missing.
+      - Keep repo-local files and extensions out of published migrations.
+
+      ## Related
+      - [[plans/versioned-managed-file-sync.md]]
+      - [[plans/optional-workflow-extensions.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: versioned-managed-file-migrations
+    status: active
+    confidence: 0.8
+    title: "Managed File Migration Learning: Versioned, Idempotent Sync"
+    note: |-
+      ## Insight
+      For scaffold-style libraries, non-destructive init alone is insufficient once template semantics evolve. A separate versioned migration layer allows additive, one-time upgrades without re-copying full templates.
+
+      ## Reusable Practice
+      - Keep bootstrap copy behavior and upgrade behavior separate (`init` vs `sync`).
+      - Persist migration state in a local state file with applied migration IDs.
+      - Make every migration idempotent so reruns are safe.
+      - Provide operator controls (`--dry-run`, optional backups) for trust and recoverability.
+      - Gate sync execution by package version change (including patch updates), not just major/minor changes.
+      - Treat downgrade sync as opt-in (`--force`) to avoid accidental backward migration effects.
+      - Keep framework live even when no content-altering migrations are active.
+
+      ## Related
+      - [[plans/versioned-managed-file-sync.md]]
+      - [[project-concept/changelog/2026-03-17.md]]
+      - [[learning/npm-packaging-cli-init-pattern.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: windows-release-verification-should-resolve-npm-from-path-not-appdata
+    status: active
+    confidence: 0.8
+    title: Windows Release Verification Should Resolve NPM From PATH, Not APPDATA
+    note: |-
+      ## Insight
+      Windows automation should not assume `npm.cmd` and `npx.cmd` live under `%APPDATA%\npm`, because GitHub Actions and other Node installs may expose them through `PATH` from a different location such as `C:\Program Files\nodejs`.
+
+      ## Reusable Practice
+      - When wrapping `npm` or `npx` manually on Windows, invoke `cmd.exe /c npm.cmd ...` or `npx.cmd ...` and let the platform command search path resolve the executable.
+      - Avoid constructing Windows npm wrapper paths from `%APPDATA%` unless the tool specifically guarantees that install layout.
+      - Keep repository-local verification wrappers aligned with how `actions/setup-node` exposes Node tooling in CI.
+
+      ## Related
+      - [[plans/windows-ci-release-verify-command-resolution-fix.md]]
+      - [[project-concept/release-operations.md]]
+      - [[project-concept/changelog/2026-04-01.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: workflow-contract-adherence-needs-a-harness-hook-not-advisory-instructions
+    status: active
+    confidence: 0.8
+    title: Workflow-Contract Adherence Needs a Harness Hook, Not Advisory Instructions
+    note: |-
+      ## Insight
+      A workflow contract enforced only through `CLAUDE.md` ("Mandatory Startup Sequence")
+      and an installed plugin (agents + skills) is **not actually enforced**. In a live
+      test, a short "commit and bump version / go ahead" request was executed directly: the
+      contract files were never read and short-prompt routing was never applied.
+
+      ## Why It Happens
+      - `CLAUDE.md` is always loaded but is **advisory text** — the model weighs it against
+        competing pressures (e.g. "act once you have enough info"), and on a task that looks
+        trivial the instruction loses.
+      - Plugin **agents** only run when selected; plugin **skills** only fire when their
+        description matches or they are invoked. Neither auto-activates for an arbitrary
+        request, so the bootstrap/routing skills stay dormant.
+      - The only always-on, deterministic surface in Claude Code is a **hook**, which the
+        harness executes regardless of model judgment.
+
+      ## Reusable Practice
+      - To make a startup sequence or routing rule reliable, add a `UserPromptSubmit` hook
+        to project `.claude/settings.json` that injects the rules into context every turn
+        (`hookSpecificOutput.additionalContext`, `suppressOutput:true`). Keep the injected
+        text in a separate file (e.g. `.claude/hooks/<gate>.md`) so it is editable without
+        touching JSON; read it with a runtime guaranteed to exist in the project (Node here).
+      - Prefer **project** `settings.json` (committed) over `settings.local.json` when the
+        rule should protect everyone working in the repo, not one machine.
+      - Be honest about the residual: a hook guarantees the content is **present**, not that
+        the model **acts** on it. For a harder gate, combine the hook with a default
+        `agent` whose system prompt encodes the contract.
+
+      ## Distribute It To Everybody: Bundle the Hook In the Plugin
+      A repo-local `.claude/settings.json` hook only protects one repo. To enforce for any
+      user, ship the hook **inside the Claude Code plugin**: add `hooks/hooks.json` at the
+      plugin root and reference a bundled script via `${CLAUDE_PLUGIN_ROOT}` (confirmed
+      convention — bundled official plugins like `security-guidance` use exactly this). When
+      the plugin is enabled the hook applies automatically, with no per-repo settings edit.
+      - Make the handler a single self-contained script (embed the injected text, no external
+        reads, no deps) so it is portable and "a usable script for anybody."
+      - Make it **no-op when the contract is absent** (e.g. no `neuroplast/` dir) so enabling
+        the plugin is safe in any repository.
+      - Once bundled, the hook is a distributed adapter asset → it falls under the
+        `claude-code-adapter-sync` rules (edit `src/` only, `npx neuroplast sync`, keep
+        `plugin.json` version aligned to `package.json`, reinstall/update to refresh cache).
+      - Remove any earlier repo-local stopgap hook to avoid double-injection.
+
+      ## Gotcha: sync can preserve a divergent mirror file
+      If `npx neuroplast sync` reports `[preserve] ... (local edits detected (no stored
+      baseline))` for a file you just changed in `src/` (e.g. `plugin.json` version), the
+      installed mirror will NOT be updated automatically. Reconcile the installed copy to
+      match `src` once; the next sync adopts a baseline and propagates cleanly thereafter.
+
+      ## Related
+      - [[secure-ai-harnesses-need-capability-enforcement-not-prompt-only-rules]]
+      - [[active-extensions-should-load-by-step-not-by-memory]]
+      - [[adapters-should-explicitly-separate-guidance-from-execution]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-25T15:50:09Z"
+  - id: workflow-metadata-boundaries
+    status: active
+    confidence: 0.8
+    title: Workflow Metadata Boundaries
+    note: |-
+      ## Insight
+      Portable workflow metadata works best when the machine-readable layer describes workflow structure and document roles, not model behavior. Mixing workflow rules with provider-tuning hints makes the contract less stable and harder to reuse across environments.
+
+      ## Reusable Practice
+      - Keep manifest fields focused on workflow structure, required files, document roles, and portability profile.
+      - Keep instruction frontmatter focused on step role, dependencies, write targets, outputs, and optionality.
+      - Treat review hints and tags as advisory metadata rather than hard contract rules.
+      - Exclude model-specific fields such as token limits, temperature, or vendor names from the canonical workflow metadata layer.
+
+      ## Related
+      - [[plans/portability-phase-2-manifest-and-frontmatter.md]]
+      - [[project-concept/changelog/2026-03-18.md]]
+      - [[project-concept/neuroplast-portability-plan-v2.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+  - id: workflow-products-stay-distinct-when-they-productize-contract-durability-not-ceremony
+    status: active
+    confidence: 0.8
+    title: Workflow Products Stay Distinct When They Productize Contract Durability, Not Ceremony
+    note: |-
+      ## Insight
+      Workflow products become easier to defend when their value is tied to durable operational behavior such as safe upgrades, portable state, validation, and resumability. They become easier to commoditize when too much of the visible value is generic planning structure or reusable markdown advice.
+
+      ## Reusable Practice
+      - Lead with the contract, upgrade path, and validation surface before describing planning rituals.
+      - Treat documentation-only guidance as support material, not the main product promise.
+      - Keep custom implementation only where it directly preserves portability, trust, or non-destructive updates.
+      - Ask of every new feature: does this improve workflow outcomes, or only add ceremony?
+      - Back uniqueness claims with maintained proof artifacts and bounded comparisons.
+
+      ## Related
+      - [[plans/product-differentiation-and-uniqueness-hardening.md]]
+      - [[project-concept/changelog/2026-03-31.md]]
+      - [[learning/portability-claims-need-a-single-verified-path-before-broad-environment-coverage.md]]
+    provenance:
+      origin: learning-migration
+      method: captured-during-work-cycle
+    updated_at: "2026-06-05T15:24:50Z"
+scope:
+  root: .
+updated_at: "2026-06-30T17:58:37Z"

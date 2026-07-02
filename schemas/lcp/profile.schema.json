@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcp.dev/schemas/profile.schema.json",
+  "title": "LCP Profile",
+  "allOf": [
+    { "$ref": "./common-envelope.schema.json" },
+    {
+      "type": "object",
+      "properties": {
+        "kind": { "const": "profile" },
+        "audience": { "type": "string" },
+        "activation": {
+          "type": "object",
+          "properties": {
+            "default": { "type": "boolean" }
+          },
+          "additionalProperties": true
+        }
+      }
+    }
+  ]
+}

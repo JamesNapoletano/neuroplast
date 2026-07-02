@@ -49,8 +49,8 @@ SHORT-PROMPT ROUTING (canonical, from neuroplast/interaction-routing.yaml):
 WORKING RULES:
   - Treat the Neuroplast filesystem contract as authoritative.
   - Keep changes non-destructive; write outputs only to documented Neuroplast
-    locations (plans/, project-concept/changelog/, learning/, etc.).
-  - Maintain plans, changelog entries, and learning notes so work stays resumable.
+    locations (plans/, project-concept/changelog/, .lcp/knowledge/, etc.).
+  - Maintain plans, changelog entries, and LCP memory so work stays resumable.
 
 If this repository is not a Neuroplast project (no neuroplast/ contract files),
 ignore this gate and proceed normally.`;

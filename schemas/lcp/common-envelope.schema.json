@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://lcp.dev/schemas/common-envelope.schema.json",
+  "title": "LCP Common Envelope",
+  "type": "object",
+  "required": ["lcp_version", "kind", "id", "title"],
+  "properties": {
+    "lcp_version": {
+      "description": "Protocol generation the document targets. '2.0' is current. Consumers accept the major version(s) they support; minor additions follow unknown-field handling.",
+      "type": "string"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "manifest",
+        "profile",
+        "workflow",
+        "rule",
+        "reasoning_scaffold",
+        "tool_description",
+        "knowledge_artifact"
+      ]
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "summary": {
+      "type": "string"
+    },
+    "refs": {
+      "type": "array",
+      "items": {
+        "$ref": "./reference.schema.json"
+      }
+    },
+    "scope": {
+      "$ref": "./scope.schema.json"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "authors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "owner": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "authority": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}

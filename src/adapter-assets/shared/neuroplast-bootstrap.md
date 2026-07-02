@@ -31,7 +31,7 @@ Prefer the smallest depth that still preserves safe execution.
 - Use `neuroplast/reverse-engineering.md` when an existing codebase needs project-mind reconstruction.
 - Use `neuroplast/reconcile-conflicts.md` when merge conflicts or competing edits need preservation-first reconciliation.
 - Keep updates non-destructive and write outputs only to the documented Neuroplast locations.
-- Keep plans, changelog entries, and learning notes current so sessions remain resumable across tools.
+- Keep plans, changelog entries, and LCP memory (`.lcp/knowledge/neuroplast-learning.yaml`) current so sessions remain resumable across tools.
 
 ## Preferred Success-Oriented Response Sections
 - Planning responses should prefer: `Summary`, `Scope`, `Assumptions`, `Plan`, `Verification`, `Blockers`, `Handoff`.

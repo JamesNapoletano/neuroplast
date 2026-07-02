@@ -1,13 +1,17 @@
 {
   "schemaVersion": 2,
   "installedVersion": "1.1.1",
-  "lastSyncedVersion": "1.4.1",
+  "lastSyncedVersion": "2.0.2",
   "appliedMigrations": [
     "2026-03-17-obsidian-tag-backfill",
-    "2026-03-18-managed-file-backfill"
+    "2026-03-18-managed-file-backfill",
+    "2026-06-30-lcp-v2-upgrade",
+    "2026-07-01-remove-learning-view",
+    "2026-07-02-backfill-document-roles"
   ],
   "managedFiles": [
     ".lcp/knowledge/neuroplast-compatibility.yaml",
+    ".lcp/knowledge/neuroplast-learning.yaml",
     ".lcp/manifest.yaml",
     ".lcp/profiles/neuroplast-default.yaml",
     ".lcp/reasoning/neuroplast-execution-scaffold.yaml",
@@ -33,7 +37,9 @@
     "neuroplast/adapter-assets/claude-code/plugin/agents/neuroplast-orchestrator.md",
     "neuroplast/adapter-assets/claude-code/plugin/agents/neuroplast-planner.md",
     "neuroplast/adapter-assets/claude-code/plugin/hooks/hooks.json",
+    "neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-artifact-gate.js",
     "neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-gate.js",
+    "neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-track-changes.js",
     "neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-bootstrap/SKILL.md",
     "neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-execute-act/SKILL.md",
     "neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-route-short-prompts/SKILL.md",
@@ -77,41 +83,41 @@
     "neuroplast/think.md"
   ],
   "managedFileState": {
-    ".lcp/knowledge/neuroplast-compatibility.yaml": {
-      "contentHash": "2347ec5103b8d19b7a9579ca1dd435980a815611fd98aa383728828e0ef4de99",
-      "lastSyncedVersion": "1.4.1"
-    },
     ".lcp/manifest.yaml": {
-      "contentHash": "88195b7e72f5984e5d185850845813ee8f9f1a280fbbf1d9dfde5d5dd413a51e",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "a384c7ca57ecb19a3564c90c7ef69299319a75f953d274d1b746f20ef737d0d8",
+      "lastSyncedVersion": "2.0.2"
+    },
+    ".lcp/profiles/neuroplast-default.yaml": {
+      "contentHash": "b90a8fa60b0dea050a14a31f3857bff0119f17ff16d941c4ab9bbc2886e3e170",
+      "lastSyncedVersion": "2.0.2"
     },
     ".lcp/reasoning/neuroplast-execution-scaffold.yaml": {
-      "contentHash": "1dc9b5501ea408bd029be5efb22da87f9059de6297cbc2d72dbc17987232fce2",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "3b96d5b1b8effe586bb1e5cfd97ce78480233f79b408c9fee80da9946bf3c3ae",
+      "lastSyncedVersion": "2.0.2"
     },
     ".lcp/rules/neuroplast-boundaries.yaml": {
-      "contentHash": "9ee2cb6f7af52e9b4e69ced7e0ca0f630fd520295a8483a0708d2fe17635b312",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "dc4c26298d403bdd9eafbcdd6238c0ab7ac3a45927168fa6a51315ff4664603e",
+      "lastSyncedVersion": "2.0.2"
     },
     ".lcp/tools/neuroplast-cli.yaml": {
-      "contentHash": "23a8e4ca3d5c153f6f6022ff2e5dcde155473565e4132242d705c59b389621c7",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "f6999490a5a70c2ea0c1d1a8c1c26f9d4b131f77a8d6cf6be11f307f68841789",
+      "lastSyncedVersion": "2.0.2"
     },
     ".lcp/workflows/neuroplast-loop.yaml": {
-      "contentHash": "0441308331d8bde9b4e9036c1e5339b9bd53a6fda173454382930302f07ebb9e",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "899a68db100f0a77cc395ce64df82723c5edd6bbb8f48fd5169d36cf23fb1491",
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/CHANGELOG_INSTRUCTIONS.md": {
       "contentHash": "16f980350249dc50ba0b0f51c5c877ac7f641b9be14faf6359963d90460e06e8",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/CONCEPT_INSTRUCTIONS.md": {
       "contentHash": "05d6da500af5cf9b96e5ba0b221484b365dce54e55fe784aeaacd7692a69b615",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/PLANNING_INSTRUCTIONS.md": {
       "contentHash": "f7e3cb25c70534794c56847813148e2abf1b25a050b1979e28cbd921dd260569",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/README.md": {
       "contentHash": "8002c27f9dce69841c49affe7a255f185d0fe72a98a8971deb66fff13857e7b3",
@@ -131,55 +137,63 @@
     },
     "neuroplast/adapter-assets/claude-code/.claude-plugin/marketplace.json": {
       "contentHash": "24083e13bb4fb6eae1abd9ffca123cc4ebb1de20f35cc9571d1f11bd6fd011c3",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/CLAUDE.md": {
-      "contentHash": "26b658e1da76bc2375fd37862088167cc6487ae30f60bb3bbc25b605abf75deb",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "ee69ffcccd33ecdcc10435c18c950e2b31879d6dc4bd4ca70f94d9fe170d65b9",
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/install-plugin.js": {
       "contentHash": "a4b5763258ce350481f1fa18c9ca491a95722737e2daef1ca743c42d1a0dcf81",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/plugin/.claude-plugin/plugin.json": {
       "contentHash": "370e771f2eb0cdd0313264bd93311b64c04ff2385204ba87c5224450cae10293",
       "lastSyncedVersion": "1.4.1"
     },
     "neuroplast/adapter-assets/claude-code/plugin/README.md": {
-      "contentHash": "6eb961ed1a9f391783c0899816650eba27b7ef52fd8cba3df5ae1880a8237946",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "6b3a8683e32b6e63869792b69eb8f09decd7671d5664a2b7a831f76d006eead0",
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/plugin/agents/neuroplast-orchestrator.md": {
       "contentHash": "34ac33a195915f3d9581d1fa7b143dfca07ed5a14c7ce9c311b3fef724113495",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/plugin/agents/neuroplast-planner.md": {
       "contentHash": "9be4f47a79a6435b4b897b1732f80ce5e1ebf7fea6d57b17fb7069505f86349c",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/plugin/hooks/hooks.json": {
-      "contentHash": "d830503e76917c8db8bbe0659c4715e6ac3a3274358d567ecf79fd20b7a32452",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "fb34c8504f9b48ea505c963f3f312d55c7f87afdc8d155711f1336c1adb97eec",
+      "lastSyncedVersion": "2.0.2"
+    },
+    "neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-artifact-gate.js": {
+      "contentHash": "5a3082484f320358e8a06862bcd81656889fe70bddc7423951b96d51f0364d9d",
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-gate.js": {
-      "contentHash": "7140aef3747f6e10cba24b072e8d9ea548fab602fa2724d2f9ac05af99e36999",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "4b0d598713ca496c0878636ae80b83be0c23a812c1ff28344a666632ee4d06ba",
+      "lastSyncedVersion": "2.0.2"
+    },
+    "neuroplast/adapter-assets/claude-code/plugin/hooks/neuroplast-track-changes.js": {
+      "contentHash": "e920fe67d8554de744cb4f6fcf00d0a87ad062827e68f87a630cad794b6f7d46",
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-bootstrap/SKILL.md": {
       "contentHash": "eede9797c0d5c79ca2994bbf175c871cc049c3cee1c92e9d9ff4b8d967fbbe37",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-execute-act/SKILL.md": {
       "contentHash": "e18689238673312f14239f9bee18cd4825fba4a762ba4f403f9c76efdb33359d",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/claude-code/plugin/skills/neuroplast-route-short-prompts/SKILL.md": {
       "contentHash": "7b245e84efbdca6bebc9e7d0340541570515a722fd06d33017262f7e86ae4a75",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/codex/AGENTS.md": {
       "contentHash": "5159a5080124ac7b03c4813de74162c744ff20a476c892ea24ed24c2ddc7fe46",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/opencode/agents/neuroplast-orchestrator.md": {
       "contentHash": "b2288945f4c5b2ba5081d928a895efd0592fd5fd89679cb41ad29c98fa4a4e3c",
@@ -191,23 +205,23 @@
     },
     "neuroplast/adapter-assets/opencode/skills/README.md": {
       "contentHash": "68df2ce96b8b6d7e2cac4f66798774f43889460674fd63ad1a5882f11233528f",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/opencode/skills/neuroplast-bootstrap/SKILL.md": {
       "contentHash": "26d75317f005d0224393a5b2767073538374089639487b5823c8168ddd6c7edc",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/opencode/skills/neuroplast-execute-act/SKILL.md": {
       "contentHash": "7e36276c464a5fd995188e78fee35d004bf8153c1a08dbb9d0513ac9a4ecad09",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/opencode/skills/neuroplast-route-short-prompts/SKILL.md": {
       "contentHash": "73787185c4f45ebf1ec2f439a7895188f7e46b84e9c970f59e57cbb27fceed37",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapter-assets/shared/neuroplast-bootstrap.md": {
-      "contentHash": "b69e4194967906527f14c7e6b52ee677603d5e737de809835088fb70f120a403",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "c07c6e9bd77f77abce4a1180b667971dce8ad4b1e6946de40a912f9b06865c2e",
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/adapters/README.md": {
       "contentHash": "0657fa00613ede35d641a5a51e3b0619e021a3e61e47f6f0ccb2a67ba83a0c6d",
@@ -243,7 +257,7 @@
     },
     "neuroplast/capabilities.yaml": {
       "contentHash": "49a6669e80f99b79929cebfe05a938eaa2b454f7b362b527398a1826e261122e",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/conceptualize.md": {
       "contentHash": "b5fb5776dbd26b0de31642b9a6ec0a0f4cb4db6b5a643ee9d8f3975e4a3c6a14",
@@ -259,51 +273,51 @@
     },
     "neuroplast/extensions/artifact-sync/CHANGELOG_INSTRUCTIONS.md": {
       "contentHash": "ecbd4a1c553f8002378b3ddc860b7bf87d15515d8899816ccd00bfbbe21deac0",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/artifact-sync/README.md": {
       "contentHash": "4bb60a9dcb7e72e7a94899e5d14923455cf6ef663acac632ed7c9f5b504256c1",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/artifact-sync/act.md": {
       "contentHash": "40bf73103cb0a4ead459280d3c75afe75060527c8728c6e7f35245a5c69899ac",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/artifact-sync/think.md": {
       "contentHash": "5a42d434b4d3b618a9e0fe980c5cec6887febdf3384f798d95ff138784898abd",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/context-continuity/PLANNING_INSTRUCTIONS.md": {
       "contentHash": "5322175ad8de672b1c92ab5d17bf224224320e5e3c0d33028ef9901b5c479602",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/context-continuity/README.md": {
       "contentHash": "a29226cd27d1bcfce78a732e37e2d12fd1d08ba20cef2c7c76473c943af80111",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/context-continuity/act.md": {
       "contentHash": "89a43dfd7d74afc6c8a85b3a62a073c706604538c0c53e2847b632a1c7dd2181",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/context-continuity/think.md": {
       "contentHash": "b0ad6c5bb6287edbc372aebdbab369bb76705e185f17add6e59089392657e31b",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/verification-first/CHANGELOG_INSTRUCTIONS.md": {
       "contentHash": "b44b0232898b7a7b59327f5a6fbdb72f4a7690610e3f471c665e8e868084d6d4",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/verification-first/PLANNING_INSTRUCTIONS.md": {
       "contentHash": "61733ff302b6eae8e32073bff79c1b3f5ffd4b58ad39a1d608463b22fb0c52f9",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/verification-first/README.md": {
       "contentHash": "06db7ee54cb380a0ebdc210c2c1f613b2f13a3bfbcde022d23758579695f75b0",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/extensions/verification-first/act.md": {
       "contentHash": "fad3dbbed729fa2d4a936080c64f1319f3d8c97ca6e88c85236dc53866f76ea9",
-      "lastSyncedVersion": "1.4.1"
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/interaction-routing.yaml": {
       "contentHash": "81cf3d51b160da7ea7bd196e7d1af2be33757f8fc4ff79805311caf893be4dfc",
@@ -314,8 +328,8 @@
       "lastSyncedVersion": "1.2.3"
     },
     "neuroplast/reverse-engineering.md": {
-      "contentHash": "4d813d979f175c3b85d119c7fbf9ee68b6acd34fcb375950d7926ca05936d4bf",
-      "lastSyncedVersion": "1.4.1"
+      "contentHash": "96ce855e1c78299f846c3e97b64ad01824c32eccdc1d0c3259ac4786d6e924d6",
+      "lastSyncedVersion": "2.0.2"
     },
     "neuroplast/think.md": {
       "contentHash": "d109ed868770ba6a7ac8f124c383b68f8edbae50912744c53da8ddcea6d87ec6",

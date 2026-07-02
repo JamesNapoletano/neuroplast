@@ -12,7 +12,6 @@ neuroplast:
     - neuroplast/plans
     - neuroplast/project-concept
     - neuroplast/project-concept/changelog
-    - neuroplast/learning
     - ARCHITECTURE.md
     - conflicted project files
   outputs:
@@ -21,7 +20,6 @@ neuroplast:
     - ARCHITECTURE.md
     - neuroplast/project-concept/*.md
     - neuroplast/project-concept/changelog/YYYY-MM-DD.md
-    - neuroplast/learning/*.md
   optional: false
   human_review: recommended
   tags:
@@ -52,13 +50,14 @@ Resolve file conflicts or competing parallel edits without blindly choosing one 
 - `manifest.yaml`
 - `capabilities.yaml`
 - The conflicted file set and any conflict markers, alternate versions, diffs, or branch-specific context provided by the operator
-- Relevant files under `/neuroplast/project-concept/`, `/neuroplast/plans/`, `/neuroplast/project-concept/changelog/`, and `/neuroplast/learning/`
+- Relevant files under `/neuroplast/project-concept/`, `/neuroplast/plans/`, and `/neuroplast/project-concept/changelog/`
+- Existing memory in `.lcp/knowledge/neuroplast-learning.yaml`
 - `CONCEPT_INSTRUCTIONS.md` and `CHANGELOG_INSTRUCTIONS.md` when the reconciled truth affects concept or changelog state
 
 ## Outputs
 - Reconciled file(s) that preserve the strongest valid information or behavior from all conflict inputs
 - Updated active plan in `/neuroplast/plans/` recording what was reconciled, what was preserved, and any unresolved ambiguity
-- Updated concept artifacts, changelog entries, learning notes, or `ARCHITECTURE.md` when the reconciled truth changes them materially
+- Updated concept artifacts, changelog entries, `.lcp/knowledge/neuroplast-learning.yaml` entries, or `ARCHITECTURE.md` when the reconciled truth changes them materially
 
 ## Reconciliation Principles
 - Preserve unique facts from each side unless they are clearly obsolete, false, or superseded by stronger repository evidence.
@@ -90,7 +89,7 @@ Resolve file conflicts or competing parallel edits without blindly choosing one 
 7. If the conflicted surface includes ordinary project files, ensure the reconciled file reflects the strongest repository-supported result rather than only reconciling the surrounding Neuroplast notes about it.
 8. If a conflict affects shared project understanding, execute `CONCEPT_INSTRUCTIONS.md` so architecture and concept artifacts match the reconciled truth.
 9. If a conflict affects completed-work history, execute `CHANGELOG_INSTRUCTIONS.md` and ensure the resulting changelog records the reconciled outcome rather than a one-sided version.
-10. If the conflict reveals a reusable practice, update `/neuroplast/learning/` with a non-sensitive note.
+10. If the conflict reveals a reusable practice, record it with `neuroplast remember` (writes to `.lcp/knowledge/neuroplast-learning.yaml`).
 11. Record any unresolved ambiguity, manual follow-up, or required human judgment in the active plan before stopping.
 
 ## File-Type Guidance
@@ -106,7 +105,7 @@ Resolve file conflicts or competing parallel edits without blindly choosing one 
 - [ ] Reconciled project files preserve valid unique behavior, logic, configuration intent, or coverage from each conflict side when relevant.
 - [ ] Duplicated content was normalized without dropping meaningful facts or links.
 - [ ] Any remaining uncertainty is explicit instead of guessed.
-- [ ] `ARCHITECTURE.md`, concept files, changelog files, and learning notes were updated when the reconciled truth required it.
+- [ ] `ARCHITECTURE.md`, concept files, changelog files, and `.lcp/knowledge/neuroplast-learning.yaml` were updated when the reconciled truth required it.
 
 ## Failure Handling
 - If the available conflict inputs are incomplete, stop and report what is missing rather than guessing the absent side.

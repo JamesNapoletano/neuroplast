@@ -19,4 +19,4 @@ Before executing any request in this repository:
 - Treat the Neuroplast filesystem contract as authoritative.
 - Use the appropriate instruction file for the current step.
 - Keep changes non-destructive and write outputs only to documented Neuroplast locations.
-- Maintain plans, changelog entries, and learning notes so work remains resumable.
+- Maintain plans, changelog entries, and durable LCP memory (`.lcp/knowledge/neuroplast-learning.yaml`) so work remains resumable.

@@ -5,7 +5,6 @@ required_directories:
   - neuroplast/project-concept
   - neuroplast/project-concept/changelog
   - neuroplast/plans
-  - neuroplast/learning
 required_instruction_files:
   - neuroplast/WORKFLOW_CONTRACT.md
   - neuroplast/conceptualize.md
@@ -29,7 +28,6 @@ document_roles:
   concept_dir: neuroplast/project-concept
   changelog_dir: neuroplast/project-concept/changelog
   plans_dir: neuroplast/plans
-  learning_dir: neuroplast/learning
   environment_guides_dir: neuroplast/adapters
   adapter_assets_dir: neuroplast/adapter-assets
   extensions_dir: neuroplast/extensions
